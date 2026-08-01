@@ -6,10 +6,16 @@
 set -eu
 
 ROOT_DIR=$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)
-COMPOSE="docker compose -f ${ROOT_DIR}/docker/docker-compose.yml --env-file ${ROOT_DIR}/.env"
+
+compose() {
+  docker compose \
+    -f "$ROOT_DIR/docker/docker-compose.yml" \
+    --env-file "$ROOT_DIR/.env" \
+    "$@"
+}
 
 echo "== backend env (key metadata only) =="
-$COMPOSE exec -T backend sh -c '
+compose exec -T backend sh -c '
 if [ -z "${OPENAI_API_KEY:-}" ]; then
   echo "KEY_MISSING"
   exit 1

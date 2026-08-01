@@ -6,10 +6,16 @@
 set -eu
 
 ROOT_DIR=$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)
-COMPOSE="docker compose -f ${ROOT_DIR}/docker/docker-compose.yml --env-file ${ROOT_DIR}/.env"
+
+compose() {
+  docker compose \
+    -f "$ROOT_DIR/docker/docker-compose.yml" \
+    --env-file "$ROOT_DIR/.env" \
+    "$@"
+}
 
 echo "== backend AI env (key metadata only) =="
-$COMPOSE exec -T backend sh -c '
+compose exec -T backend sh -c '
 echo "ATLAS_AI_PROVIDER=${ATLAS_AI_PROVIDER:-unset}"
 echo "GEMINI_MODEL=${GEMINI_MODEL:-unset}"
 echo "OPENAI_MODEL=${OPENAI_MODEL:-unset}"

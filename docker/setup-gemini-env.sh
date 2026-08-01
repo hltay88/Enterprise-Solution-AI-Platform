@@ -54,10 +54,13 @@ echo "Pulling latest main..."
 git pull origin main
 
 echo "Recreating backend/frontend with Gemini config..."
-docker compose -f docker/docker-compose.yml --env-file .env up -d --build --force-recreate backend frontend
+docker compose \
+  -f "$ROOT_DIR/docker/docker-compose.yml" \
+  --env-file "$ROOT_DIR/.env" \
+  up -d --build --force-recreate backend frontend
 
 echo "Verifying AI env inside container..."
-./docker/verify-ai.sh
+"$ROOT_DIR/docker/verify-ai.sh"
 
 echo
 echo "Done. Hard-refresh the project page and click Run analysis."
