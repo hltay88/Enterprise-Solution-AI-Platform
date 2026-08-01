@@ -30,7 +30,7 @@ def get_ai_provider() -> AIProvider:
 
     # auto — prefer free-tier Gemini, then OpenAI, then local
     chain: list[AIProvider] = []
-    if settings.gemini_api_key:
+    if settings.effective_gemini_api_key:
         chain.append(GeminiProvider())
     if settings.openai_api_key:
         chain.append(OpenAIProvider())

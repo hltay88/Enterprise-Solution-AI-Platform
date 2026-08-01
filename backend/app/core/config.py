@@ -28,17 +28,23 @@ class Settings(BaseSettings):
     openai_api_key: str | None = None
     openai_model: str = "gpt-4o-mini"
     gemini_api_key: str | None = None
+    # google-genai also accepts GOOGLE_API_KEY; keep as optional alias.
+    google_api_key: str | None = None
     gemini_model: str = "gemini-flash-latest"
     # auto | gemini | openai | local
     atlas_ai_provider: str = "auto"
 
-    @field_validator("openai_api_key", "gemini_api_key", mode="before")
+    @field_validator("openai_api_key", "gemini_api_key", "google_api_key", mode="before")
     @classmethod
     def sanitize_api_keys(cls, value: object) -> str | None:
         if value is None:
             return None
         cleaned = str(value).strip().strip('"').strip("'").strip()
         return cleaned or None
+
+    @property
+    def effective_gemini_api_key(self) -> str | None:
+        return self.gemini_api_key or self.google_api_key
 
     @field_validator("openai_model", mode="before")
     @classmethod
