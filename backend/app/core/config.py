@@ -20,6 +20,10 @@ class Settings(BaseSettings):
     secret_key: str = "change-me-in-local-dev"
     jwt_expire_minutes: int = 60
 
+    demo_user_email: str = "demo@atlas.local"
+    demo_user_password: str = "changeme"
+    demo_user_name: str = "Atlas Demo"
+
     openai_api_key: str | None = None
     openai_model: str = "gpt-4o-mini"
 

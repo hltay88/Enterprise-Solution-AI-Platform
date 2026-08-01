@@ -16,3 +16,15 @@ export type HealthData = {
   status: string;
   database: string;
 };
+
+export type UserPublic = {
+  id: string;
+  name: string;
+  email: string;
+};
+
+export type LoginData = {
+  access_token: string;
+  token_type: string;
+  user: UserPublic;
+};

@@ -1,4 +1,4 @@
-import { HealthStatus } from "@/components/HealthStatus";
+import { HomeAuthPanel } from "@/components/HomeAuthPanel";
 
 export default function HomePage() {
   return (
@@ -12,11 +12,7 @@ export default function HomePage() {
       <main className="main">
         <section className="hero">
           <h1>Requirement intelligence for enterprise solution teams</h1>
-          <p>
-            Sprint 1 frontend scaffold is ready. Login, dashboard, and project
-            workflows arrive in Phase C.
-          </p>
-          <HealthStatus />
+          <HomeAuthPanel />
         </section>
       </main>
     </div>
