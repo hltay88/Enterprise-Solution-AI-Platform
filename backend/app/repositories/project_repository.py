@@ -1,5 +1,6 @@
 """Project persistence."""
 
+from datetime import date
 from uuid import UUID
 
 from sqlalchemy import select
@@ -35,6 +36,17 @@ class ProjectRepository:
         customer: str | None,
         industry: str | None,
         status: str,
+        account_manager: str | None,
+        deal_id: str | None,
+        deal_name: str | None,
+        pic_name: str | None,
+        pic_contact: str | None,
+        pic_designation: str | None,
+        budget_information: str | None,
+        request_type: str | None,
+        required_completion_date: date | None,
+        requirement_details: str | None,
+        winning_probability: int | None,
     ) -> Project:
         project = Project(
             user_id=user_id,
@@ -42,6 +54,17 @@ class ProjectRepository:
             customer=customer,
             industry=industry,
             status=status,
+            account_manager=account_manager,
+            deal_id=deal_id,
+            deal_name=deal_name,
+            pic_name=pic_name,
+            pic_contact=pic_contact,
+            pic_designation=pic_designation,
+            budget_information=budget_information,
+            request_type=request_type,
+            required_completion_date=required_completion_date,
+            requirement_details=requirement_details,
+            winning_probability=winning_probability,
         )
         self.db.add(project)
         self.db.commit()

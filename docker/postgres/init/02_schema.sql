@@ -1,4 +1,4 @@
--- Project Atlas — Sprint 1 schema (docs/DATABASE.md)
+-- Project Atlas — Sprint 1 / 1.1 schema (docs/DATABASE.md)
 -- Runs once on first database initialization via docker-entrypoint-initdb.d.
 
 CREATE TABLE IF NOT EXISTS users (
@@ -16,12 +16,24 @@ CREATE TABLE IF NOT EXISTS projects (
     customer TEXT,
     industry TEXT,
     status TEXT NOT NULL DEFAULT 'draft',
+    account_manager TEXT,
+    deal_id TEXT,
+    deal_name TEXT,
+    pic_name TEXT,
+    pic_contact TEXT,
+    pic_designation TEXT,
+    budget_information TEXT,
+    request_type TEXT,
+    required_completion_date DATE,
+    requirement_details TEXT,
+    winning_probability INTEGER,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE INDEX IF NOT EXISTS idx_projects_user_id ON projects (user_id);
 CREATE INDEX IF NOT EXISTS idx_projects_status ON projects (status);
+CREATE INDEX IF NOT EXISTS idx_projects_request_type ON projects (request_type);
 
 CREATE TABLE IF NOT EXISTS requirement_documents (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

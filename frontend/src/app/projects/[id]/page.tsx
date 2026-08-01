@@ -91,8 +91,8 @@ function ProjectDetailContent({ userName }: { userName: string }) {
           </p>
           <h1>Project details</h1>
           <p>
-            Update project metadata, upload requirements, run AI analysis, and generate
-            clarification questions.
+            Update sales intake details, upload requirement documents, run AI analysis, and
+            generate clarification questions.
           </p>
         </section>
 

@@ -9,6 +9,20 @@ from app.core.exceptions import NotFoundError
 from app.repositories.project_repository import ProjectRepository
 from app.schemas.project import ProjectCreate, ProjectSummary, ProjectUpdate
 
+_OPTIONAL_TEXT_FIELDS = (
+    "customer",
+    "industry",
+    "account_manager",
+    "deal_id",
+    "deal_name",
+    "pic_name",
+    "pic_contact",
+    "pic_designation",
+    "budget_information",
+    "request_type",
+    "requirement_details",
+)
+
 
 class ProjectService:
     def __init__(self, db: Session) -> None:
@@ -24,13 +38,33 @@ class ProjectService:
             raise NotFoundError("Project not found")
         return ProjectSummary.model_validate(project)
 
-    def create(self, user_id: UUID, payload: ProjectCreate) -> ProjectSummary:
+    def create(
+        self,
+        user_id: UUID,
+        payload: ProjectCreate,
+        *,
+        default_account_manager: str | None = None,
+    ) -> ProjectSummary:
+        account_manager = _clean_optional(payload.account_manager) or _clean_optional(
+            default_account_manager
+        )
         project = self.projects.create(
             user_id=user_id,
             project_name=payload.project_name.strip(),
-            customer=_clean_optional(payload.customer),
+            customer=payload.customer.strip(),
             industry=_clean_optional(payload.industry),
             status=payload.status.strip() or "draft",
+            account_manager=account_manager,
+            deal_id=payload.deal_id.strip(),
+            deal_name=payload.deal_name.strip(),
+            pic_name=payload.pic_name.strip(),
+            pic_contact=_clean_optional(payload.pic_contact),
+            pic_designation=_clean_optional(payload.pic_designation),
+            budget_information=_clean_optional(payload.budget_information),
+            request_type=payload.request_type.strip(),
+            required_completion_date=payload.required_completion_date,
+            requirement_details=payload.requirement_details.strip(),
+            winning_probability=payload.winning_probability,
         )
         return ProjectSummary.model_validate(project)
 
@@ -47,12 +81,16 @@ class ProjectService:
         data = payload.model_dump(exclude_unset=True)
         if "project_name" in data and data["project_name"] is not None:
             project.project_name = data["project_name"].strip()
-        if "customer" in data:
-            project.customer = _clean_optional(data["customer"])
-        if "industry" in data:
-            project.industry = _clean_optional(data["industry"])
         if "status" in data and data["status"] is not None:
             project.status = data["status"].strip() or project.status
+        if "required_completion_date" in data:
+            project.required_completion_date = data["required_completion_date"]
+        if "winning_probability" in data:
+            project.winning_probability = data["winning_probability"]
+
+        for field in _OPTIONAL_TEXT_FIELDS:
+            if field in data:
+                setattr(project, field, _clean_optional(data[field]))
 
         project.updated_at = datetime.now(timezone.utc)
         saved = self.projects.save(project)

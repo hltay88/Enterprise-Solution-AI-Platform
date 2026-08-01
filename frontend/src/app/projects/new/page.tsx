@@ -32,10 +32,17 @@ function NewProjectContent({ userName }: { userName: string }) {
             <Link href="/dashboard">← Back to dashboard</Link>
           </p>
           <h1>New project</h1>
-          <p>Create a project to capture customer requirements and analysis.</p>
+          <p>
+            Capture sales intake details first, then attach requirement documents for AI
+            analysis.
+          </p>
         </section>
         <section className="form-panel">
-          <ProjectForm submitLabel="Create project" onSubmit={handleCreate} />
+          <ProjectForm
+            submitLabel="Create project"
+            defaultAccountManager={userName}
+            onSubmit={handleCreate}
+          />
         </section>
       </main>
     </div>

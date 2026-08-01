@@ -1,4 +1,4 @@
-"""Lightweight schema upgrades for local Sprint 1 development."""
+"""Lightweight schema upgrades for local Sprint 1 / 1.1 development."""
 
 from sqlalchemy import text
 
@@ -11,6 +11,21 @@ def ensure_schema() -> None:
         """
         ALTER TABLE requirement_documents
         ADD COLUMN IF NOT EXISTS extracted_text TEXT
+        """,
+        "ALTER TABLE projects ADD COLUMN IF NOT EXISTS account_manager TEXT",
+        "ALTER TABLE projects ADD COLUMN IF NOT EXISTS deal_id TEXT",
+        "ALTER TABLE projects ADD COLUMN IF NOT EXISTS deal_name TEXT",
+        "ALTER TABLE projects ADD COLUMN IF NOT EXISTS pic_name TEXT",
+        "ALTER TABLE projects ADD COLUMN IF NOT EXISTS pic_contact TEXT",
+        "ALTER TABLE projects ADD COLUMN IF NOT EXISTS pic_designation TEXT",
+        "ALTER TABLE projects ADD COLUMN IF NOT EXISTS budget_information TEXT",
+        "ALTER TABLE projects ADD COLUMN IF NOT EXISTS request_type TEXT",
+        "ALTER TABLE projects ADD COLUMN IF NOT EXISTS required_completion_date DATE",
+        "ALTER TABLE projects ADD COLUMN IF NOT EXISTS requirement_details TEXT",
+        "ALTER TABLE projects ADD COLUMN IF NOT EXISTS winning_probability INTEGER",
+        """
+        CREATE INDEX IF NOT EXISTS idx_projects_request_type
+        ON projects (request_type)
         """,
     ]
     with engine.begin() as connection:
