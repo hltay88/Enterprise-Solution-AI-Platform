@@ -28,7 +28,7 @@ if [ -z "${GEMINI_API_KEY:-}" ]; then
   exit 1
 fi
 
-# Upsert values without quotes
+# Upsert values without quotes / spaces
 if grep -q '^GEMINI_API_KEY=' .env; then
   sed -i.bak "s|^GEMINI_API_KEY=.*|GEMINI_API_KEY=${GEMINI_API_KEY}|" .env
 else
@@ -47,8 +47,15 @@ else
   echo 'ATLAS_AI_PROVIDER=auto' >> .env
 fi
 
+# Avoid empty GEMINI_MODEL= wiping Compose defaults via env_file
+sed -i.bak '/^GEMINI_MODEL=$/d' .env || true
+
 rm -f .env.bak
+
+KEY_LEN=${#GEMINI_API_KEY}
 unset GEMINI_API_KEY
+echo "Wrote GEMINI_API_KEY to .env (length=${KEY_LEN})"
+echo "Set GEMINI_MODEL=gemini-flash-latest and ATLAS_AI_PROVIDER=auto"
 
 echo "Pulling latest main..."
 git pull origin main
@@ -63,4 +70,9 @@ echo "Verifying AI env inside container..."
 "$ROOT_DIR/docker/verify-ai.sh"
 
 echo
-echo "Done. Hard-refresh the project page and click Run analysis."
+echo "Expected success markers:"
+echo "  GEMINI_KEY_PREFIX=... / GEMINI_KEY_OK"
+echo "  GEMINI_MODEL=gemini-flash-latest"
+echo "  logs: Gemini configured: model=gemini-flash-latest"
+echo
+echo "Then hard-refresh the project page and click Run analysis."

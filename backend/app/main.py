@@ -46,7 +46,7 @@ def _prepare_database() -> None:
 
 def _log_ai_config() -> None:
     logger.info("AI provider mode: %s", settings.atlas_ai_provider)
-    gemini_key = settings.gemini_api_key
+    gemini_key = settings.effective_gemini_api_key
     if gemini_key:
         logger.info(
             "Gemini configured: model=%s key_prefix=%s key_length=%d",

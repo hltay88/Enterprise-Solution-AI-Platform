@@ -56,9 +56,12 @@ services:
       DEMO_USER_EMAIL: ${DEMO_USER_EMAIL:-demo@example.com}
       DEMO_USER_PASSWORD: ${DEMO_USER_PASSWORD:-changeme}
       DEMO_USER_NAME: ${DEMO_USER_NAME:-Atlas Demo}
-      # OPENAI_API_KEY / GEMINI_API_KEY come from env_file above (literal, no $ mangling).
-      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
+      # Gemini keys are safe to interpolate (no $). Also loaded via env_file above.
+      # Pass explicitly so `docker compose --env-file .env` always injects them.
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
       GEMINI_MODEL: ${GEMINI_MODEL:-gemini-flash-latest}
+      # OPENAI_API_KEY stays env_file-only to avoid Compose $ mangling.
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
       ATLAS_AI_PROVIDER: ${ATLAS_AI_PROVIDER:-auto}
       STORAGE_PATH: ${STORAGE_PATH:-/app/storage/uploads}
       MAX_UPLOAD_MB: ${MAX_UPLOAD_MB:-10}

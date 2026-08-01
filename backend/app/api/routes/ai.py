@@ -21,7 +21,7 @@ def _key_prefix(key: str | None) -> str | None:
 async def get_ai_status(_: CurrentUser) -> dict:
     """Return provider mode and whether Gemini/OpenAI are usable."""
     mode = settings.atlas_ai_provider
-    gemini_key = settings.gemini_api_key
+    gemini_key = settings.effective_gemini_api_key
     openai_key = settings.openai_api_key
     fallback_enabled = mode in {"auto", "local"}
 
@@ -84,7 +84,7 @@ async def get_ai_status(_: CurrentUser) -> dict:
 
 
 async def _status_for_gemini(payload: dict, *, require: bool) -> dict:
-    key = settings.gemini_api_key
+    key = settings.effective_gemini_api_key
     payload["model"] = settings.gemini_model
     payload["key_prefix"] = _key_prefix(key)
     payload["key_length"] = len(key or "")

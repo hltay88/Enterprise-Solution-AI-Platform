@@ -20,6 +20,7 @@ DEMO_USER_NAME=Atlas Demo
 # Paste keys with no quotes/spaces. Keep this file at the repo root as `.env`.
 # After changing values, recreate backend (restart alone will not reload env):
 #   docker compose -f docker/docker-compose.yml --env-file .env up -d --build --force-recreate backend
+# Required for Gemini cloud analysis. Paste key with no quotes/spaces.
 GEMINI_API_KEY=
 # Prefer gemini-flash-latest for new free-tier keys (gemini-2.0-flash often returns 429)
 GEMINI_MODEL=gemini-flash-latest

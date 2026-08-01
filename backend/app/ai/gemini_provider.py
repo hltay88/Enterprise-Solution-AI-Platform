@@ -28,7 +28,7 @@ _MODEL_FALLBACKS = (
 
 
 def _build_client(api_key: str | None = None) -> tuple[genai.Client, str, str]:
-    raw = settings.gemini_api_key if api_key is None else api_key
+    raw = settings.effective_gemini_api_key if api_key is None else api_key
     key = sanitize_secret(raw)
     if not key:
         raise ValidationAppError(
