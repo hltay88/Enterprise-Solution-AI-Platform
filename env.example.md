@@ -15,8 +15,10 @@ DEMO_USER_PASSWORD=changeme
 DEMO_USER_NAME=Atlas Demo
 
 # AI — default OpenAI (ATLAS-012)
-# Paste the key with no quotes/spaces. After changing this value, recreate backend:
-#   docker compose -f docker/docker-compose.yml --env-file .env up -d --force-recreate backend
+# Paste the key with no quotes/spaces. Keep this file at the repo root as `.env`.
+# After changing this value, recreate backend (restart alone will not reload env):
+#   docker compose -f docker/docker-compose.yml --env-file .env up -d --build --force-recreate backend
+# Then confirm in logs: "OpenAI configured: model=... key_prefix=sk-..."
 OPENAI_API_KEY=
 OPENAI_MODEL=gpt-4o-mini
 

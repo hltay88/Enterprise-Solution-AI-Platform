@@ -69,6 +69,16 @@ export type AnalysisResult = {
   created_at: string;
 };
 
+export type AiStatus = {
+  provider: string;
+  configured: boolean;
+  model: string;
+  key_prefix: string | null;
+  key_length: number;
+  reachable: boolean;
+  detail: string | null;
+};
+
 export type ClarificationQuestion = {
   id: string;
   project_id: string;

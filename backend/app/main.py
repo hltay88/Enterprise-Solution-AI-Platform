@@ -44,9 +44,25 @@ def _prepare_database() -> None:
         db.close()
 
 
+def _log_openai_config() -> None:
+    key = settings.openai_api_key
+    if key:
+        logger.info(
+            "OpenAI configured: model=%s key_prefix=%s key_length=%d",
+            settings.openai_model,
+            f"{key[:7]}...",
+            len(key),
+        )
+    else:
+        logger.warning(
+            "OPENAI_API_KEY is not set — requirement analysis will fail until it is configured",
+        )
+
+
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     _prepare_database()
+    _log_openai_config()
     yield
 
 
