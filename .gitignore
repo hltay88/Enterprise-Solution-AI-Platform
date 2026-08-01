@@ -1,0 +1,11 @@
+# Ignore local secrets and OS junk
+.env
+.DS_Store
+**/.DS_Store
+__pycache__/
+*.pyc
+node_modules/
+.next/
+storage/uploads/*
+!storage/uploads/.gitkeep
+.evn.example/

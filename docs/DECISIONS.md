@@ -449,15 +449,238 @@ Develop locally on a MacBook using Docker Compose while designing the architectu
   
 ---  
   
+# Decision 011  
+  
+Decision ID  
+  
+ATLAS-011  
+  
+Status  
+  
+Accepted  
+  
+Date  
+  
+2026-08-01  
+  
+## Context  
+  
+Sprint 1 requires user login and protected project APIs. A full SSO/OAuth provider is not required for the local MVP.  
+  
+## Decision  
+  
+Use email/password authentication with bcrypt password hashes and JWT Bearer tokens.  
+  
+Sprint 1 details:  
+  
+- `POST /api/auth/login` returns a signed JWT.  
+- Protected endpoints require `Authorization: Bearer <token>`.  
+- Passwords stored only as `password_hash` (bcrypt).  
+- Seed a local demo user via environment variables (no public registration in Sprint 1).  
+- `GET /api/auth/me` returns the current user.  
+  
+## Reason  
+  
+JWT is simple for a split Next.js + FastAPI Docker setup, avoids session sticky-state, and is easy to replace later with SSO.  
+  
+## Alternatives Considered  
+  
+- Server sessions + HTTP-only cookies  
+- OAuth / OIDC (Auth0, Azure AD, Keycloak)  
+- NextAuth-only with BFF pattern  
+  
+## Impact  
+  
+Backend owns auth issuance and validation. Frontend stores the access token for API calls. OAuth/SSO remains a future decision.  
+  
+## Future Review  
+  
+Revisit before multi-user collaboration, SaaS multi-tenancy, or enterprise SSO requirements.  
+  
+---  
+  
+# Decision 012  
+  
+Decision ID  
+  
+ATLAS-012  
+  
+Status  
+  
+Accepted  
+  
+Date  
+  
+2026-08-01  
+  
+## Context  
+  
+Sprint 1 needs a working AI requirement analysis path while remaining provider-independent.  
+  
+## Decision  
+  
+Default AI provider for Sprint 1 is OpenAI.  
+  
+- Env: `OPENAI_API_KEY`, `OPENAI_MODEL` (default `gpt-4o-mini`).  
+- All business logic calls an AI abstraction interface (`AIProvider`).  
+- OpenAI is the first concrete adapter; Anthropic/Azure/local adapters may be added later without changing services.  
+  
+## Reason  
+  
+OpenAI is already referenced in env examples, has strong document-analysis quality for MVP cost, and is the fastest path to a working demo.  
+  
+## Alternatives Considered  
+  
+- Anthropic as default  
+- Azure OpenAI as default  
+- Local LLM only  
+  
+## Impact  
+  
+Local development requires an OpenAI key. The abstraction layer remains mandatory.  
+  
+## Future Review  
+  
+Revisit when cost, data residency, or customer-preferred providers require a different default.  
+  
+---  
+  
+# Decision 013  
+  
+Decision ID  
+  
+ATLAS-013  
+  
+Status  
+  
+Accepted  
+  
+Date  
+  
+2026-08-01  
+  
+## Context  
+  
+Requirement uploads (PDF, DOCX, TXT) need durable storage for the local Docker MVP. Object storage is unnecessary for Sprint 1.  
+  
+## Decision  
+  
+Store uploaded files on the local filesystem.  
+  
+- Path: `storage/uploads/` (repo root), mounted into the backend container.  
+- DB table `RequirementDocuments.storage_path` stores the relative path.  
+- Allowed types: `pdf`, `docx`, `txt`.  
+- Max upload size: 10 MB per file.  
+  
+## Reason  
+  
+Matches Docker Compose local development, keeps ops simple, and can later swap to S3/Blob behind the same repository interface.  
+  
+## Alternatives Considered  
+  
+- PostgreSQL bytea  
+- S3 / MinIO from day one  
+- Netlify Blobs / cloud object storage  
+  
+## Impact  
+  
+Compose must mount a persistent volume or bind mount for `storage/`. Cloud object storage becomes a future decision.  
+  
+## Future Review  
+  
+Revisit before SaaS multi-instance deployment or shared storage requirements.  
+  
+---  
+  
+# Decision 014  
+  
+Decision ID  
+  
+ATLAS-014  
+  
+Status  
+  
+Accepted  
+  
+Date  
+  
+2026-08-01  
+  
+## Context  
+  
+API_STANDARD.md listed write endpoints but omitted reads needed for dashboard/history, and did not define a response envelope.  
+  
+## Decision  
+  
+### Response envelope  
+  
+Success:  
+  
+```json  
+{  
+  "success": true,  
+  "data": {},  
+  "message": null  
+}  
+```  
+  
+Error:  
+  
+```json  
+{  
+  "success": false,  
+  "data": null,  
+  "error": {  
+    "code": "NOT_FOUND",  
+    "message": "Project not found"  
+  }  
+}  
+```  
+  
+### Additional Sprint 1 endpoints  
+  
+- `GET /api/auth/me`  
+- `GET /api/projects/{id}`  
+- `GET /api/projects/{id}/documents`  
+- `GET /api/projects/{id}/analysis`  
+- `GET /api/projects/{id}/clarifications`  
+  
+List endpoints return arrays in `data`. Resource endpoints return a single object in `data`.  
+  
+### Clarification naming  
+  
+Use plural path `clarifications` for collection GET; keep `POST /api/projects/{id}/clarification` to generate questions.  
+  
+## Reason  
+  
+A uniform envelope simplifies frontend handling. Explicit GET routes unblock dashboard and project history without over-fetching.  
+  
+## Alternatives Considered  
+  
+- Nested project detail payload only (no separate analysis/clarification GETs)  
+- JSON:API  
+- Problem Details (RFC 7807) only  
+  
+## Impact  
+  
+All FastAPI routes and the Next.js client must follow this envelope. API_STANDARD.md is the source of truth.  
+  
+## Future Review  
+  
+Revisit if public partner APIs require JSON:API or RFC 7807 exclusively.  
+  
+---  
+  
 # Future Decision Log  
   
 The following areas are expected to require future decisions:  
   
-- Authentication Provider  
+- Enterprise SSO / OAuth provider  
 - Multi-tenancy  
 - RAG Architecture  
 - Vector Database  
 - Knowledge Synchronisation  
+- Cloud object storage (S3/Blob)  
 - Cloud Deployment Strategy  
 - Licensing Model  
 - Pricing Model  

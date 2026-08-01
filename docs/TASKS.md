@@ -8,8 +8,8 @@ Sprint 1
   
 ## Phase A  
   
-- [ ] Create Git Repository  
-- [ ] Create Folder Structure  
+- [x] Create Git Repository  
+- [x] Create Folder Structure  
 - [ ] Configure Docker Compose  
 - [ ] Configure PostgreSQL  
   
