@@ -1,0 +1,48 @@
+"use client";
+
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+
+import { clearAccessToken } from "@/lib/auth";
+
+type AppHeaderProps = {
+  userName?: string;
+  showDashboardLink?: boolean;
+};
+
+export function AppHeader({ userName, showDashboardLink = false }: AppHeaderProps) {
+  const router = useRouter();
+
+  function signOut() {
+    clearAccessToken();
+    router.replace("/login");
+  }
+
+  return (
+    <header className="topbar">
+      <Link href={userName ? "/dashboard" : "/"} className="brand brand-link">
+        Project Atlas
+        <span>Enterprise Solution AI Platform</span>
+      </Link>
+      <nav className="topnav">
+        {showDashboardLink ? (
+          <Link className="nav-link" href="/dashboard">
+            Dashboard
+          </Link>
+        ) : null}
+        {userName ? (
+          <>
+            <span className="nav-user">{userName}</span>
+            <button className="btn-secondary btn-compact" type="button" onClick={signOut}>
+              Sign out
+            </button>
+          </>
+        ) : (
+          <Link className="btn-primary btn-compact" href="/login">
+            Sign in
+          </Link>
+        )}
+      </nav>
+    </header>
+  );
+}

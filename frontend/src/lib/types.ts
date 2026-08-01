@@ -28,3 +28,13 @@ export type LoginData = {
   token_type: string;
   user: UserPublic;
 };
+
+export type ProjectSummary = {
+  id: string;
+  project_name: string;
+  customer: string | null;
+  industry: string | null;
+  status: string;
+  created_at: string;
+  updated_at: string;
+};

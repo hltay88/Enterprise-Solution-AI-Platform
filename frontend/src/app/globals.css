@@ -203,3 +203,111 @@ body {
 .hint code {
   font-size: 0.85rem;
 }
+
+.topnav {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.nav-link {
+  color: #445061;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.nav-user {
+  color: #5b6775;
+  font-size: 0.95rem;
+}
+
+.btn-compact {
+  padding: 0.45rem 0.8rem;
+  font-size: 0.9rem;
+}
+
+.page {
+  width: min(960px, 100%);
+  margin: 0 auto;
+  padding: 2rem 1.5rem 3rem;
+}
+
+.page-header h1 {
+  margin: 0 0 0.4rem;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: clamp(1.8rem, 3vw, 2.4rem);
+  font-weight: 600;
+}
+
+.page-header p {
+  margin: 0 0 1.75rem;
+  color: #445061;
+}
+
+.panel {
+  border-top: 1px solid var(--color-line);
+  padding-top: 1.25rem;
+}
+
+.panel-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.panel-heading h2 {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.muted {
+  margin: 0;
+  color: #5b6775;
+  font-size: 0.92rem;
+}
+
+.empty-state {
+  padding: 1.25rem 0;
+}
+
+.empty-state p {
+  margin: 0 0 0.4rem;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.data-table th,
+.data-table td {
+  text-align: left;
+  padding: 0.75rem 0.5rem;
+  border-bottom: 1px solid var(--color-line);
+  vertical-align: top;
+}
+
+.data-table th {
+  color: #5b6775;
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.status-pill {
+  display: inline-block;
+  padding: 0.15rem 0.45rem;
+  border: 1px solid var(--color-line);
+  background: rgba(255, 255, 255, 0.75);
+  font-size: 0.85rem;
+  text-transform: capitalize;
+}

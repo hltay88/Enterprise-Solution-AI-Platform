@@ -26,7 +26,7 @@ Sprint 1
 ## Phase C  
   
 - [x] Login Screen  
-- [ ] Dashboard  
+- [x] Dashboard  
 - [ ] Project CRUD  
   
 ---  
