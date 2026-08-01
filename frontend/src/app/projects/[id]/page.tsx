@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 
 import { AnalysisPanel } from "@/components/AnalysisPanel";
 import { AppHeader } from "@/components/AppHeader";
+import { ClarificationPanel } from "@/components/ClarificationPanel";
 import { DocumentUploadPanel } from "@/components/DocumentUploadPanel";
 import { ProjectForm } from "@/components/ProjectForm";
 import { RequireAuth } from "@/components/RequireAuth";
@@ -90,8 +91,8 @@ function ProjectDetailContent({ userName }: { userName: string }) {
           </p>
           <h1>Project details</h1>
           <p>
-            Update project metadata, upload requirement documents, and run AI requirement
-            analysis.
+            Update project metadata, upload requirements, run AI analysis, and generate
+            clarification questions.
           </p>
         </section>
 
@@ -112,6 +113,7 @@ function ProjectDetailContent({ userName }: { userName: string }) {
 
             <DocumentUploadPanel projectId={projectId} />
             <AnalysisPanel projectId={projectId} />
+            <ClarificationPanel projectId={projectId} />
 
             <section className="form-panel">
               <div className="danger-zone">

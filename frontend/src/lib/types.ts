@@ -68,3 +68,11 @@ export type AnalysisResult = {
   analysis_json: Record<string, unknown> | null;
   created_at: string;
 };
+
+export type ClarificationQuestion = {
+  id: string;
+  project_id: string;
+  question: string;
+  status: string;
+  created_at: string;
+};
