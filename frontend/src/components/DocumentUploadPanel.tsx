@@ -2,7 +2,7 @@
 
 import { FormEvent, useEffect, useState } from "react";
 
-import { apiGet, apiUpload, ApiClientError } from "@/lib/api";
+import { apiDelete, apiGet, apiUpload, ApiClientError } from "@/lib/api";
 import type { DocumentSummary } from "@/lib/types";
 
 type DocumentUploadPanelProps = {
@@ -31,6 +31,8 @@ export function DocumentUploadPanel({ projectId }: DocumentUploadPanelProps) {
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [removingId, setRemovingId] = useState<string | null>(null);
+  const [removeError, setRemoveError] = useState<string | null>(null);
 
   async function loadDocuments() {
     try {
@@ -63,6 +65,7 @@ export function DocumentUploadPanel({ projectId }: DocumentUploadPanelProps) {
 
     setUploading(true);
     setUploadError(null);
+    setRemoveError(null);
     try {
       await apiUpload<DocumentSummary>(`/api/projects/${projectId}/upload`, file, true);
       setFile(null);
@@ -73,6 +76,32 @@ export function DocumentUploadPanel({ projectId }: DocumentUploadPanelProps) {
       );
     } finally {
       setUploading(false);
+    }
+  }
+
+  async function handleRemove(document: DocumentSummary) {
+    if (
+      !window.confirm(
+        `Remove "${document.filename}" from this project? This cannot be undone.`,
+      )
+    ) {
+      return;
+    }
+
+    setRemovingId(document.id);
+    setRemoveError(null);
+    try {
+      await apiDelete(`/api/projects/${projectId}/documents/${document.id}`, true);
+      if (expandedId === document.id) {
+        setExpandedId(null);
+      }
+      await loadDocuments();
+    } catch (error) {
+      setRemoveError(
+        error instanceof ApiClientError ? error.message : "Unable to remove document",
+      );
+    } finally {
+      setRemovingId(null);
     }
   }
 
@@ -94,6 +123,7 @@ export function DocumentUploadPanel({ projectId }: DocumentUploadPanelProps) {
         </button>
       </form>
       {uploadError ? <p className="form-error">{uploadError}</p> : null}
+      {removeError ? <p className="form-error">{removeError}</p> : null}
 
       {state.kind === "loading" ? <p className="status">Loading documents…</p> : null}
       {state.kind === "error" ? (
@@ -110,6 +140,7 @@ export function DocumentUploadPanel({ projectId }: DocumentUploadPanelProps) {
         <ul className="doc-list">
           {state.documents.map((document) => {
             const expanded = expandedId === document.id;
+            const removing = removingId === document.id;
             return (
               <li key={document.id} className="doc-item">
                 <div className="doc-meta">
@@ -121,17 +152,27 @@ export function DocumentUploadPanel({ projectId }: DocumentUploadPanelProps) {
                 <p className="doc-preview">
                   {document.extracted_preview || "No extracted text preview"}
                 </p>
-                {document.extracted_text ? (
+                <div className="doc-actions">
+                  {document.extracted_text ? (
+                    <button
+                      className="btn-secondary btn-compact"
+                      type="button"
+                      onClick={() =>
+                        setExpandedId(expanded ? null : document.id)
+                      }
+                    >
+                      {expanded ? "Hide full text" : "Show full text"}
+                    </button>
+                  ) : null}
                   <button
                     className="btn-secondary btn-compact"
                     type="button"
-                    onClick={() =>
-                      setExpandedId(expanded ? null : document.id)
-                    }
+                    onClick={() => void handleRemove(document)}
+                    disabled={removing}
                   >
-                    {expanded ? "Hide full text" : "Show full text"}
+                    {removing ? "Removing…" : "Remove"}
                   </button>
-                ) : null}
+                </div>
                 {expanded && document.extracted_text ? (
                   <pre className="doc-full-text">{document.extracted_text}</pre>
                 ) : null}

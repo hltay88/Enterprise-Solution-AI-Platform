@@ -64,3 +64,7 @@ class StorageService:
         if not str(path).startswith(str(root)):
             raise ValidationAppError("Invalid storage path")
         return path
+
+    def delete_file(self, relative_path: str) -> None:
+        path = self.absolute_path(relative_path)
+        path.unlink(missing_ok=True)

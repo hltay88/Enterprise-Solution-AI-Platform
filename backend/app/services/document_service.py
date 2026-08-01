@@ -68,6 +68,26 @@ class DocumentService:
         )
         return _to_summary(document)
 
+    def delete(
+        self,
+        *,
+        project_id: UUID,
+        document_id: UUID,
+        user_id: UUID,
+    ) -> None:
+        self._require_project(project_id, user_id)
+        document = self.documents.get_for_project(project_id, document_id)
+        if document is None:
+            raise NotFoundError("Document not found")
+
+        storage_path = document.storage_path
+        self.documents.delete(document)
+        try:
+            self.storage.delete_file(storage_path)
+        except ValidationAppError:
+            # DB row is already removed; ignore invalid legacy paths.
+            pass
+
     def _require_project(self, project_id: UUID, user_id: UUID) -> None:
         project = self.projects.get_for_user(project_id, user_id)
         if project is None:

@@ -1,4 +1,4 @@
-"""Document upload and list routes."""
+"""Document upload, list, and delete routes."""
 
 from uuid import UUID
 
@@ -36,3 +36,18 @@ async def upload_document(
         upload=file,
     )
     return success_response(data=document.model_dump(mode="json"), status_code=201)
+
+
+@router.delete("/{project_id}/documents/{document_id}")
+def delete_document(
+    project_id: UUID,
+    document_id: UUID,
+    current_user: CurrentUser,
+    db: DbSession,
+) -> dict:
+    DocumentService(db).delete(
+        project_id=project_id,
+        document_id=document_id,
+        user_id=current_user.id,
+    )
+    return success_response(data=None, message="Document removed")

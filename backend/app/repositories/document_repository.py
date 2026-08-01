@@ -20,6 +20,21 @@ class DocumentRepository:
         )
         return list(self.db.scalars(statement).all())
 
+    def get_for_project(
+        self,
+        project_id: UUID,
+        document_id: UUID,
+    ) -> RequirementDocument | None:
+        statement = select(RequirementDocument).where(
+            RequirementDocument.id == document_id,
+            RequirementDocument.project_id == project_id,
+        )
+        return self.db.scalars(statement).first()
+
+    def delete(self, document: RequirementDocument) -> None:
+        self.db.delete(document)
+        self.db.commit()
+
     def create(
         self,
         *,
