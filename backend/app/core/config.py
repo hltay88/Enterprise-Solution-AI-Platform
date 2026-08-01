@@ -27,6 +27,8 @@ class Settings(BaseSettings):
 
     openai_api_key: str | None = None
     openai_model: str = "gpt-4o-mini"
+    # auto | openai | local — auto uses local fallback when OpenAI quota/auth fails
+    atlas_ai_provider: str = "auto"
 
     @field_validator("openai_api_key", mode="before")
     @classmethod
@@ -43,6 +45,13 @@ class Settings(BaseSettings):
             return "gpt-4o-mini"
         cleaned = str(value).strip().strip('"').strip("'").strip()
         return cleaned or "gpt-4o-mini"
+
+    @field_validator("atlas_ai_provider", mode="before")
+    @classmethod
+    def sanitize_atlas_ai_provider(cls, value: object) -> str:
+        allowed = {"auto", "openai", "local"}
+        cleaned = str(value or "auto").strip().strip('"').strip("'").strip().lower()
+        return cleaned if cleaned in allowed else "auto"
 
     storage_path: str = "/app/storage/uploads"
     max_upload_mb: int = 10

@@ -76,6 +76,7 @@ export type AiStatus = {
   key_prefix: string | null;
   key_length: number;
   reachable: boolean;
+  fallback_enabled: boolean;
   detail: string | null;
 };
 

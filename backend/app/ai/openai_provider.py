@@ -147,7 +147,7 @@ def _raise_provider_error(action: str, exc: Exception) -> NoReturn:
 
     if isinstance(exc, AuthenticationError):
         raise AppError(
-            "INTERNAL_ERROR",
+            "AI_AUTH_FAILED",
             "OpenAI authentication failed. Check that OPENAI_API_KEY is valid "
             "and recreate the backend container after updating .env.",
             status_code=502,
@@ -155,7 +155,7 @@ def _raise_provider_error(action: str, exc: Exception) -> NoReturn:
 
     if isinstance(exc, RateLimitError):
         raise AppError(
-            "INTERNAL_ERROR",
+            "AI_QUOTA_EXCEEDED",
             "OpenAI rate limit or quota exceeded. Check billing and usage limits "
             "at platform.openai.com.",
             status_code=502,
@@ -163,14 +163,14 @@ def _raise_provider_error(action: str, exc: Exception) -> NoReturn:
 
     if isinstance(exc, APITimeoutError):
         raise AppError(
-            "INTERNAL_ERROR",
+            "AI_UNAVAILABLE",
             "OpenAI request timed out. Please retry analysis.",
             status_code=502,
         ) from exc
 
     if isinstance(exc, APIConnectionError):
         raise AppError(
-            "INTERNAL_ERROR",
+            "AI_UNAVAILABLE",
             "Could not reach OpenAI from the backend container. "
             "Check Docker network/outbound internet access.",
             status_code=502,

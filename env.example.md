@@ -21,6 +21,10 @@ DEMO_USER_NAME=Atlas Demo
 # Then confirm in logs: "OpenAI configured: model=... key_prefix=sk-..."
 OPENAI_API_KEY=
 OPENAI_MODEL=gpt-4o-mini
+# auto = OpenAI first, local heuristic fallback on quota/auth failures (recommended for local demo)
+# openai = OpenAI only
+# local = offline heuristic provider only
+ATLAS_AI_PROVIDER=auto
 
 # Optional future providers
 ANTHROPIC_API_KEY=
