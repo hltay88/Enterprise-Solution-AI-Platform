@@ -23,3 +23,6 @@ ANTHROPIC_API_KEY=
 # File storage (ATLAS-013)
 STORAGE_PATH=/app/storage/uploads
 MAX_UPLOAD_MB=10
+
+# Backend
+CORS_ORIGINS=http://localhost:3000

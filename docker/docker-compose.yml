@@ -38,14 +38,30 @@ services:
     networks:
       - atlas
 
-  # Backend / frontend services are added in Phase B once Dockerfiles exist.
-  # Planned wiring (ATLAS-013):
-  #   backend:
-  #     volumes:
-  #       - ../storage:/app/storage
-  #     depends_on:
-  #       db:
-  #         condition: service_healthy
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    container_name: atlas-backend
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql://atlas:atlas@db:5432/atlas}
+      SECRET_KEY: ${SECRET_KEY:-change-me-in-local-dev}
+      JWT_EXPIRE_MINUTES: ${JWT_EXPIRE_MINUTES:-60}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
+      STORAGE_PATH: ${STORAGE_PATH:-/app/storage/uploads}
+      MAX_UPLOAD_MB: ${MAX_UPLOAD_MB:-10}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../storage:/app/storage
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - atlas
 
 volumes:
   postgres-data:
