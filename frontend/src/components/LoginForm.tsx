@@ -9,7 +9,7 @@ import type { LoginData } from "@/lib/types";
 
 export function LoginForm() {
   const router = useRouter();
-  const [email, setEmail] = useState("demo@atlas.local");
+  const [email, setEmail] = useState("demo@example.com");
   const [password, setPassword] = useState("changeme");
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
@@ -66,7 +66,7 @@ export function LoginForm() {
       </button>
 
       <p className="hint">
-        Local demo: <code>demo@atlas.local</code> / <code>changeme</code>
+        Local demo: <code>demo@example.com</code> / <code>changeme</code>
       </p>
     </form>
   );
