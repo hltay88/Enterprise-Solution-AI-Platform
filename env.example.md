@@ -10,7 +10,7 @@ POSTGRES_DB=atlas
 # Auth (ATLAS-011)
 SECRET_KEY=change-me-in-local-dev
 JWT_EXPIRE_MINUTES=60
-DEMO_USER_EMAIL=demo@atlas.local
+DEMO_USER_EMAIL=demo@example.com
 DEMO_USER_PASSWORD=changeme
 DEMO_USER_NAME=Atlas Demo
 

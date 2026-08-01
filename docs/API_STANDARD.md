@@ -75,8 +75,8 @@ Request:
   
 ```json  
 {  
-  "email": "demo@atlas.local",  
-  "password": "changeme"  
+  "email": "demo@example.com",
+  "password": "changeme"
 }  
 ```  
   
