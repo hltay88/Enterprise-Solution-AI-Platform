@@ -396,6 +396,13 @@ body {
   white-space: pre-wrap;
 }
 
+.doc-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
 .doc-full-text {
   margin: 0.75rem 0 0;
   padding: 0.9rem;
