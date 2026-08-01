@@ -2,88 +2,101 @@
   
 Sprint 1 Database  
   
----  
-  
-Users  
-  
-id  
-  
-name  
-  
-email  
-  
-password_hash  
-  
-created_at  
+Related: `docker/postgres/init/`, ATLAS-003  
   
 ---  
   
-Projects  
+## Conventions  
   
-id  
+- Table names: `snake_case`  
+- Primary keys: `UUID` (`gen_random_uuid()` via `pgcrypto`)  
+- Timestamps: `TIMESTAMPTZ`  
   
-user_id  
+Schema is applied on first Postgres container init via:  
   
-project_name  
-  
-customer  
-  
-industry  
-  
-status  
-  
-created_at  
-  
-updated_at  
+`docker/postgres/init/*.sql`  
   
 ---  
   
-RequirementDocuments  
+## users  
   
-id  
-  
-project_id  
-  
-filename  
-  
-file_type  
-  
-storage_path  
-  
-uploaded_at  
+| Column | Type | Notes |  
+|--------|------|-------|  
+| id | UUID PK | default `gen_random_uuid()` |  
+| name | TEXT | required |  
+| email | TEXT | required, unique |  
+| password_hash | TEXT | bcrypt hash |  
+| created_at | TIMESTAMPTZ | default `NOW()` |  
   
 ---  
   
-RequirementAnalysis  
+## projects  
   
-id  
-  
-project_id  
-  
-business_objectives  
-  
-functional_requirements  
-  
-non_functional_requirements  
-  
-assumptions  
-  
-risks  
-  
-analysis_json  
-  
-created_at  
+| Column | Type | Notes |  
+|--------|------|-------|  
+| id | UUID PK | |  
+| user_id | UUID FK → users | ON DELETE CASCADE |  
+| project_name | TEXT | required |  
+| customer | TEXT | |  
+| industry | TEXT | |  
+| status | TEXT | default `draft` |  
+| created_at | TIMESTAMPTZ | |  
+| updated_at | TIMESTAMPTZ | |  
   
 ---  
   
-ClarificationQuestions  
+## requirement_documents  
   
-id  
+| Column | Type | Notes |  
+|--------|------|-------|  
+| id | UUID PK | |  
+| project_id | UUID FK → projects | ON DELETE CASCADE |  
+| filename | TEXT | |  
+| file_type | TEXT | `pdf` / `docx` / `txt` |  
+| storage_path | TEXT | relative path under storage |  
+| uploaded_at | TIMESTAMPTZ | |  
   
-project_id  
+---  
   
-question  
+## requirement_analysis  
   
-status  
+| Column | Type | Notes |  
+|--------|------|-------|  
+| id | UUID PK | |  
+| project_id | UUID FK → projects | ON DELETE CASCADE |  
+| business_objectives | TEXT | |  
+| functional_requirements | TEXT | |  
+| non_functional_requirements | TEXT | |  
+| assumptions | TEXT | |  
+| risks | TEXT | |  
+| analysis_json | JSONB | full structured analysis |  
+| created_at | TIMESTAMPTZ | |  
   
-created_at  
+---  
+  
+## clarification_questions  
+  
+| Column | Type | Notes |  
+|--------|------|-------|  
+| id | UUID PK | |  
+| project_id | UUID FK → projects | ON DELETE CASCADE |  
+| question | TEXT | |  
+| status | TEXT | default `open` |  
+| created_at | TIMESTAMPTZ | |  
+  
+---  
+  
+## Local verification  
+  
+```bash  
+docker compose -f docker/docker-compose.yml --env-file .env up -d  
+./docker/postgres/check-ready.sh  
+```  
+  
+Init SQL runs only when the `atlas-postgres-data` volume is first created.  
+To re-apply schema from scratch:  
+  
+```bash  
+docker compose -f docker/docker-compose.yml --env-file .env down -v  
+docker compose -f docker/docker-compose.yml --env-file .env up -d  
+```  
