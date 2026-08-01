@@ -714,7 +714,38 @@ ClarificationService, AIProvider adapters, Docker Compose knowledge mount, and `
   
 ## Future Review  
   
-Add more packs (security, collaboration, data center) and optional RAG retrieval when the knowledge corpus grows.  
+Optional RAG retrieval when the knowledge corpus grows beyond curated checklist packs.  
+  
+---  
+  
+## Decision ID: ATLAS-015a  
+  
+## Title  
+  
+Expand domain checklist coverage across Project Atlas solution domains  
+  
+## Status  
+  
+Accepted  
+  
+## Date  
+  
+2026-08-02  
+  
+## Context  
+  
+ATLAS-015 shipped Wireless + basic Networking packs. Presales quality still depended on generic questions for Data Centre, security, storage/HCI/servers, LED/AV, and other domains listed in PROJECT.md.  
+  
+## Decision  
+  
+1. Ship curated checklist packs under `knowledge/checklists/` for the program domains, including: Wireless, Networking, Data Centre, Network Security, Cybersecurity, Storage, HCI, Servers, LED, AV, Backup, Virtualization, Cloud, Collaboration, Microsoft, CCTV, Access Control, Structured Cabling, UPS, Digital Signage, and IoT/Smart Building.  
+2. Keep keyword detection specific enough to avoid false positives (e.g. avoid bare `led` / `floor plan` triggers).  
+3. Inject at most four full checklist packs per clarification run (priority-ordered); list remaining detected domains as light-touch probes.  
+4. Scale clarification question budget with detected domain count (up to 18–24 for broad multi-domain deals).  
+  
+## Impact  
+  
+Clarification quality improves for multi-domain opportunities without requiring code changes to add new question text — editors can update markdown packs.  
   
 ---  
   

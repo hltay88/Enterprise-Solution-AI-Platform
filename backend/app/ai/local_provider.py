@@ -142,26 +142,56 @@ class LocalAIProvider(AIProvider):
             "Which risks from the analysis are already accepted by the customer?",
         ]
 
+        domain_seeds: list[str] = []
         if "wireless" in domains or any(
             token in haystack for token in ("wifi", "wi-fi", "wlan", "access point", "heatmap")
         ):
-            questions = [
-                "Is an accurate scaled floor plan available for the wireless design scope?",
-                "Which indoor and outdoor areas require wireless coverage, and which are out of scope?",
-                "What concurrent client density and peak-usage scenarios should drive capacity design?",
-                "What construction materials, ceiling heights, or RF constraints affect AP placement?",
-                "What existing WLAN equipment, SSIDs, and security model must be retained or replaced?",
-                "Is structured cabling and PoE switch capacity available at proposed AP locations?",
-                "Should the proposal include a predictive heatmap and estimated AP count/types?",
-                "Who owns approval of the RF design, survey approach, and final AP quantity?",
-                *questions,
-            ]
-
+            domain_seeds.extend(
+                [
+                    "Is an accurate scaled floor plan available for the wireless design scope?",
+                    "Which indoor and outdoor areas require wireless coverage, and which are out of scope?",
+                    "What concurrent client density and peak-usage scenarios should drive capacity design?",
+                    "Should the proposal include a predictive heatmap and estimated AP count/types?",
+                ]
+            )
         if "networking" in domains:
-            questions.insert(
-                0,
+            domain_seeds.append(
                 "What is the target campus LAN topology and which buildings/IDFs are in scope?",
             )
+        if "data_centre" in domains:
+            domain_seeds.append(
+                "What rack count, kW/rack target, and power/cooling redundancy model are required?",
+            )
+        if "network_security" in domains:
+            domain_seeds.append(
+                "What throughput, HA model, and traffic inspection scope must the firewall/NAC design support?",
+            )
+        if "cybersecurity" in domains:
+            domain_seeds.append(
+                "Which endpoint, identity, and SOC/SIEM controls are mandatory for go-live evidence?",
+            )
+        if "storage" in domains:
+            domain_seeds.append(
+                "What capacity, performance, protocol, and RPO/RTO targets drive the storage design?",
+            )
+        if "hci" in domains:
+            domain_seeds.append(
+                "What HCI cluster size, failure tolerance, and backup/DR topology are required?",
+            )
+        if "servers" in domains:
+            domain_seeds.append(
+                "What server counts, form factors, and workload consolidation targets are in scope?",
+            )
+        if "led" in domains:
+            domain_seeds.append(
+                "What wall dimensions, viewing distance, pixel pitch, and content sources are required for the LED wall?",
+            )
+        if "av" in domains:
+            domain_seeds.append(
+                "Which rooms need AV/UC, and what audio, display, and control outcomes define success?",
+            )
+        if domain_seeds:
+            questions = [*domain_seeds, *questions]
 
         if "integrat" in functional.lower():
             questions.insert(
