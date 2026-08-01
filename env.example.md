@@ -21,7 +21,8 @@ DEMO_USER_NAME=Atlas Demo
 # After changing values, recreate backend (restart alone will not reload env):
 #   docker compose -f docker/docker-compose.yml --env-file .env up -d --build --force-recreate backend
 GEMINI_API_KEY=
-GEMINI_MODEL=gemini-2.0-flash
+# Prefer gemini-flash-latest for new free-tier keys (gemini-2.0-flash often returns 429)
+GEMINI_MODEL=gemini-flash-latest
 
 # Optional paid/alternative provider
 OPENAI_API_KEY=

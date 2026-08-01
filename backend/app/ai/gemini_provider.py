@@ -17,6 +17,15 @@ from app.core.exceptions import AppError, ValidationAppError
 
 logger = logging.getLogger(__name__)
 
+# Prefer aliases that remain available to new free-tier keys.
+DEFAULT_GEMINI_MODEL = "gemini-flash-latest"
+_MODEL_FALLBACKS = (
+    "gemini-flash-latest",
+    "gemini-flash-lite-latest",
+    "gemini-2.0-flash",
+    "gemini-2.0-flash-lite",
+)
+
 
 def _build_client(api_key: str | None = None) -> tuple[genai.Client, str, str]:
     raw = settings.gemini_api_key if api_key is None else api_key
@@ -26,7 +35,7 @@ def _build_client(api_key: str | None = None) -> tuple[genai.Client, str, str]:
             "GEMINI_API_KEY is not configured. Get a free key from Google AI Studio "
             "and set it in your repo-root .env, then recreate the backend container.",
         )
-    model = (settings.gemini_model or "gemini-2.0-flash").strip() or "gemini-2.0-flash"
+    model = (settings.gemini_model or DEFAULT_GEMINI_MODEL).strip() or DEFAULT_GEMINI_MODEL
     return genai.Client(api_key=key), key, model
 
 
@@ -48,22 +57,13 @@ class GeminiProvider(AIProvider):
 
     async def analyze_requirements(self, document_text: str) -> dict[str, Any]:
         system_prompt = load_prompt("requirement_analysis.txt")
-        user_prompt = (
-            "Analyze the following customer requirement text:\n\n" + document_text
+        user_prompt = "Analyze the following customer requirement text:\n\n" + document_text
+        response = await self._generate(
+            action="analyze requirements",
+            system_prompt=system_prompt,
+            user_prompt=user_prompt,
+            temperature=0.2,
         )
-        try:
-            response = await self.client.aio.models.generate_content(
-                model=self.model,
-                contents=user_prompt,
-                config=types.GenerateContentConfig(
-                    system_instruction=system_prompt,
-                    temperature=0.2,
-                    response_mime_type="application/json",
-                ),
-            )
-        except Exception as exc:  # noqa: BLE001
-            _raise_provider_error("analyze requirements", exc)
-
         payload = parse_json_object(
             response.text or "",
             empty_message="AI provider returned an empty analysis response",
@@ -71,6 +71,7 @@ class GeminiProvider(AIProvider):
         )
         result = normalize_analysis(payload)
         result["provider"] = "gemini"
+        result["model"] = self.model
         return result
 
     async def generate_clarifications(self, analysis: dict[str, Any]) -> list[str]:
@@ -78,19 +79,12 @@ class GeminiProvider(AIProvider):
         user_prompt = "Create clarification questions for this analysis:\n" + json.dumps(
             analysis
         )
-        try:
-            response = await self.client.aio.models.generate_content(
-                model=self.model,
-                contents=user_prompt,
-                config=types.GenerateContentConfig(
-                    system_instruction=system_prompt,
-                    temperature=0.3,
-                    response_mime_type="application/json",
-                ),
-            )
-        except Exception as exc:  # noqa: BLE001
-            _raise_provider_error("generate clarifications", exc)
-
+        response = await self._generate(
+            action="generate clarifications",
+            system_prompt=system_prompt,
+            user_prompt=user_prompt,
+            temperature=0.3,
+        )
         payload = parse_json_object(
             response.text or "",
             empty_message="AI provider returned an empty clarification response",
@@ -100,6 +94,69 @@ class GeminiProvider(AIProvider):
         if not isinstance(questions, list):
             return []
         return [str(item).strip() for item in questions if str(item).strip()]
+
+    async def _generate(
+        self,
+        *,
+        action: str,
+        system_prompt: str,
+        user_prompt: str,
+        temperature: float,
+    ):
+        last_exc: Exception | None = None
+        for model in _candidate_models(self.model):
+            try:
+                response = await self.client.aio.models.generate_content(
+                    model=model,
+                    contents=user_prompt,
+                    config=types.GenerateContentConfig(
+                        system_instruction=system_prompt,
+                        temperature=temperature,
+                        response_mime_type="application/json",
+                    ),
+                )
+                if model != self.model:
+                    logger.warning("Gemini model %s failed; succeeded with %s", self.model, model)
+                    self.model = model
+                return response
+            except Exception as exc:  # noqa: BLE001
+                last_exc = exc
+                if _is_retryable_model_error(exc):
+                    logger.warning(
+                        "Gemini model %s unavailable for %s (%s); trying next model",
+                        model,
+                        action,
+                        getattr(exc, "code", type(exc).__name__),
+                    )
+                    continue
+                _raise_provider_error(action, exc)
+
+        assert last_exc is not None
+        _raise_provider_error(action, last_exc)
+
+
+def _candidate_models(preferred: str) -> list[str]:
+    ordered = [preferred, *_MODEL_FALLBACKS]
+    unique: list[str] = []
+    for model in ordered:
+        cleaned = (model or "").strip()
+        if cleaned and cleaned not in unique:
+            unique.append(cleaned)
+    return unique
+
+
+def _is_retryable_model_error(exc: Exception) -> bool:
+    if not isinstance(exc, genai_errors.APIError):
+        return False
+    code = int(getattr(exc, "code", 0) or 0)
+    message = (getattr(exc, "message", None) or str(exc)).lower()
+    if code == 429:
+        return True
+    if code == 404:
+        return True
+    if "no longer available" in message or "not found" in message:
+        return True
+    return False
 
 
 def _raise_provider_error(action: str, exc: Exception) -> NoReturn:
@@ -165,6 +222,6 @@ def _safe_message(exc: Exception) -> str:
     if len(cleaned) > 240:
         cleaned = cleaned[:237] + "..."
     lowered = cleaned.lower()
-    if "api key" in lowered or "apikey" in lowered or "aiza" in lowered:
+    if "api key" in lowered or "apikey" in lowered or "aiza" in lowered or "aq." in lowered:
         return "see backend logs for details"
     return cleaned or "see backend logs for details"
