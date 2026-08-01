@@ -45,3 +45,14 @@ export type ProjectInput = {
   industry?: string | null;
   status?: string;
 };
+
+export type DocumentSummary = {
+  id: string;
+  project_id: string;
+  filename: string;
+  file_type: string;
+  storage_path: string;
+  uploaded_at: string;
+  extracted_text: string | null;
+  extracted_preview: string | null;
+};

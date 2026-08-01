@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { AppHeader } from "@/components/AppHeader";
+import { DocumentUploadPanel } from "@/components/DocumentUploadPanel";
 import { ProjectForm } from "@/components/ProjectForm";
 import { RequireAuth } from "@/components/RequireAuth";
 import { apiDelete, apiGet, apiPut, ApiClientError } from "@/lib/api";
@@ -87,7 +88,7 @@ function ProjectDetailContent({ userName }: { userName: string }) {
             <Link href="/dashboard">← Back to dashboard</Link>
           </p>
           <h1>Project details</h1>
-          <p>Update project metadata. Uploads and AI analysis come in later phases.</p>
+          <p>Update project metadata and upload customer requirement documents.</p>
         </section>
 
         {state.kind === "loading" ? <p className="status">Loading project…</p> : null}
@@ -96,23 +97,30 @@ function ProjectDetailContent({ userName }: { userName: string }) {
         ) : null}
 
         {state.kind === "ready" ? (
-          <section className="form-panel">
-            <ProjectForm
-              initial={state.project}
-              submitLabel="Save changes"
-              onSubmit={handleUpdate}
-            />
-            <div className="danger-zone">
-              <button
-                className="btn-secondary"
-                type="button"
-                onClick={handleDelete}
-                disabled={deleting}
-              >
-                {deleting ? "Deleting…" : "Delete project"}
-              </button>
-            </div>
-          </section>
+          <>
+            <section className="form-panel">
+              <ProjectForm
+                initial={state.project}
+                submitLabel="Save changes"
+                onSubmit={handleUpdate}
+              />
+            </section>
+
+            <DocumentUploadPanel projectId={projectId} />
+
+            <section className="form-panel">
+              <div className="danger-zone">
+                <button
+                  className="btn-secondary"
+                  type="button"
+                  onClick={handleDelete}
+                  disabled={deleting}
+                >
+                  {deleting ? "Deleting…" : "Delete project"}
+                </button>
+              </div>
+            </section>
+          </>
         ) : null}
       </main>
     </div>

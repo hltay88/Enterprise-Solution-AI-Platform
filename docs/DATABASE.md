@@ -54,6 +54,7 @@ Schema is applied on first Postgres container init via:
 | filename | TEXT | |  
 | file_type | TEXT | `pdf` / `docx` / `txt` |  
 | storage_path | TEXT | relative path under storage |  
+| extracted_text | TEXT | plain text extracted on upload |  
 | uploaded_at | TIMESTAMPTZ | |  
   
 ---  
