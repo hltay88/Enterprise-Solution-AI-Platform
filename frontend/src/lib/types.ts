@@ -56,3 +56,15 @@ export type DocumentSummary = {
   extracted_text: string | null;
   extracted_preview: string | null;
 };
+
+export type AnalysisResult = {
+  id: string;
+  project_id: string;
+  business_objectives: string | null;
+  functional_requirements: string | null;
+  non_functional_requirements: string | null;
+  assumptions: string | null;
+  risks: string | null;
+  analysis_json: Record<string, unknown> | null;
+  created_at: string;
+};

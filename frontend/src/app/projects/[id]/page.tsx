@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { AnalysisPanel } from "@/components/AnalysisPanel";
 import { AppHeader } from "@/components/AppHeader";
 import { DocumentUploadPanel } from "@/components/DocumentUploadPanel";
 import { ProjectForm } from "@/components/ProjectForm";
@@ -88,7 +89,10 @@ function ProjectDetailContent({ userName }: { userName: string }) {
             <Link href="/dashboard">← Back to dashboard</Link>
           </p>
           <h1>Project details</h1>
-          <p>Update project metadata and upload customer requirement documents.</p>
+          <p>
+            Update project metadata, upload requirement documents, and run AI requirement
+            analysis.
+          </p>
         </section>
 
         {state.kind === "loading" ? <p className="status">Loading project…</p> : null}
@@ -107,6 +111,7 @@ function ProjectDetailContent({ userName }: { userName: string }) {
             </section>
 
             <DocumentUploadPanel projectId={projectId} />
+            <AnalysisPanel projectId={projectId} />
 
             <section className="form-panel">
               <div className="danger-zone">
