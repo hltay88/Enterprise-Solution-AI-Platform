@@ -355,3 +355,55 @@ body {
 .empty-state .btn-primary {
   margin-top: 0.75rem;
 }
+
+.upload-panel {
+  margin-top: 2rem;
+}
+
+.upload-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.doc-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.doc-item {
+  padding: 1rem 0;
+  border-top: 1px solid var(--color-line);
+}
+
+.doc-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.doc-preview {
+  margin: 0 0 0.75rem;
+  color: #445061;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.doc-full-text {
+  margin: 0.75rem 0 0;
+  padding: 0.9rem;
+  border: 1px solid var(--color-line);
+  background: rgba(255, 255, 255, 0.85);
+  white-space: pre-wrap;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.85rem;
+  max-height: 20rem;
+  overflow: auto;
+}

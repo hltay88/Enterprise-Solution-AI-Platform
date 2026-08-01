@@ -21,7 +21,7 @@ export class ApiClientError extends Error {
 
 type RequestOptions = {
   method?: "GET" | "POST" | "PUT" | "DELETE";
-  body?: unknown;
+  body?: unknown | FormData;
   auth?: boolean;
 };
 
@@ -33,7 +33,8 @@ async function apiRequest<T>(path: string, options: RequestOptions = {}): Promis
     Accept: "application/json",
   };
 
-  if (body !== undefined) {
+  const isFormData = typeof FormData !== "undefined" && body instanceof FormData;
+  if (body !== undefined && !isFormData) {
     headers["Content-Type"] = "application/json";
   }
 
@@ -48,7 +49,12 @@ async function apiRequest<T>(path: string, options: RequestOptions = {}): Promis
   const response = await fetch(url, {
     method,
     headers,
-    body: body === undefined ? undefined : JSON.stringify(body),
+    body:
+      body === undefined
+        ? undefined
+        : isFormData
+          ? (body as FormData)
+          : JSON.stringify(body),
     cache: "no-store",
   });
 
@@ -88,4 +94,10 @@ export async function apiPut<T>(path: string, body: unknown, auth = false): Prom
 
 export async function apiDelete<T = null>(path: string, auth = false): Promise<T> {
   return apiRequest<T>(path, { method: "DELETE", auth });
+}
+
+export async function apiUpload<T>(path: string, file: File, auth = true): Promise<T> {
+  const formData = new FormData();
+  formData.append("file", file);
+  return apiRequest<T>(path, { method: "POST", body: formData, auth });
 }

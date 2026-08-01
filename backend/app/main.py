@@ -12,6 +12,7 @@ from app.api.router import api_router
 from app.core.config import settings
 from app.core.exceptions import AppError
 from app.core.responses import error_response
+from app.db.schema import ensure_schema
 from app.db.session import SessionLocal
 from app.services.auth_service import ensure_demo_user
 
@@ -21,7 +22,13 @@ from app import models as _models  # noqa: F401
 logger = logging.getLogger(__name__)
 
 
-def _seed_demo_user() -> None:
+def _prepare_database() -> None:
+    try:
+        ensure_schema()
+    except Exception:
+        logger.exception("Could not apply schema upgrades")
+        return
+
     db = SessionLocal()
     try:
         ensure_demo_user(
@@ -39,7 +46,7 @@ def _seed_demo_user() -> None:
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
-    _seed_demo_user()
+    _prepare_database()
     yield
 
 

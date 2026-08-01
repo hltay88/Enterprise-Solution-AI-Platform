@@ -33,9 +33,9 @@ Sprint 1
   
 ## Phase D  
   
-- [ ] Upload PDF  
-- [ ] Upload DOCX  
-- [ ] Extract Text  
+- [x] Upload PDF  
+- [x] Upload DOCX  
+- [x] Extract Text  
   
 ---  
   

@@ -29,6 +29,7 @@ CREATE TABLE IF NOT EXISTS requirement_documents (
     filename TEXT NOT NULL,
     file_type TEXT NOT NULL,
     storage_path TEXT NOT NULL,
+    extracted_text TEXT,
     uploaded_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
