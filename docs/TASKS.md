@@ -27,7 +27,7 @@ Sprint 1
   
 - [x] Login Screen  
 - [x] Dashboard  
-- [ ] Project CRUD  
+- [x] Project CRUD  
   
 ---  
   

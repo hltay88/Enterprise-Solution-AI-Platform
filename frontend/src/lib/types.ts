@@ -38,3 +38,10 @@ export type ProjectSummary = {
   created_at: string;
   updated_at: string;
 };
+
+export type ProjectInput = {
+  project_name: string;
+  customer?: string | null;
+  industry?: string | null;
+  status?: string;
+};

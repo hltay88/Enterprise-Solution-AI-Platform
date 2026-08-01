@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { apiGet, ApiClientError } from "@/lib/api";
@@ -60,13 +61,15 @@ export function DashboardView({ user }: DashboardViewProps) {
       <main className="page">
         <section className="page-header">
           <h1>Dashboard</h1>
-          <p>Welcome back, {user.name}. Review your solution projects below.</p>
+          <p>Welcome back, {user.name}. Manage your solution projects below.</p>
         </section>
 
         <section className="panel">
           <div className="panel-heading">
             <h2>Projects</h2>
-            <p className="muted">Create and edit arrive in the next Project CRUD task.</p>
+            <Link className="btn-primary btn-compact" href="/projects/new">
+              New project
+            </Link>
           </div>
 
           {state.kind === "loading" ? (
@@ -81,9 +84,11 @@ export function DashboardView({ user }: DashboardViewProps) {
             <div className="empty-state">
               <p>No projects yet.</p>
               <p className="muted">
-                After Project CRUD is added, you will create projects here and upload
-                customer requirements.
+                Create your first project to begin capturing customer requirements.
               </p>
+              <Link className="btn-primary" href="/projects/new">
+                Create project
+              </Link>
             </div>
           ) : null}
 
@@ -102,7 +107,11 @@ export function DashboardView({ user }: DashboardViewProps) {
                 <tbody>
                   {state.projects.map((project) => (
                     <tr key={project.id}>
-                      <td>{project.project_name}</td>
+                      <td>
+                        <Link className="table-link" href={`/projects/${project.id}`}>
+                          {project.project_name}
+                        </Link>
+                      </td>
                       <td>{project.customer || "—"}</td>
                       <td>{project.industry || "—"}</td>
                       <td>

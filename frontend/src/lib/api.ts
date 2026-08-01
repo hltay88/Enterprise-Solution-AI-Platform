@@ -81,3 +81,11 @@ export async function apiGet<T>(path: string, auth = false): Promise<T> {
 export async function apiPost<T>(path: string, body: unknown, auth = false): Promise<T> {
   return apiRequest<T>(path, { method: "POST", body, auth });
 }
+
+export async function apiPut<T>(path: string, body: unknown, auth = false): Promise<T> {
+  return apiRequest<T>(path, { method: "PUT", body, auth });
+}
+
+export async function apiDelete<T = null>(path: string, auth = false): Promise<T> {
+  return apiRequest<T>(path, { method: "DELETE", auth });
+}
