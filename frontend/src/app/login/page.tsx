@@ -14,7 +14,7 @@ export default function LoginPage() {
       <main className="main">
         <section className="login-panel">
           <h1>Sign in</h1>
-          <p>Access your enterprise solution workspace.</p>
+          <p>Access your dashboard and solution projects.</p>
           <LoginForm />
         </section>
       </main>

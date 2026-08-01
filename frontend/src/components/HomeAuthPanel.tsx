@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 
 import { apiGet, ApiClientError } from "@/lib/api";
 import { clearAccessToken, getAccessToken } from "@/lib/auth";
@@ -16,7 +15,6 @@ type PanelState =
   | { kind: "error"; message: string };
 
 export function HomeAuthPanel() {
-  const router = useRouter();
   const [state, setState] = useState<PanelState>({ kind: "loading" });
 
   useEffect(() => {
@@ -52,12 +50,6 @@ export function HomeAuthPanel() {
     };
   }, []);
 
-  function signOut() {
-    clearAccessToken();
-    setState({ kind: "guest" });
-    router.refresh();
-  }
-
   if (state.kind === "loading") {
     return <p className="status">Checking session…</p>;
   }
@@ -77,7 +69,7 @@ export function HomeAuthPanel() {
     return (
       <div className="stack">
         <p>
-          Sign in to start creating projects and analyzing customer requirements.
+          Sign in to open your dashboard and manage enterprise solution projects.
         </p>
         <Link className="btn-primary" href="/login">
           Sign in
@@ -92,10 +84,9 @@ export function HomeAuthPanel() {
       <p className="status status-ok">
         Signed in as {state.user.name} ({state.user.email})
       </p>
-      <p>Dashboard arrives next in Phase C.</p>
-      <button className="btn-secondary" type="button" onClick={signOut}>
-        Sign out
-      </button>
+      <Link className="btn-primary" href="/dashboard">
+        Open dashboard
+      </Link>
       <HealthStatus />
     </div>
   );

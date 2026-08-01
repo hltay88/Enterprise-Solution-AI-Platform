@@ -22,7 +22,7 @@ export function LoginForm() {
     try {
       const data = await apiPost<LoginData>("/api/auth/login", { email, password });
       setAccessToken(data.access_token);
-      router.replace("/");
+      router.replace("/dashboard");
       router.refresh();
     } catch (err) {
       const message =
