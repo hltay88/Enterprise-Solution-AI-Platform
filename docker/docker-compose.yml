@@ -1,0 +1,48 @@
+# Project Atlas — local development stack (Sprint 1)
+# Run from repo root:
+#   cp env.example.md .env
+#   docker compose -f docker/docker-compose.yml --env-file .env up -d
+#   docker compose -f docker/docker-compose.yml --env-file .env ps
+#   docker compose -f docker/docker-compose.yml --env-file .env down
+
+name: project-atlas
+
+services:
+  db:
+    image: postgres:16
+    container_name: atlas-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-atlas}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-atlas}
+      POSTGRES_DB: ${POSTGRES_DB:-atlas}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - atlas
+
+  # Backend / frontend services are added in Phase B once Dockerfiles exist.
+  # Planned wiring (ATLAS-013):
+  #   backend:
+  #     volumes:
+  #       - ../storage:/app/storage
+  #     depends_on:
+  #       db:
+  #         condition: service_healthy
+
+volumes:
+  postgres-data:
+    name: atlas-postgres-data
+
+networks:
+  atlas:
+    name: atlas-network
+    driver: bridge

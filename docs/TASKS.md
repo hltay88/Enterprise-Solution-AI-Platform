@@ -10,7 +10,7 @@ Sprint 1
   
 - [x] Create Git Repository  
 - [x] Create Folder Structure  
-- [ ] Configure Docker Compose  
+- [x] Configure Docker Compose  
 - [ ] Configure PostgreSQL  
   
 ---  
