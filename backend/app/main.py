@@ -1,5 +1,8 @@
 """FastAPI application entrypoint for Project Atlas."""
 
+import logging
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
@@ -9,15 +12,42 @@ from app.api.router import api_router
 from app.core.config import settings
 from app.core.exceptions import AppError
 from app.core.responses import error_response
+from app.db.session import SessionLocal
+from app.services.auth_service import ensure_demo_user
 
 # Register ORM models with SQLAlchemy metadata.
 from app import models as _models  # noqa: F401
+
+logger = logging.getLogger(__name__)
+
+
+def _seed_demo_user() -> None:
+    db = SessionLocal()
+    try:
+        ensure_demo_user(
+            db,
+            name=settings.demo_user_name,
+            email=settings.demo_user_email,
+            password=settings.demo_user_password,
+        )
+        logger.info("Demo user ready: %s", settings.demo_user_email)
+    except Exception:
+        logger.exception("Could not seed demo user (database may be unavailable)")
+    finally:
+        db.close()
+
+
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    _seed_demo_user()
+    yield
 
 
 def create_app() -> FastAPI:
     application = FastAPI(
         title=settings.app_name,
         version=settings.app_version,
+        lifespan=lifespan,
     )
 
     application.add_middleware(

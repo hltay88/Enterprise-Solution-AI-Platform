@@ -1,3 +1,4 @@
+import { getAccessToken } from "@/lib/auth";
 import type { ApiResponse } from "@/lib/types";
 
 const DEFAULT_API_URL = "http://localhost:8000";
@@ -18,12 +19,36 @@ export class ApiClientError extends Error {
   }
 }
 
-export async function apiGet<T>(path: string): Promise<T> {
+type RequestOptions = {
+  method?: "GET" | "POST" | "PUT" | "DELETE";
+  body?: unknown;
+  auth?: boolean;
+};
+
+async function apiRequest<T>(path: string, options: RequestOptions = {}): Promise<T> {
+  const { method = "GET", body, auth = false } = options;
   const url = `${getApiBaseUrl()}${path.startsWith("/") ? path : `/${path}`}`;
+
+  const headers: Record<string, string> = {
+    Accept: "application/json",
+  };
+
+  if (body !== undefined) {
+    headers["Content-Type"] = "application/json";
+  }
+
+  if (auth) {
+    const token = getAccessToken();
+    if (!token) {
+      throw new ApiClientError("UNAUTHORIZED", "Not authenticated", 401);
+    }
+    headers.Authorization = `Bearer ${token}`;
+  }
+
   const response = await fetch(url, {
-    headers: {
-      Accept: "application/json",
-    },
+    method,
+    headers,
+    body: body === undefined ? undefined : JSON.stringify(body),
     cache: "no-store",
   });
 
@@ -47,4 +72,12 @@ export async function apiGet<T>(path: string): Promise<T> {
   }
 
   return payload.data as T;
+}
+
+export async function apiGet<T>(path: string, auth = false): Promise<T> {
+  return apiRequest<T>(path, { method: "GET", auth });
+}
+
+export async function apiPost<T>(path: string, body: unknown, auth = false): Promise<T> {
+  return apiRequest<T>(path, { method: "POST", body, auth });
 }
