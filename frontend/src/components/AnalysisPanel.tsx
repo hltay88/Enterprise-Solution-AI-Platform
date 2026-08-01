@@ -119,9 +119,8 @@ export function AnalysisPanel({ projectId }: AnalysisPanelProps) {
 
       {aiStatus ? (
         <p className={aiStatus.reachable ? "muted" : "form-error"}>
-          {aiStatus.reachable
-            ? `OpenAI ready (${aiStatus.model}, ${aiStatus.key_prefix}).`
-            : aiStatus.detail || "OpenAI is not ready."}
+          {aiStatus.detail ||
+            (aiStatus.reachable ? "AI provider ready." : "AI provider is not ready.")}
         </p>
       ) : null}
 
@@ -135,9 +134,9 @@ export function AnalysisPanel({ projectId }: AnalysisPanelProps) {
         <div className="empty-state">
           <p>No analysis yet.</p>
           <p className="muted">
-            Upload at least one requirement document, then run analysis. Requires a valid
-            OPENAI_API_KEY in the repo-root `.env` file (recreate the backend container after
-            changing it).
+            Upload at least one requirement document, then run analysis. With
+            ATLAS_AI_PROVIDER=auto, OpenAI is used when available and a local fallback runs if
+            quota is exceeded.
           </p>
         </div>
       ) : null}

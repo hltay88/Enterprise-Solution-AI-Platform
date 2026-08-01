@@ -58,6 +58,7 @@ services:
       DEMO_USER_NAME: ${DEMO_USER_NAME:-Atlas Demo}
       # OPENAI_API_KEY comes from env_file above (literal, no $ mangling).
       OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
+      ATLAS_AI_PROVIDER: ${ATLAS_AI_PROVIDER:-auto}
       STORAGE_PATH: ${STORAGE_PATH:-/app/storage/uploads}
       MAX_UPLOAD_MB: ${MAX_UPLOAD_MB:-10}
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
