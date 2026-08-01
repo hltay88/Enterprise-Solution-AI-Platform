@@ -26,3 +26,6 @@ MAX_UPLOAD_MB=10
 
 # Backend
 CORS_ORIGINS=http://localhost:3000
+
+# Frontend
+NEXT_PUBLIC_API_URL=http://localhost:8000

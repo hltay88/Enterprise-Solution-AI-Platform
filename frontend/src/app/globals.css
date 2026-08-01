@@ -1,0 +1,105 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-ink: #1c2430;
+  --color-paper: #f3f5f7;
+  --color-mist: #e4e9ef;
+  --color-accent: #0f6a5b;
+  --color-line: #c5ced8;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  color: var(--color-ink);
+  background:
+    radial-gradient(1200px 600px at 10% -10%, #d9e7e3 0%, transparent 55%),
+    linear-gradient(180deg, #f7f8fa 0%, var(--color-paper) 100%);
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+.shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.75rem;
+  border-bottom: 1px solid var(--color-line);
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(8px);
+}
+
+.brand {
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 1.35rem;
+  letter-spacing: 0.01em;
+}
+
+.brand span {
+  display: block;
+  margin-top: 0.15rem;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #5b6775;
+}
+
+.main {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  padding: 2.5rem 1.5rem;
+}
+
+.hero {
+  width: min(40rem, 100%);
+}
+
+.hero h1 {
+  margin: 0 0 0.75rem;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: clamp(2rem, 4vw, 2.75rem);
+  line-height: 1.15;
+  font-weight: 600;
+}
+
+.hero p {
+  margin: 0 0 1.5rem;
+  max-width: 34rem;
+  color: #445061;
+  line-height: 1.6;
+}
+
+.status {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--color-line);
+  background: rgba(255, 255, 255, 0.8);
+  font-size: 0.95rem;
+}
+
+.status-ok {
+  border-color: #9ec9bf;
+  color: var(--color-accent);
+}
+
+.status-error {
+  border-color: #d8a5a5;
+  color: #8a3030;
+}

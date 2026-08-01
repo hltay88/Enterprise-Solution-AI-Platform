@@ -18,7 +18,7 @@ Sprint 1
 ## Phase B  
   
 - [x] Create FastAPI Backend  
-- [ ] Create Next.js Frontend  
+- [x] Create Next.js Frontend  
 - [ ] Configure Database Connection  
   
 ---  
