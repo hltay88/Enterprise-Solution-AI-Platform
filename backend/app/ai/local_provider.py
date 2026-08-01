@@ -113,11 +113,23 @@ class LocalAIProvider(AIProvider):
             "provider": "local",
         }
 
-    async def generate_clarifications(self, analysis: dict[str, Any]) -> list[str]:
+    async def generate_clarifications(
+        self,
+        analysis: dict[str, Any],
+        *,
+        document_text: str = "",
+        checklist_context: str = "",
+        detected_domains: list[str] | None = None,
+        min_questions: int = 8,
+        max_questions: int = 16,
+    ) -> list[str]:
         objectives = str(analysis.get("business_objectives") or "")
         functional = str(analysis.get("functional_requirements") or "")
         nfr = str(analysis.get("non_functional_requirements") or "")
         risks = str(analysis.get("risks") or "")
+        domains = set(detected_domains or [])
+        # Ignore checklist_context text for heuristics (packs mention adjacent domains).
+        haystack = " ".join([objectives, functional, nfr, document_text]).lower()
 
         questions = [
             "Which business outcomes are mandatory for go-live versus nice-to-have?",
@@ -129,6 +141,27 @@ class LocalAIProvider(AIProvider):
             "What is the target timeline and any hard external deadlines?",
             "Which risks from the analysis are already accepted by the customer?",
         ]
+
+        if "wireless" in domains or any(
+            token in haystack for token in ("wifi", "wi-fi", "wlan", "access point", "heatmap")
+        ):
+            questions = [
+                "Is an accurate scaled floor plan available for the wireless design scope?",
+                "Which indoor and outdoor areas require wireless coverage, and which are out of scope?",
+                "What concurrent client density and peak-usage scenarios should drive capacity design?",
+                "What construction materials, ceiling heights, or RF constraints affect AP placement?",
+                "What existing WLAN equipment, SSIDs, and security model must be retained or replaced?",
+                "Is structured cabling and PoE switch capacity available at proposed AP locations?",
+                "Should the proposal include a predictive heatmap and estimated AP count/types?",
+                "Who owns approval of the RF design, survey approach, and final AP quantity?",
+                *questions,
+            ]
+
+        if "networking" in domains:
+            questions.insert(
+                0,
+                "What is the target campus LAN topology and which buildings/IDFs are in scope?",
+            )
 
         if "integrat" in functional.lower():
             questions.insert(
@@ -148,12 +181,12 @@ class LocalAIProvider(AIProvider):
                 "Which identified risks need mitigation before solution design begins?",
             )
 
-        # Stable, de-duplicated, 5–10 questions.
         deduped: list[str] = []
         for question in questions:
             if question not in deduped:
                 deduped.append(question)
-        return deduped[:10]
+        upper = max(min_questions, min(max_questions, len(deduped)))
+        return deduped[:upper]
 
 
 def _extract_sentences(text: str) -> list[str]:

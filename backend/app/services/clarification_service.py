@@ -10,6 +10,8 @@ from app.repositories.analysis_repository import AnalysisRepository
 from app.repositories.clarification_repository import ClarificationRepository
 from app.repositories.project_repository import ProjectRepository
 from app.schemas.clarification import ClarificationQuestionOut
+from app.services.analysis_service import AnalysisService
+from app.services.domain_checklists import build_checklist_context, detect_domains
 
 
 class ClarificationService:
@@ -18,6 +20,7 @@ class ClarificationService:
         self.projects = ProjectRepository(db)
         self.analyses = AnalysisRepository(db)
         self.clarifications = ClarificationRepository(db)
+        self.analysis_service = AnalysisService(db)
 
     def list_for_project(
         self,
@@ -33,7 +36,7 @@ class ClarificationService:
         project_id: UUID,
         user_id: UUID,
     ) -> list[ClarificationQuestionOut]:
-        self._require_project(project_id, user_id)
+        project = self._require_project(project_id, user_id)
         analysis = self.analyses.get_latest_for_project(project_id)
         if analysis is None:
             raise ValidationAppError(
@@ -48,8 +51,21 @@ class ClarificationService:
             "risks": analysis.risks,
         }
 
+        document_text = self.analysis_service.build_source_text(project)
+        analysis_blob = "\n".join(str(value) for value in analysis_payload.values())
+        domains = detect_domains(document_text, analysis_blob)
+        checklist_context = build_checklist_context(domains)
+        min_questions, max_questions = _question_budget(domains)
+
         provider = get_ai_provider()
-        questions = await provider.generate_clarifications(analysis_payload)
+        questions = await provider.generate_clarifications(
+            analysis_payload,
+            document_text=document_text,
+            checklist_context=checklist_context,
+            detected_domains=domains,
+            min_questions=min_questions,
+            max_questions=max_questions,
+        )
         if not questions:
             raise ValidationAppError("AI provider returned no clarification questions")
 
@@ -59,7 +75,18 @@ class ClarificationService:
         )
         return [ClarificationQuestionOut.model_validate(row) for row in rows]
 
-    def _require_project(self, project_id: UUID, user_id: UUID) -> None:
+    def _require_project(self, project_id: UUID, user_id: UUID):
         project = self.projects.get_for_user(project_id, user_id)
         if project is None:
             raise NotFoundError("Project not found")
+        return project
+
+
+def _question_budget(domains: list[str]) -> tuple[int, int]:
+    if "wireless" in domains and len(domains) > 1:
+        return 14, 20
+    if "wireless" in domains:
+        return 12, 18
+    if domains:
+        return 10, 16
+    return 8, 12

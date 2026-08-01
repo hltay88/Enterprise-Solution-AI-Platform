@@ -17,6 +17,11 @@ from openai import (
 )
 
 from app.ai.base import AIProvider
+from app.ai.common import (
+    clarification_system_prompt,
+    clarification_user_prompt,
+    extract_questions,
+)
 from app.core.config import settings
 from app.core.exceptions import AppError, ValidationAppError
 
@@ -99,8 +104,26 @@ class OpenAIProvider(AIProvider):
 
         return _normalize_analysis(payload)
 
-    async def generate_clarifications(self, analysis: dict[str, Any]) -> list[str]:
-        system_prompt = _load_prompt("clarification_questions.txt")
+    async def generate_clarifications(
+        self,
+        analysis: dict[str, Any],
+        *,
+        document_text: str = "",
+        checklist_context: str = "",
+        detected_domains: list[str] | None = None,
+        min_questions: int = 8,
+        max_questions: int = 16,
+    ) -> list[str]:
+        system_prompt = clarification_system_prompt(
+            min_questions=min_questions,
+            max_questions=max_questions,
+        )
+        user_prompt = clarification_user_prompt(
+            analysis,
+            document_text=document_text,
+            checklist_context=checklist_context,
+            detected_domains=detected_domains,
+        )
         try:
             response = await self.client.chat.completions.create(
                 model=self.model,
@@ -108,11 +131,7 @@ class OpenAIProvider(AIProvider):
                 response_format={"type": "json_object"},
                 messages=[
                     {"role": "system", "content": system_prompt},
-                    {
-                        "role": "user",
-                        "content": "Create clarification questions for this analysis:\n"
-                        + json.dumps(analysis),
-                    },
+                    {"role": "user", "content": user_prompt},
                 ],
             )
         except Exception as exc:
@@ -135,10 +154,7 @@ class OpenAIProvider(AIProvider):
                 status_code=502,
             ) from exc
 
-        questions = payload.get("questions", [])
-        if not isinstance(questions, list):
-            return []
-        return [str(item).strip() for item in questions if str(item).strip()]
+        return extract_questions(payload)
 
 
 def _raise_provider_error(action: str, exc: Exception) -> NoReturn:

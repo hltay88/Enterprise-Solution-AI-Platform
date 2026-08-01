@@ -11,7 +11,15 @@ from google.genai import errors as genai_errors
 from google.genai import types
 
 from app.ai.base import AIProvider
-from app.ai.common import load_prompt, normalize_analysis, parse_json_object, sanitize_secret
+from app.ai.common import (
+    clarification_system_prompt,
+    clarification_user_prompt,
+    extract_questions,
+    load_prompt,
+    normalize_analysis,
+    parse_json_object,
+    sanitize_secret,
+)
 from app.core.config import settings
 from app.core.exceptions import AppError, ValidationAppError
 
@@ -74,10 +82,25 @@ class GeminiProvider(AIProvider):
         result["model"] = self.model
         return result
 
-    async def generate_clarifications(self, analysis: dict[str, Any]) -> list[str]:
-        system_prompt = load_prompt("clarification_questions.txt")
-        user_prompt = "Create clarification questions for this analysis:\n" + json.dumps(
-            analysis
+    async def generate_clarifications(
+        self,
+        analysis: dict[str, Any],
+        *,
+        document_text: str = "",
+        checklist_context: str = "",
+        detected_domains: list[str] | None = None,
+        min_questions: int = 8,
+        max_questions: int = 16,
+    ) -> list[str]:
+        system_prompt = clarification_system_prompt(
+            min_questions=min_questions,
+            max_questions=max_questions,
+        )
+        user_prompt = clarification_user_prompt(
+            analysis,
+            document_text=document_text,
+            checklist_context=checklist_context,
+            detected_domains=detected_domains,
         )
         response = await self._generate(
             action="generate clarifications",
@@ -90,10 +113,7 @@ class GeminiProvider(AIProvider):
             empty_message="AI provider returned an empty clarification response",
             invalid_message="AI provider returned invalid JSON for clarifications",
         )
-        questions = payload.get("questions", [])
-        if not isinstance(questions, list):
-            return []
-        return [str(item).strip() for item in questions if str(item).strip()]
+        return extract_questions(payload)
 
     async def _generate(
         self,
