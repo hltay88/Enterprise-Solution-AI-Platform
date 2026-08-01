@@ -1,4 +1,4 @@
-"""Try OpenAI first; fall back to local heuristics when quota/auth blocks analysis."""
+"""Try cloud providers in order; fall back when quota/auth/connectivity blocks them."""
 
 from __future__ import annotations
 
@@ -17,53 +17,67 @@ _FALLBACK_CODES = {"AI_QUOTA_EXCEEDED", "AI_AUTH_FAILED", "AI_UNAVAILABLE"}
 class FallbackAIProvider(AIProvider):
     def __init__(
         self,
-        primary: AIProvider | None,
+        providers: list[AIProvider] | None = None,
+        *,
+        primary: AIProvider | None = None,
         fallback: AIProvider | None = None,
     ) -> None:
-        self.primary = primary
-        self.fallback = fallback or LocalAIProvider()
+        if providers is not None:
+            chain = list(providers)
+        else:
+            chain = [item for item in (primary, fallback) if item is not None]
+        if not chain:
+            chain = [LocalAIProvider()]
+        # Guarantee a local last resort for auto mode chains.
+        if not any(isinstance(item, LocalAIProvider) for item in chain):
+            chain.append(LocalAIProvider())
+        self.providers = chain
 
     async def analyze_requirements(self, document_text: str) -> dict[str, Any]:
-        if self.primary is None:
-            result = await self.fallback.analyze_requirements(document_text)
-            return _mark_local(result, reason="OpenAI was not configured")
+        errors: list[str] = []
+        for index, provider in enumerate(self.providers):
+            name = provider.__class__.__name__
+            try:
+                result = await provider.analyze_requirements(document_text)
+                payload = dict(result)
+                payload.setdefault("provider", name.replace("Provider", "").lower())
+                if index > 0 and isinstance(provider, LocalAIProvider):
+                    return _mark_local(payload, reason="; ".join(errors) or "cloud provider unavailable")
+                if index > 0:
+                    logger.warning("Using fallback provider %s after earlier failures", name)
+                return payload
+            except AppError as exc:
+                is_last = index == len(self.providers) - 1
+                if exc.code not in _FALLBACK_CODES or is_last:
+                    raise
+                errors.append(f"{name}: {exc.message}")
+                logger.warning("%s unavailable (%s); trying next provider", name, exc.code)
 
-        try:
-            result = await self.primary.analyze_requirements(document_text)
-            result = dict(result)
-            result.setdefault("provider", "openai")
-            return result
-        except AppError as exc:
-            if exc.code not in _FALLBACK_CODES:
-                raise
-            logger.warning(
-                "OpenAI analysis unavailable (%s); using local fallback",
-                exc.code,
-            )
-            result = await self.fallback.analyze_requirements(document_text)
-            return _mark_local(result, reason=exc.message)
+        raise AppError("INTERNAL_ERROR", "No AI provider available", status_code=502)
 
     async def generate_clarifications(self, analysis: dict[str, Any]) -> list[str]:
-        if self.primary is None:
-            return await self.fallback.generate_clarifications(analysis)
+        for index, provider in enumerate(self.providers):
+            name = provider.__class__.__name__
+            try:
+                return await provider.generate_clarifications(analysis)
+            except AppError as exc:
+                is_last = index == len(self.providers) - 1
+                if exc.code not in _FALLBACK_CODES or is_last:
+                    raise
+                logger.warning(
+                    "%s clarifications unavailable (%s); trying next provider",
+                    name,
+                    exc.code,
+                )
 
-        try:
-            return await self.primary.generate_clarifications(analysis)
-        except AppError as exc:
-            if exc.code not in _FALLBACK_CODES:
-                raise
-            logger.warning(
-                "OpenAI clarifications unavailable (%s); using local fallback",
-                exc.code,
-            )
-            return await self.fallback.generate_clarifications(analysis)
+        raise AppError("INTERNAL_ERROR", "No AI provider available", status_code=502)
 
 
 def _mark_local(result: dict[str, Any], reason: str) -> dict[str, Any]:
     payload = dict(result)
     note = (
-        "Generated with local fallback because OpenAI was unavailable "
-        f"({reason}). Add billing/quota at platform.openai.com to use GPT analysis."
+        "Generated with local fallback because cloud AI providers were unavailable "
+        f"({reason}). Configure GEMINI_API_KEY for free-tier Gemini analysis."
     )
     assumptions = str(payload.get("assumptions") or "").strip()
     payload["assumptions"] = f"{assumptions}\n- {note}".strip() if assumptions else f"- {note}"

@@ -44,25 +44,40 @@ def _prepare_database() -> None:
         db.close()
 
 
-def _log_openai_config() -> None:
-    key = settings.openai_api_key
-    if key:
+def _log_ai_config() -> None:
+    logger.info("AI provider mode: %s", settings.atlas_ai_provider)
+    gemini_key = settings.gemini_api_key
+    if gemini_key:
+        logger.info(
+            "Gemini configured: model=%s key_prefix=%s key_length=%d",
+            settings.gemini_model,
+            f"{gemini_key[:4]}...",
+            len(gemini_key),
+        )
+    else:
+        logger.info("GEMINI_API_KEY is not set")
+
+    openai_key = settings.openai_api_key
+    if openai_key:
         logger.info(
             "OpenAI configured: model=%s key_prefix=%s key_length=%d",
             settings.openai_model,
-            f"{key[:7]}...",
-            len(key),
+            f"{openai_key[:7]}...",
+            len(openai_key),
         )
     else:
+        logger.info("OPENAI_API_KEY is not set")
+
+    if not gemini_key and not openai_key and settings.atlas_ai_provider != "local":
         logger.warning(
-            "OPENAI_API_KEY is not set — requirement analysis will fail until it is configured",
+            "No cloud AI key configured — auto mode will use local analysis fallback",
         )
 
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     _prepare_database()
-    _log_openai_config()
+    _log_ai_config()
     yield
 
 

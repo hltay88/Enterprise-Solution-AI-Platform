@@ -77,6 +77,8 @@ export type AiStatus = {
   key_length: number;
   reachable: boolean;
   fallback_enabled: boolean;
+  gemini_configured?: boolean;
+  openai_configured?: boolean;
   detail: string | null;
 };
 
