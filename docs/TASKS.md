@@ -19,7 +19,7 @@ Sprint 1
   
 - [x] Create FastAPI Backend  
 - [x] Create Next.js Frontend  
-- [ ] Configure Database Connection  
+- [x] Configure Database Connection  
   
 ---  
   

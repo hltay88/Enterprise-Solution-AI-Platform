@@ -10,6 +10,9 @@ from app.core.config import settings
 from app.core.exceptions import AppError
 from app.core.responses import error_response
 
+# Register ORM models with SQLAlchemy metadata.
+from app import models as _models  # noqa: F401
+
 
 def create_app() -> FastAPI:
     application = FastAPI(

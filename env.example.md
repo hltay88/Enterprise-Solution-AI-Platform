@@ -1,6 +1,7 @@
 # Copy to .env for local Docker Compose (do not commit .env)
 
 # Database
+# Inside Docker Compose use host `db`. On the host machine use `localhost`.
 DATABASE_URL=postgresql://atlas:atlas@db:5432/atlas
 POSTGRES_USER=atlas
 POSTGRES_PASSWORD=atlas
