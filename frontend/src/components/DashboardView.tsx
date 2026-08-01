@@ -101,7 +101,8 @@ export function DashboardView({ user }: DashboardViewProps) {
                   <tr>
                     <th>Project</th>
                     <th>Customer</th>
-                    <th>Industry</th>
+                    <th>Request type</th>
+                    <th>Deal</th>
                     <th>Status</th>
                     <th>Updated</th>
                   </tr>
@@ -115,7 +116,8 @@ export function DashboardView({ user }: DashboardViewProps) {
                         </Link>
                       </td>
                       <td>{project.customer || "—"}</td>
-                      <td>{project.industry || "—"}</td>
+                      <td>{project.request_type || "—"}</td>
+                      <td>{project.deal_name || project.deal_id || "—"}</td>
                       <td>
                         <span className="status-pill">{project.status}</span>
                       </td>

@@ -37,9 +37,20 @@ Schema is applied on first Postgres container init via:
 | id | UUID PK | |  
 | user_id | UUID FK → users | ON DELETE CASCADE |  
 | project_name | TEXT | required |  
-| customer | TEXT | |  
+| customer | TEXT | sales intake |  
 | industry | TEXT | |  
 | status | TEXT | default `draft` |  
+| account_manager | TEXT | sales intake |  
+| deal_id | TEXT | HubSpot deal id |  
+| deal_name | TEXT | HubSpot deal name |  
+| pic_name | TEXT | end-user PIC |  
+| pic_contact | TEXT | |  
+| pic_designation | TEXT | |  
+| budget_information | TEXT | optional |  
+| request_type | TEXT | Technical Clarification / Proposal / Initial Discovery / POC / BOM / SOW |  
+| required_completion_date | DATE | optional |  
+| requirement_details | TEXT | free-text sales notes |  
+| winning_probability | INTEGER | 0–100 optional |  
 | created_at | TIMESTAMPTZ | |  
 | updated_at | TIMESTAMPTZ | |  
   

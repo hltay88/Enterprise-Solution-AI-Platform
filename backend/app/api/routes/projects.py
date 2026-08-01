@@ -26,7 +26,11 @@ def create_project(
     current_user: CurrentUser,
     db: DbSession,
 ) -> dict:
-    project = ProjectService(db).create(current_user.id, body)
+    project = ProjectService(db).create(
+        current_user.id,
+        body,
+        default_account_manager=current_user.name,
+    )
     return success_response(data=project.model_dump(mode="json"), status_code=201)
 
 

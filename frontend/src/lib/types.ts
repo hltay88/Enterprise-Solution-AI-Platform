@@ -35,16 +35,47 @@ export type ProjectSummary = {
   customer: string | null;
   industry: string | null;
   status: string;
+  account_manager: string | null;
+  deal_id: string | null;
+  deal_name: string | null;
+  pic_name: string | null;
+  pic_contact: string | null;
+  pic_designation: string | null;
+  budget_information: string | null;
+  request_type: string | null;
+  required_completion_date: string | null;
+  requirement_details: string | null;
+  winning_probability: number | null;
   created_at: string;
   updated_at: string;
 };
 
 export type ProjectInput = {
   project_name: string;
-  customer?: string | null;
+  customer: string;
   industry?: string | null;
   status?: string;
+  account_manager?: string | null;
+  deal_id: string;
+  deal_name: string;
+  pic_name: string;
+  pic_contact?: string | null;
+  pic_designation?: string | null;
+  budget_information?: string | null;
+  request_type: string;
+  required_completion_date?: string | null;
+  requirement_details: string;
+  winning_probability?: number | null;
 };
+
+export const REQUEST_TYPES = [
+  "Technical Clarification",
+  "Proposal",
+  "Initial Discovery",
+  "POC",
+  "BOM",
+  "SOW",
+] as const;
 
 export type DocumentSummary = {
   id: string;

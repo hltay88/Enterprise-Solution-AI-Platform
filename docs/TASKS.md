@@ -80,3 +80,12 @@ Definition of Done
 ✓ Database works  
   
 ✓ Clarifications work  
+
+---
+
+## Sprint 1.1 — Sales intake fields
+
+- [x] Extend projects table with SmartSD-aligned sales intake columns
+- [x] Update create/edit project form (mandatory + optional fields)
+- [x] Include sales intake text in AI requirement analysis source
+- [x] Allow analysis from intake details and/or uploaded documents
