@@ -1,26 +1,46 @@
 """OpenAI adapter for the AIProvider interface (ATLAS-012)."""
 
 import json
+import logging
 from pathlib import Path
-from typing import Any
+from typing import Any, NoReturn
 
-from openai import AsyncOpenAI
+from openai import (
+    APIConnectionError,
+    APIStatusError,
+    APITimeoutError,
+    AsyncOpenAI,
+    AuthenticationError,
+    BadRequestError,
+    OpenAIError,
+    RateLimitError,
+)
 
 from app.ai.base import AIProvider
 from app.core.config import settings
 from app.core.exceptions import AppError, ValidationAppError
 
+logger = logging.getLogger(__name__)
+
 PROMPTS_DIR = Path(__file__).resolve().parents[2] / "prompts"
+
+
+def _sanitize_api_key(api_key: str | None) -> str | None:
+    if api_key is None:
+        return None
+    cleaned = api_key.strip().strip('"').strip("'").strip()
+    return cleaned or None
 
 
 class OpenAIProvider(AIProvider):
     def __init__(self, api_key: str | None = None, model: str | None = None) -> None:
-        key = api_key if api_key is not None else settings.openai_api_key
+        raw = settings.openai_api_key if api_key is None else api_key
+        key = _sanitize_api_key(raw)
         if not key:
             raise ValidationAppError(
                 "OPENAI_API_KEY is not configured. Set it in your environment to run analysis.",
             )
-        self.model = model or settings.openai_model
+        self.model = (model or settings.openai_model).strip() or "gpt-4o-mini"
         self.client = AsyncOpenAI(api_key=key)
 
     async def analyze_requirements(self, document_text: str) -> dict[str, Any]:
@@ -42,11 +62,7 @@ class OpenAIProvider(AIProvider):
                 ],
             )
         except Exception as exc:
-            raise AppError(
-                "INTERNAL_ERROR",
-                "AI provider failed to analyze requirements",
-                status_code=502,
-            ) from exc
+            _raise_provider_error("analyze requirements", exc)
 
         content = response.choices[0].message.content
         if not content:
@@ -84,11 +100,7 @@ class OpenAIProvider(AIProvider):
                 ],
             )
         except Exception as exc:
-            raise AppError(
-                "INTERNAL_ERROR",
-                "AI provider failed to generate clarifications",
-                status_code=502,
-            ) from exc
+            _raise_provider_error("generate clarifications", exc)
 
         content = response.choices[0].message.content
         if not content:
@@ -111,6 +123,84 @@ class OpenAIProvider(AIProvider):
         if not isinstance(questions, list):
             return []
         return [str(item).strip() for item in questions if str(item).strip()]
+
+
+def _raise_provider_error(action: str, exc: Exception) -> NoReturn:
+    """Map OpenAI SDK errors to actionable API messages (never include secrets)."""
+    logger.exception("OpenAI failed to %s", action)
+
+    if isinstance(exc, AuthenticationError):
+        raise AppError(
+            "INTERNAL_ERROR",
+            "OpenAI authentication failed. Check that OPENAI_API_KEY is valid "
+            "and recreate the backend container after updating .env.",
+            status_code=502,
+        ) from exc
+
+    if isinstance(exc, RateLimitError):
+        raise AppError(
+            "INTERNAL_ERROR",
+            "OpenAI rate limit or quota exceeded. Check billing and usage limits "
+            "at platform.openai.com.",
+            status_code=502,
+        ) from exc
+
+    if isinstance(exc, APITimeoutError):
+        raise AppError(
+            "INTERNAL_ERROR",
+            "OpenAI request timed out. Please retry analysis.",
+            status_code=502,
+        ) from exc
+
+    if isinstance(exc, APIConnectionError):
+        raise AppError(
+            "INTERNAL_ERROR",
+            "Could not reach OpenAI from the backend container. "
+            "Check Docker network/outbound internet access.",
+            status_code=502,
+        ) from exc
+
+    if isinstance(exc, BadRequestError):
+        detail = _safe_openai_message(exc)
+        raise AppError(
+            "INTERNAL_ERROR",
+            f"OpenAI rejected the analysis request: {detail}",
+            status_code=502,
+        ) from exc
+
+    if isinstance(exc, APIStatusError):
+        detail = _safe_openai_message(exc)
+        raise AppError(
+            "INTERNAL_ERROR",
+            f"OpenAI API error (HTTP {exc.status_code}): {detail}",
+            status_code=502,
+        ) from exc
+
+    if isinstance(exc, OpenAIError):
+        detail = _safe_openai_message(exc)
+        raise AppError(
+            "INTERNAL_ERROR",
+            f"OpenAI error while trying to {action}: {detail}",
+            status_code=502,
+        ) from exc
+
+    raise AppError(
+        "INTERNAL_ERROR",
+        f"AI provider failed to {action}",
+        status_code=502,
+    ) from exc
+
+
+def _safe_openai_message(exc: Exception) -> str:
+    message = getattr(exc, "message", None) or str(exc)
+    cleaned = " ".join(str(message).split())
+    if len(cleaned) > 240:
+        cleaned = cleaned[:237] + "..."
+    # Avoid accidentally echoing key-like tokens if SDK includes them.
+    lowered = cleaned.lower()
+    if "sk-" in lowered or "api_key" in lowered or "authorization" in lowered:
+        return "see backend logs for details"
+    return cleaned or "see backend logs for details"
 
 
 def _load_prompt(filename: str) -> str:
