@@ -1,3 +1,5 @@
+"use client";
+
 import { DashboardView } from "@/components/DashboardView";
 import { RequireAuth } from "@/components/RequireAuth";
 
