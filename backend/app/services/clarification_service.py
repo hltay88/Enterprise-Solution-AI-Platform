@@ -83,10 +83,13 @@ class ClarificationService:
 
 
 def _question_budget(domains: list[str]) -> tuple[int, int]:
-    if "wireless" in domains and len(domains) > 1:
-        return 14, 20
-    if "wireless" in domains:
+    count = len(domains)
+    if count == 0:
+        return 8, 12
+    if count == 1:
         return 12, 18
-    if domains:
-        return 10, 16
-    return 8, 12
+    if count == 2:
+        return 14, 20
+    if count == 3:
+        return 16, 22
+    return 18, 24
