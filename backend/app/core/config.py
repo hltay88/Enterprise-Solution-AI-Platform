@@ -28,7 +28,7 @@ class Settings(BaseSettings):
     openai_api_key: str | None = None
     openai_model: str = "gpt-4o-mini"
     gemini_api_key: str | None = None
-    gemini_model: str = "gemini-2.0-flash"
+    gemini_model: str = "gemini-flash-latest"
     # auto | gemini | openai | local
     atlas_ai_provider: str = "auto"
 
@@ -52,9 +52,9 @@ class Settings(BaseSettings):
     @classmethod
     def sanitize_gemini_model(cls, value: object) -> str:
         if value is None:
-            return "gemini-2.0-flash"
+            return "gemini-flash-latest"
         cleaned = str(value).strip().strip('"').strip("'").strip()
-        return cleaned or "gemini-2.0-flash"
+        return cleaned or "gemini-flash-latest"
 
     @field_validator("atlas_ai_provider", mode="before")
     @classmethod
