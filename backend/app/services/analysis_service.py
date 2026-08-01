@@ -56,6 +56,10 @@ class AnalysisService:
             raise NotFoundError("Project not found")
         return project
 
+    def build_source_text(self, project: Project) -> str:
+        """Sales intake + extracted document text used for analysis/clarifications."""
+        return self._build_analysis_source(project)
+
     def _build_analysis_source(self, project: Project) -> str:
         parts: list[str] = []
         intake = _format_sales_intake(project)

@@ -671,6 +671,53 @@ Revisit if public partner APIs require JSON:API or RFC 7807 exclusively.
   
 ---  
   
+## Decision ID: ATLAS-015  
+  
+## Title  
+  
+Domain checklist packs for clarification generation  
+  
+## Status  
+  
+Accepted  
+  
+## Date  
+  
+2026-08-02  
+  
+## Context  
+  
+Generic 5–10 clarification questions based only on structured analysis missed Presales-critical Wireless items (floor plan, coverage zones, heatmap/AP sizing) on real opportunities such as SEGI WLAN.  
+  
+## Decision  
+  
+1. Store domain checklist packs under `knowledge/checklists/` (e.g. `wireless.md`, `networking.md`).  
+2. Detect domains from sales intake + extracted document text + analysis.  
+3. Inject matching checklists into the clarification prompt.  
+4. Pass original source text (not analysis alone) into clarification generation.  
+5. Raise question budget for wireless / multi-domain opportunities (up to ~20).  
+6. Mount `knowledge/` into the backend container via `KNOWLEDGE_PATH`.  
+  
+## Reason  
+  
+Presales quality depends on domain playbooks. Checklists keep prompts focused while remaining editable without code changes for every question.  
+  
+## Alternatives Considered  
+  
+- Hard-code wireless questions only in the prompt (harder to extend)  
+- Vector RAG over all knowledge docs in Sprint 1 (deferred)  
+- Keep analysis-only clarification input (rejected — loses source facts)  
+  
+## Impact  
+  
+ClarificationService, AIProvider adapters, Docker Compose knowledge mount, and `knowledge/checklists/*`.  
+  
+## Future Review  
+  
+Add more packs (security, collaboration, data center) and optional RAG retrieval when the knowledge corpus grows.  
+  
+---  
+  
 # Future Decision Log  
   
 The following areas are expected to require future decisions:  

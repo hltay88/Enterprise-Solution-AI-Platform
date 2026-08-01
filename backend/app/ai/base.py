@@ -12,5 +12,14 @@ class AIProvider(ABC):
         """Return structured requirement analysis for the given document text."""
 
     @abstractmethod
-    async def generate_clarifications(self, analysis: dict[str, Any]) -> list[str]:
-        """Return clarification questions derived from an analysis result."""
+    async def generate_clarifications(
+        self,
+        analysis: dict[str, Any],
+        *,
+        document_text: str = "",
+        checklist_context: str = "",
+        detected_domains: list[str] | None = None,
+        min_questions: int = 8,
+        max_questions: int = 16,
+    ) -> list[str]:
+        """Return clarification questions from analysis, source text, and domain packs."""

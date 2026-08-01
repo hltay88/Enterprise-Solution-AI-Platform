@@ -40,6 +40,9 @@ ANTHROPIC_API_KEY=
 STORAGE_PATH=/app/storage/uploads
 MAX_UPLOAD_MB=10
 
+# Domain clarification checklists (mounted from repo knowledge/ in Compose)
+KNOWLEDGE_PATH=/app/knowledge
+
 # Backend
 CORS_ORIGINS=http://localhost:3000
 

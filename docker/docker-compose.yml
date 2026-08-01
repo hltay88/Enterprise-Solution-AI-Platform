@@ -66,10 +66,12 @@ services:
       STORAGE_PATH: ${STORAGE_PATH:-/app/storage/uploads}
       MAX_UPLOAD_MB: ${MAX_UPLOAD_MB:-10}
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
+      KNOWLEDGE_PATH: ${KNOWLEDGE_PATH:-/app/knowledge}
     ports:
       - "8000:8000"
     volumes:
       - ../storage:/app/storage
+      - ../knowledge:/app/knowledge:ro
     depends_on:
       db:
         condition: service_healthy

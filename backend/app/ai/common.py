@@ -59,3 +59,61 @@ def sanitize_secret(value: str | None) -> str | None:
         return None
     cleaned = value.strip().strip('"').strip("'").strip()
     return cleaned or None
+
+
+def clarification_system_prompt(*, min_questions: int, max_questions: int) -> str:
+    template = load_prompt("clarification_questions.txt")
+    return (
+        template.replace("MIN_QUESTIONS", str(min_questions)).replace(
+            "MAX_QUESTIONS",
+            str(max_questions),
+        )
+    )
+
+
+def clarification_user_prompt(
+    analysis: dict[str, Any],
+    *,
+    document_text: str = "",
+    checklist_context: str = "",
+    detected_domains: list[str] | None = None,
+) -> str:
+    domains = detected_domains or []
+    parts = [
+        "Create clarification questions for this Presales opportunity.",
+        "",
+        "## Structured analysis (JSON)",
+        json.dumps(analysis, ensure_ascii=False, indent=2),
+    ]
+    if domains:
+        parts.extend(["", "## Detected solution domains", ", ".join(domains)])
+    if checklist_context.strip():
+        parts.extend(
+            [
+                "",
+                "## Domain checklist packs (cover unanswered themes)",
+                checklist_context.strip(),
+            ]
+        )
+    source = document_text.strip()
+    if source:
+        # Keep prompts bounded for smaller models / free tiers.
+        if len(source) > 40_000:
+            source = source[:40_000] + "\n\n[truncated]"
+        parts.extend(["", "## Original requirement / sales intake source text", source])
+    else:
+        parts.extend(
+            [
+                "",
+                "## Original requirement / sales intake source text",
+                "(not available — rely on analysis and checklist packs)",
+            ]
+        )
+    return "\n".join(parts)
+
+
+def extract_questions(payload: dict[str, Any]) -> list[str]:
+    questions = payload.get("questions", [])
+    if not isinstance(questions, list):
+        return []
+    return [str(item).strip() for item in questions if str(item).strip()]

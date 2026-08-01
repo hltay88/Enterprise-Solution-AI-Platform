@@ -55,11 +55,27 @@ class FallbackAIProvider(AIProvider):
 
         raise AppError("INTERNAL_ERROR", "No AI provider available", status_code=502)
 
-    async def generate_clarifications(self, analysis: dict[str, Any]) -> list[str]:
+    async def generate_clarifications(
+        self,
+        analysis: dict[str, Any],
+        *,
+        document_text: str = "",
+        checklist_context: str = "",
+        detected_domains: list[str] | None = None,
+        min_questions: int = 8,
+        max_questions: int = 16,
+    ) -> list[str]:
         for index, provider in enumerate(self.providers):
             name = provider.__class__.__name__
             try:
-                return await provider.generate_clarifications(analysis)
+                return await provider.generate_clarifications(
+                    analysis,
+                    document_text=document_text,
+                    checklist_context=checklist_context,
+                    detected_domains=detected_domains,
+                    min_questions=min_questions,
+                    max_questions=max_questions,
+                )
             except AppError as exc:
                 is_last = index == len(self.providers) - 1
                 if exc.code not in _FALLBACK_CODES or is_last:
