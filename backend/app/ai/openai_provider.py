@@ -32,16 +32,32 @@ def _sanitize_api_key(api_key: str | None) -> str | None:
     return cleaned or None
 
 
+def _build_client(api_key: str | None = None) -> tuple[AsyncOpenAI, str, str]:
+    raw = settings.openai_api_key if api_key is None else api_key
+    key = _sanitize_api_key(raw)
+    if not key:
+        raise ValidationAppError(
+            "OPENAI_API_KEY is not configured. Set it in your .env file, then recreate "
+            "the backend container so the key is loaded.",
+        )
+    model = (settings.openai_model or "gpt-4o-mini").strip() or "gpt-4o-mini"
+    return AsyncOpenAI(api_key=key), key, model
+
+
+async def probe_openai_connection(api_key: str | None = None) -> None:
+    """Validate the configured key with a lightweight OpenAI API call."""
+    client, _, _ = _build_client(api_key)
+    try:
+        # models.list authenticates without incurring a chat completion charge
+        await client.models.list()
+    except Exception as exc:
+        _raise_provider_error("validate API key", exc)
+
+
 class OpenAIProvider(AIProvider):
     def __init__(self, api_key: str | None = None, model: str | None = None) -> None:
-        raw = settings.openai_api_key if api_key is None else api_key
-        key = _sanitize_api_key(raw)
-        if not key:
-            raise ValidationAppError(
-                "OPENAI_API_KEY is not configured. Set it in your environment to run analysis.",
-            )
-        self.model = (model or settings.openai_model).strip() or "gpt-4o-mini"
-        self.client = AsyncOpenAI(api_key=key)
+        self.client, _, default_model = _build_client(api_key)
+        self.model = (model or default_model).strip() or default_model
 
     async def analyze_requirements(self, document_text: str) -> dict[str, Any]:
         system_prompt = _load_prompt("requirement_analysis.txt")

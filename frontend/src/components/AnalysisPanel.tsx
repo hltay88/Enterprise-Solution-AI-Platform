@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { apiGet, apiPost, ApiClientError } from "@/lib/api";
-import type { AnalysisResult } from "@/lib/types";
+import type { AiStatus, AnalysisResult } from "@/lib/types";
 
 type AnalysisPanelProps = {
   projectId: string;
@@ -39,6 +39,16 @@ export function AnalysisPanel({ projectId }: AnalysisPanelProps) {
   const [state, setState] = useState<PanelState>({ kind: "loading" });
   const [running, setRunning] = useState(false);
   const [runError, setRunError] = useState<string | null>(null);
+  const [aiStatus, setAiStatus] = useState<AiStatus | null>(null);
+
+  async function loadAiStatus() {
+    try {
+      const status = await apiGet<AiStatus>("/api/ai/status", true);
+      setAiStatus(status);
+    } catch {
+      setAiStatus(null);
+    }
+  }
 
   async function loadAnalysis() {
     try {
@@ -64,6 +74,7 @@ export function AnalysisPanel({ projectId }: AnalysisPanelProps) {
 
   useEffect(() => {
     void loadAnalysis();
+    void loadAiStatus();
   }, [projectId]);
 
   async function runAnalysis() {
@@ -76,10 +87,12 @@ export function AnalysisPanel({ projectId }: AnalysisPanelProps) {
         true,
       );
       setState({ kind: "ready", analysis });
+      void loadAiStatus();
     } catch (error) {
       setRunError(
         error instanceof ApiClientError ? error.message : "Analysis failed",
       );
+      void loadAiStatus();
     } finally {
       setRunning(false);
     }
@@ -104,6 +117,14 @@ export function AnalysisPanel({ projectId }: AnalysisPanelProps) {
         </button>
       </div>
 
+      {aiStatus ? (
+        <p className={aiStatus.reachable ? "muted" : "form-error"}>
+          {aiStatus.reachable
+            ? `OpenAI ready (${aiStatus.model}, ${aiStatus.key_prefix}).`
+            : aiStatus.detail || "OpenAI is not ready."}
+        </p>
+      ) : null}
+
       {runError ? <p className="form-error">{runError}</p> : null}
 
       {state.kind === "loading" ? <p className="status">Loading analysis…</p> : null}
@@ -115,7 +136,8 @@ export function AnalysisPanel({ projectId }: AnalysisPanelProps) {
           <p>No analysis yet.</p>
           <p className="muted">
             Upload at least one requirement document, then run analysis. Requires a valid
-            OPENAI_API_KEY in `.env` (recreate the backend container after changing it).
+            OPENAI_API_KEY in the repo-root `.env` file (recreate the backend container after
+            changing it).
           </p>
         </div>
       ) : null}

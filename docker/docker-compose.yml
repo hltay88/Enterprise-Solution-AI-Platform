@@ -44,6 +44,11 @@ services:
       dockerfile: Dockerfile
     container_name: atlas-backend
     restart: unless-stopped
+    # Load secrets literally from repo-root .env (avoids Compose $ interpolation
+    # mangling OpenAI keys that contain dollar signs).
+    env_file:
+      - path: ../.env
+        required: false
     environment:
       DATABASE_URL: ${DATABASE_URL:-postgresql://atlas:atlas@db:5432/atlas}
       SECRET_KEY: ${SECRET_KEY:-change-me-in-local-dev}
@@ -51,7 +56,7 @@ services:
       DEMO_USER_EMAIL: ${DEMO_USER_EMAIL:-demo@example.com}
       DEMO_USER_PASSWORD: ${DEMO_USER_PASSWORD:-changeme}
       DEMO_USER_NAME: ${DEMO_USER_NAME:-Atlas Demo}
-      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      # OPENAI_API_KEY comes from env_file above (literal, no $ mangling).
       OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
       STORAGE_PATH: ${STORAGE_PATH:-/app/storage/uploads}
       MAX_UPLOAD_MB: ${MAX_UPLOAD_MB:-10}
