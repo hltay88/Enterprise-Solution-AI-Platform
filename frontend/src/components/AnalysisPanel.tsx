@@ -114,7 +114,8 @@ export function AnalysisPanel({ projectId }: AnalysisPanelProps) {
         <div className="empty-state">
           <p>No analysis yet.</p>
           <p className="muted">
-            Upload at least one requirement document, then run analysis. Requires OPENAI_API_KEY.
+            Upload at least one requirement document, then run analysis. Requires a valid
+            OPENAI_API_KEY in `.env` (recreate the backend container after changing it).
           </p>
         </div>
       ) : null}

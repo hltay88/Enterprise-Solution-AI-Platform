@@ -2,6 +2,7 @@
 
 from functools import lru_cache
 
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -26,6 +27,22 @@ class Settings(BaseSettings):
 
     openai_api_key: str | None = None
     openai_model: str = "gpt-4o-mini"
+
+    @field_validator("openai_api_key", mode="before")
+    @classmethod
+    def sanitize_openai_api_key(cls, value: object) -> str | None:
+        if value is None:
+            return None
+        cleaned = str(value).strip().strip('"').strip("'").strip()
+        return cleaned or None
+
+    @field_validator("openai_model", mode="before")
+    @classmethod
+    def sanitize_openai_model(cls, value: object) -> str:
+        if value is None:
+            return "gpt-4o-mini"
+        cleaned = str(value).strip().strip('"').strip("'").strip()
+        return cleaned or "gpt-4o-mini"
 
     storage_path: str = "/app/storage/uploads"
     max_upload_mb: int = 10
