@@ -14,16 +14,21 @@ DEMO_USER_EMAIL=demo@example.com
 DEMO_USER_PASSWORD=changeme
 DEMO_USER_NAME=Atlas Demo
 
-# AI — default OpenAI (ATLAS-012)
-# Paste the key with no quotes/spaces. Keep this file at the repo root as `.env`.
-# After changing this value, recreate backend (restart alone will not reload env):
+# AI — provider-independent (ATLAS-012)
+# Recommended for local demo: Gemini free tier from Google AI Studio
+#   https://aistudio.google.com/apikey
+# Paste keys with no quotes/spaces. Keep this file at the repo root as `.env`.
+# After changing values, recreate backend (restart alone will not reload env):
 #   docker compose -f docker/docker-compose.yml --env-file .env up -d --build --force-recreate backend
-# Then confirm in logs: "OpenAI configured: model=... key_prefix=sk-..."
+GEMINI_API_KEY=
+GEMINI_MODEL=gemini-2.0-flash
+
+# Optional paid/alternative provider
 OPENAI_API_KEY=
 OPENAI_MODEL=gpt-4o-mini
-# auto = OpenAI first, local heuristic fallback on quota/auth failures (recommended for local demo)
-# openai = OpenAI only
-# local = offline heuristic provider only
+
+# auto = Gemini (if keyed) -> OpenAI (if keyed) -> local fallback
+# gemini | openai | local
 ATLAS_AI_PROVIDER=auto
 
 # Optional future providers

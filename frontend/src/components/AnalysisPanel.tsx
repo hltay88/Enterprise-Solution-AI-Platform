@@ -135,8 +135,8 @@ export function AnalysisPanel({ projectId }: AnalysisPanelProps) {
           <p>No analysis yet.</p>
           <p className="muted">
             Upload at least one requirement document, then run analysis. With
-            ATLAS_AI_PROVIDER=auto, OpenAI is used when available and a local fallback runs if
-            quota is exceeded.
+            ATLAS_AI_PROVIDER=auto, Gemini is preferred when GEMINI_API_KEY is set, then OpenAI,
+            then local fallback.
           </p>
         </div>
       ) : null}

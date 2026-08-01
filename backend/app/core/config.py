@@ -27,12 +27,14 @@ class Settings(BaseSettings):
 
     openai_api_key: str | None = None
     openai_model: str = "gpt-4o-mini"
-    # auto | openai | local — auto uses local fallback when OpenAI quota/auth fails
+    gemini_api_key: str | None = None
+    gemini_model: str = "gemini-2.0-flash"
+    # auto | gemini | openai | local
     atlas_ai_provider: str = "auto"
 
-    @field_validator("openai_api_key", mode="before")
+    @field_validator("openai_api_key", "gemini_api_key", mode="before")
     @classmethod
-    def sanitize_openai_api_key(cls, value: object) -> str | None:
+    def sanitize_api_keys(cls, value: object) -> str | None:
         if value is None:
             return None
         cleaned = str(value).strip().strip('"').strip("'").strip()
@@ -46,10 +48,18 @@ class Settings(BaseSettings):
         cleaned = str(value).strip().strip('"').strip("'").strip()
         return cleaned or "gpt-4o-mini"
 
+    @field_validator("gemini_model", mode="before")
+    @classmethod
+    def sanitize_gemini_model(cls, value: object) -> str:
+        if value is None:
+            return "gemini-2.0-flash"
+        cleaned = str(value).strip().strip('"').strip("'").strip()
+        return cleaned or "gemini-2.0-flash"
+
     @field_validator("atlas_ai_provider", mode="before")
     @classmethod
     def sanitize_atlas_ai_provider(cls, value: object) -> str:
-        allowed = {"auto", "openai", "local"}
+        allowed = {"auto", "gemini", "openai", "local"}
         cleaned = str(value or "auto").strip().strip('"').strip("'").strip().lower()
         return cleaned if cleaned in allowed else "auto"
 
