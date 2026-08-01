@@ -68,11 +68,7 @@ class OpenAIProvider(AIProvider):
         return _normalize_analysis(payload)
 
     async def generate_clarifications(self, analysis: dict[str, Any]) -> list[str]:
-        # Implemented for interface completeness; wired in Phase F.
-        system_prompt = (
-            "You generate clarification questions for enterprise solution consulting. "
-            "Return JSON: {\"questions\": [\"...\"]} with 5 to 10 concise questions."
-        )
+        system_prompt = _load_prompt("clarification_questions.txt")
         try:
             response = await self.client.chat.completions.create(
                 model=self.model,
@@ -94,8 +90,23 @@ class OpenAIProvider(AIProvider):
                 status_code=502,
             ) from exc
 
-        content = response.choices[0].message.content or "{}"
-        payload = json.loads(content)
+        content = response.choices[0].message.content
+        if not content:
+            raise AppError(
+                "INTERNAL_ERROR",
+                "AI provider returned an empty clarification response",
+                status_code=502,
+            )
+
+        try:
+            payload = json.loads(content)
+        except json.JSONDecodeError as exc:
+            raise AppError(
+                "INTERNAL_ERROR",
+                "AI provider returned invalid JSON for clarifications",
+                status_code=502,
+            ) from exc
+
         questions = payload.get("questions", [])
         if not isinstance(questions, list):
             return []

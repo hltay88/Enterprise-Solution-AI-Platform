@@ -433,3 +433,20 @@ body {
   font-size: 0.95rem;
   line-height: 1.5;
 }
+
+.clarification-panel {
+  margin-top: 2rem;
+}
+
+.clarification-list {
+  margin: 0;
+  padding-left: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.clarification-list li p {
+  margin: 0.35rem 0 0;
+  line-height: 1.5;
+}

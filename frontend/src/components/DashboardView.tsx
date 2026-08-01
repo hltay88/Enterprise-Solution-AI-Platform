@@ -61,12 +61,14 @@ export function DashboardView({ user }: DashboardViewProps) {
       <main className="page">
         <section className="page-header">
           <h1>Dashboard</h1>
-          <p>Welcome back, {user.name}. Manage your solution projects below.</p>
+          <p>
+            Welcome back, {user.name}. Your saved project history is listed below.
+          </p>
         </section>
 
         <section className="panel">
           <div className="panel-heading">
-            <h2>Projects</h2>
+            <h2>Project history</h2>
             <Link className="btn-primary btn-compact" href="/projects/new">
               New project
             </Link>

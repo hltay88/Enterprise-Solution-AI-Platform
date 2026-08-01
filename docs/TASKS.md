@@ -59,11 +59,9 @@ Risks
   
 ## Phase F  
   
-Generate Clarification Questions  
-  
-Store Project  
-  
-Display History  
+- [x] Generate Clarification Questions  
+- [x] Store Project  
+- [x] Display History  
   
 ---  
   
@@ -80,3 +78,5 @@ Definition of Done
 ✓ AI works  
   
 ✓ Database works  
+  
+✓ Clarifications work  
