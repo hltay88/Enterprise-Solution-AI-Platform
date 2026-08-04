@@ -2,7 +2,9 @@
 
 Project Atlas — an AI presales assistant (login → create project → upload requirement doc →
 AI requirement analysis → clarification questions). Product/vision docs live in `docs/`
-(`README.md`, `PROJECT.md`, `DATABASE.md`, `API_STANDARD.md`).
+(`README.md`, `PROJECT.md`, `DATABASE.md`, `API_STANDARD.md`). Phase 2 (Requirement
+Intelligence Engine / RKM) specs live in `docs/Phase 2/` — see that folder’s `README.md`
+for the read order. Do not recreate a parallel `docs/phase-2/` tree.
 
 ## Cursor Cloud specific instructions
 
