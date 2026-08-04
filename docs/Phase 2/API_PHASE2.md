@@ -1,53 +1,73 @@
 # API_PHASE2.md
-Base URL: `/api/v1`
+
+Related: **ATLAS-026**
 
 ---
 
-## Document APIs
+## Versioning strategy
+
+| Surface | Base path | Status |
+|---------|-----------|--------|
+| Sprint 1 (compat) | `/api/*` | Remains available during Phase 2 transition |
+| Phase 2 RKM APIs | `/api/v1/*` | Canonical for Requirement Intelligence |
+
+Sprint 1 clients continue to use `/api/projects/...` until explicitly migrated.  
+Phase 2 UI and integrations should prefer `/api/v1`.
+
+---
+
+## Document APIs (`/api/v1`)
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | /documents/upload | Upload one or more customer documents. |
-| GET | /documents/{id} | Retrieve uploaded document. |
-| DELETE | /documents/{id} | Delete uploaded document. |
+| POST | `/documents/upload` | Upload one or more customer documents (ATLAS-027 limits). |
+| GET | `/documents/{id}` | Retrieve uploaded document metadata (+ extract status). |
+| GET | `/projects/{projectId}/documents` | List project documents. |
+| DELETE | `/documents/{id}` | Soft-archive/delete uploaded document (project-scoped authz). |
+| GET | `/jobs/{jobId}` | Poll async OCR / analysis job status (ATLAS-029). |
 
 ---
 
-## Requirement APIs
+## Requirement / RKM APIs (`/api/v1`)
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | /requirements/analyze | Analyze uploaded documents. |
-| GET | /requirements/{projectId} | Retrieve active Requirement Knowledge Model. |
-| POST | /requirements/review | Submit review changes. |
-| POST | /requirements/publish | Publish approved Requirement Knowledge Model. |
-| POST | /requirements/version | Create new requirement version. |
-| POST | /requirements/gap-analysis | Generate missing information report. |
+| POST | `/projects/{projectId}/requirements/analyze` | Start async RKM generation job. |
+| GET | `/projects/{projectId}/requirements` | Retrieve active Draft or Published RKM (query: `status`). |
+| GET | `/projects/{projectId}/requirements/versions` | List RKM versions. |
+| GET | `/projects/{projectId}/requirements/versions/{version}` | Get immutable version snapshot. |
+| POST | `/projects/{projectId}/requirements/review` | Submit review edits on Draft. |
+| POST | `/projects/{projectId}/requirements/approve` | Record human approval. |
+| POST | `/projects/{projectId}/requirements/publish` | Publish approved RKM (gates enforced). |
+| POST | `/projects/{projectId}/requirements/version` | Create new version from Draft/Published. |
+| POST | `/projects/{projectId}/requirements/gap-analysis` | Generate missing-information report. |
 
 ---
 
-## Clarification APIs
+## Clarification APIs (`/api/v1`)
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | /clarification/generate | Generate clarification questions. |
-| POST | /clarification/answer | Submit customer answers. |
+| POST | `/projects/{projectId}/clarification/generate` | Generate clarification questions from Draft RKM. |
+| POST | `/projects/{projectId}/clarification/answer` | Submit answers; creates RKM minor version. |
+| GET | `/projects/{projectId}/clarification` | List clarification questions. |
 
 ---
 
-## Analysis APIs
+## Analysis APIs (`/api/v1`)
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | /analysis/history | Retrieve previous AI analysis. |
+| GET | `/projects/{projectId}/analysis/history` | Previous AI analysis / job results. |
 
 ---
 
-## Future APIs
-- Architecture Engine
-- Proposal Engine
-- Presentation Engine
-- SOW Engine
-- BOM Engine
+## Envelope
 
-> These APIs belong to later phases.
+Phase 2 APIs continue the Sprint 1 envelope (`success`, `data`, `error`) unless a later ADR changes ATLAS-014.
+
+---
+
+## Future APIs (Phase 3+)
+
+Architecture, Proposal, Presentation, SOW, BOM — not Phase 2.

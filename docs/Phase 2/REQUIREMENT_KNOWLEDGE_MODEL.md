@@ -54,12 +54,14 @@ Draft → AI Generated → AI Validation → Human Review → Approved → Publi
 
 ## Rules
 
-- One project owns one active RKM.
+- One project owns at most one **Active Draft** RKM and at most one **Published** RKM (ATLAS-024).
 - Every modification creates a new version.
-- Old versions remain immutable.
-- Only approved RKMs can be consumed by downstream engines.
-- AI cannot publish RKMs automatically.
-- Human approval is mandatory.
+- Published versions remain immutable.
+- Only **Published** RKMs can be consumed by downstream engines (ATLAS-023).
+- AI cannot publish RKMs automatically (ATLAS-022).
+- Human approval is mandatory before publish.
+- Every requirement must reference evidence with an allowed `source_type` (ATLAS-021):
+  `document` | `sales_intake` | `workshop` | `clarification_answer`.
 
 ---
 

@@ -11,7 +11,6 @@ uploaded_documents
 document_pages
 document_chunks
 document_metadata
-document_embeddings
 requirement_models
 requirement_versions
 requirements
@@ -28,6 +27,9 @@ approval_history
 review_comments
 audit_logs
 ```
+
+### Deferred (ATLAS-030)
+`document_embeddings` — not required for Sprint 2.1.
 
 ---
 
