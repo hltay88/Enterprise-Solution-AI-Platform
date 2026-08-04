@@ -749,6 +749,28 @@ Clarification quality improves for multi-domain opportunities without requiring 
   
 ---  
   
+---  
+  
+# Phase 2 Decisions (ATLAS-020+)  
+  
+Full text: `docs/Phase 2/DECISIONS_PHASE2.md` and `docs/Phase 2/PHASE2_ROADMAP.md`.  
+  
+| ID | Title | Status |
+|----|-------|--------|
+| ATLAS-020 | RKM is canonical business object | Accepted |
+| ATLAS-021 | Evidence required; source_type includes document / sales_intake / workshop / clarification_answer | Accepted |
+| ATLAS-022 | Human approval required to publish | Accepted |
+| ATLAS-023 | Downstream consumes Published RKM only | Accepted |
+| ATLAS-024 | Published RKM immutable; Active Draft + Published model | Accepted |
+| ATLAS-025 | Phase separation (no architecture/vendors in Phase 2) | Accepted |
+| ATLAS-026 | Sprint 1 `/api/*` kept; Phase 2 APIs under `/api/v1/*` | Accepted |
+| ATLAS-027 | Phase 2.1 file limits 50MB/file, 200MB/batch; type allow-list | Accepted |
+| ATLAS-028 | Phase 2 decision IDs use ATLAS-020+ (retire Decision 011–016) | Accepted |
+| ATLAS-029 | OCR / RKM generation are async jobs | Accepted |
+| ATLAS-030 | Embeddings / vector DB deferred past Sprint 2.1 | Accepted |
+
+---  
+  
 # Future Decision Log  
   
 The following areas are expected to require future decisions:  
@@ -756,7 +778,7 @@ The following areas are expected to require future decisions:
 - Enterprise SSO / OAuth provider  
 - Multi-tenancy  
 - RAG Architecture  
-- Vector Database  
+- Vector Database (deferred by ATLAS-030 for Sprint 2.1)  
 - Knowledge Synchronisation  
 - Cloud object storage (S3/Blob)  
 - Cloud Deployment Strategy  
@@ -768,7 +790,9 @@ The following areas are expected to require future decisions:
 - Plugin Framework  
 - Marketplace  
 - Mobile Application  
-  
+- Virus scan product choice (required by Phase 2 pipeline)  
+- Queue / worker implementation for ATLAS-029  
+
 ---  
   
 # Decision Governance  
