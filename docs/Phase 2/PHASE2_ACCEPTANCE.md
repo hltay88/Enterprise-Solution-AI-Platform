@@ -1,26 +1,38 @@
 # PHASE2_ACCEPTANCE.md
-Phase: Atlas Foundation 0.2
+
+Phase: Atlas Foundation 0.2  
+Rule: checkboxes reflect verified delivery only (see `PHASE2_ROADMAP.md`).
 
 ---
 
-## Exit Criteria
+## Stage A acceptance
 
-Phase 2 is complete only when:
+- [x] Conflicts locked: evidence policy, API versioning, file limits, decision renumbering
+- [x] Roadmap A→F published
+- [x] RKM Schema v1.0 typed contract published
+- [x] Phase 2 decision IDs use ATLAS-020+
 
-- [x] Multi-file upload works
-- [x] OCR functions correctly
-- [x] Text extraction succeeds
-- [x] Requirement Knowledge Model generated
-- [x] Requirement classification completed
-- [x] Evidence mapping completed
-- [x] Gap analysis available
-- [x] Clarification questions generated
-- [x] Requirement scoring completed
-- [x] Human review available
-- [x] Approval workflow operational
-- [x] Version control implemented
-- [x] Audit trail working
-- [x] Published Requirement Knowledge Model available
+---
+
+## Phase 2 product exit criteria (Stages B–F)
+
+Phase 2 product delivery is complete only when:
+
+- [ ] Multi-file upload works within ATLAS-027 limits
+- [ ] OCR functions correctly for images / scanned PDFs
+- [ ] Text extraction succeeds for allowed native formats
+- [ ] Requirement Knowledge Model generated (Draft)
+- [ ] Requirement classification completed
+- [ ] Evidence mapping completed (including non-document source types)
+- [ ] Gap analysis available
+- [ ] Clarification questions generated
+- [ ] Requirement scoring completed
+- [ ] Human review available
+- [ ] Approval workflow operational
+- [ ] Version control implemented
+- [ ] Audit trail working
+- [ ] Published Requirement Knowledge Model available
+- [ ] Downstream-facing fetch of **Published** RKM only is enforced
 
 ---
 
@@ -39,7 +51,7 @@ Phase 2 is complete only when:
 
 | Metric | Target |
 |--------|--------|
-| Completeness | ≥ 85% |
-| Confidence | ≥ 85% |
+| Completeness (to publish) | ≥ 85% |
+| Confidence (to publish) | ≥ 85% |
 | Critical Defects | 0 |
 | Security Findings (High) | 0 |

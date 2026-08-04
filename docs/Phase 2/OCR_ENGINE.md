@@ -10,7 +10,12 @@ OCR is responsible only for text extraction — it does NOT perform AI analysis.
 ---
 
 ## Supported Input
-PDF, DOCX, DOC, XLSX, CSV, TXT, PNG, JPG, JPEG, TIFF, Visio Export, PowerPoint, ZIP
+
+### Phase 2.1 (locked — ATLAS-027)
+PDF, DOCX, DOC, XLSX, CSV, TXT, PNG, JPG, JPEG
+
+### Deferred after 2.1
+TIFF, Visio Export, PowerPoint, ZIP
 
 ---
 

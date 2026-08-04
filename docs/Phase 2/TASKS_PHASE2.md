@@ -1,51 +1,84 @@
 # TASKS_PHASE2.md
-Atlas Foundation 0.2
+
+Atlas Foundation 0.2  
+Tracking rule: mark `[x]` only with demo evidence or automated tests.  
+Roadmap: `PHASE2_ROADMAP.md`
 
 ---
 
-## Sprint 2.1 — Document Intelligence
-**Priority:** High
+## Stage A — Foundations
 
-### Tasks
-- [x] Multi-file upload
-- [x] PDF Parser
-- [x] DOCX Parser
-- [x] Excel Parser
-- [x] Image OCR
-- [x] Text Normalization
-- [x] Metadata Extraction
-- [x] Duplicate Detection
-- [x] Requirement Extraction
-- [x] Requirement Classification
-- [x] Requirement Knowledge Model Generation
-- [x] Requirement Repository
-
-**Deliverable:** Working Requirement Intelligence Engine.
+- [x] Lock evidence policy, API versioning, file limits, decision renumbering (ATLAS-020+)
+- [x] Publish Phase 2 roadmap A→F
+- [x] Reset false-complete checklists
+- [x] Freeze RKM Schema v1.0 typed contract
+- [ ] OpenAPI stub for `/api/v1` Phase 2 routes (optional before Stage B)
 
 ---
 
-## Sprint 2.2 — Gap Analysis
+## Sprint 2.1a — Document Intelligence (Stage B)
 
-### Tasks
-- [x] Missing Information Detection
-- [x] Requirement Completeness Score
-- [x] Confidence Score
-- [x] Dependency Detection
-- [x] Requirement Validation
-- [x] Clarification Question Generator
+- [ ] Multi-file upload (within ATLAS-027 limits)
+- [ ] PDF parser (native text)
+- [ ] DOCX / DOC parser
+- [ ] Excel / CSV parser
+- [ ] Image OCR (PNG/JPG; scanned PDF)
+- [ ] Text normalization
+- [ ] Metadata extraction
+- [ ] Duplicate detection (SHA-256)
+- [ ] Page / chunk persistence
+- [ ] Async processing job status
+
+**Deliverable:** Working document ingest + extract pipeline.
+
+---
+
+## Sprint 2.1b — RKM Generation (Stage C)
+
+- [ ] Requirement extraction → structured items
+- [ ] Requirement classification
+- [ ] Evidence mapping (`document` / `sales_intake` / …)
+- [ ] Draft Requirement Knowledge Model persistence
+- [ ] Sales intake → RKM mapping
+- [ ] Requirement repository / Draft RKM API
+
+**Deliverable:** Draft RKM generated and readable in UI.
+
+---
+
+## Sprint 2.2 — Gap Analysis (Stage D)
+
+- [ ] Missing information detection
+- [ ] Completeness score
+- [ ] Confidence score
+- [ ] Dependency / conflict detection (MVP)
+- [ ] Requirement validation (publish blockers)
+- [ ] Clarification question generator
+- [ ] Clarification answers → RKM minor version
 
 **Deliverable:** Gap Analysis Engine.
 
 ---
 
-## Sprint 2.3 — Interactive Workshop
+## Sprint 2.3 — Interactive Workshop (Stage E)
 
-### Tasks
-- [x] AI Requirement Chat
-- [x] Requirement Editing
-- [x] Requirement Timeline
-- [x] Requirement Approval
-- [x] Requirement Version Control
-- [x] AI Reasoning Viewer
+- [ ] Requirement editing (Draft)
+- [ ] Requirement timeline / version history
+- [ ] Version compare (MVP)
+- [ ] AI reasoning viewer
+- [ ] Approval workflow
+- [ ] Publish RKM (immutable)
+- [ ] AI requirement chat (Draft-only, optional)
 
 **Deliverable:** Interactive Requirement Workspace.
+
+---
+
+## Stage F — Hardening
+
+- [ ] Audit trail for upload / edit / approve / publish
+- [ ] RBAC MVP (Editor + Approver)
+- [ ] Performance targets validated
+- [ ] Security checklist (Phase 2)
+- [ ] Regression test suite green
+- [ ] Knowledge Pack stub injection (vendor-neutral)

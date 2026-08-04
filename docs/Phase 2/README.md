@@ -1,25 +1,29 @@
 # Phase 2 — Atlas Foundation 0.2
 
 **Codename:** Requirement Intelligence Engine  
-**Folder:** `docs/Phase 2/` (canonical source of truth)
+**Folder:** `docs/Phase 2/` (canonical source of truth)  
+**Execution plan:** [PHASE2_ROADMAP.md](./PHASE2_ROADMAP.md)
 
-Phase 2 transforms customer documents into a versioned, human-approved **Requirement Knowledge Model (RKM)** — the single source of truth for all downstream engines. Architecture, proposals, SOW, BOM, and vendor recommendations are **out of scope** (Phase 3+).
+Phase 2 transforms customer documents (and sales intake) into a versioned, human-approved **Requirement Knowledge Model (RKM)** — the single source of truth for all downstream engines. Architecture, proposals, SOW, BOM, and vendor recommendations are **out of scope** (Phase 3+).
 
 ## Read order
 
-1. [PHASE2_PROJECT.md](./PHASE2_PROJECT.md) — objectives and boundaries  
-2. [TASKS_PHASE2.md](./TASKS_PHASE2.md) — Sprint 2.1 / 2.2 / 2.3  
-3. [REQUIREMENT_KNOWLEDGE_MODEL.md](./REQUIREMENT_KNOWLEDGE_MODEL.md) — core concept  
-4. [RKM_SCHEMA.md](./RKM_SCHEMA.md) — canonical schema  
-5. [IMPLEMENTATION_GUIDE.md](./IMPLEMENTATION_GUIDE.md) — build steps  
-6. [PHASE2_ACCEPTANCE.md](./PHASE2_ACCEPTANCE.md) — exit criteria  
+1. [PHASE2_ROADMAP.md](./PHASE2_ROADMAP.md) — A→F stages + locked conflicts  
+2. [PHASE2_PROJECT.md](./PHASE2_PROJECT.md) — objectives and boundaries  
+3. [DECISIONS_PHASE2.md](./DECISIONS_PHASE2.md) — ATLAS-020+ decisions  
+4. [TASKS_PHASE2.md](./TASKS_PHASE2.md) — execution checklist  
+5. [REQUIREMENT_KNOWLEDGE_MODEL.md](./REQUIREMENT_KNOWLEDGE_MODEL.md) — core concept  
+6. [RKM_SCHEMA.md](./RKM_SCHEMA.md) — frozen schema v1.0  
+7. [IMPLEMENTATION_GUIDE.md](./IMPLEMENTATION_GUIDE.md) — build steps  
+8. [PHASE2_ACCEPTANCE.md](./PHASE2_ACCEPTANCE.md) — exit criteria  
 
 ## Document index
 
 | File | Topic |
 |------|-------|
+| [PHASE2_ROADMAP.md](./PHASE2_ROADMAP.md) | A→F roadmap + locks |
 | [PHASE2_PROJECT.md](./PHASE2_PROJECT.md) | Executive summary |
-| [TASKS_PHASE2.md](./TASKS_PHASE2.md) | Sprint tasks |
+| [TASKS_PHASE2.md](./TASKS_PHASE2.md) | Sprint / stage tasks |
 | [REQUIREMENT_KNOWLEDGE_MODEL.md](./REQUIREMENT_KNOWLEDGE_MODEL.md) | RKM definition |
 | [RKM_SCHEMA.md](./RKM_SCHEMA.md) | RKM JSON schema |
 | [REQUIREMENT_CLASSIFICATION.md](./REQUIREMENT_CLASSIFICATION.md) | Categories |
@@ -44,6 +48,6 @@ Phase 2 transforms customer documents into a versioned, human-approved **Require
 | [PHASE2_ACCEPTANCE.md](./PHASE2_ACCEPTANCE.md) | Exit criteria |
 | [PHASE3_HANDOVER.md](./PHASE3_HANDOVER.md) | Handover to Architecture Engine |
 
-## Note on decision IDs
+## Decision IDs
 
-`DECISIONS_PHASE2.md` uses Decision 011–016 for RKM rules. The Sprint 1 log in `docs/DECISIONS.md` already uses ATLAS-011…015a for other topics. Renumber before merging Phase 2 decisions into the main decision log (suggested: ATLAS-020+).
+Phase 2 uses **ATLAS-020+** only. See ATLAS-028.
