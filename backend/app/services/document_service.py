@@ -1,10 +1,11 @@
-"""Document upload and listing logic."""
+"""Document upload and listing logic (Sprint 1 sync path)."""
 
 from uuid import UUID
 
 from fastapi import UploadFile
 from sqlalchemy.orm import Session
 
+from app.constants.file_limits import MIME_BY_TYPE
 from app.core.exceptions import NotFoundError, ValidationAppError
 from app.repositories.document_repository import DocumentRepository
 from app.repositories.project_repository import ProjectRepository
@@ -40,7 +41,7 @@ class DocumentService:
             raise ValidationAppError("Filename is required")
 
         file_type = detect_file_type(upload.filename)
-        relative_path, _size = await self.storage.save_upload(
+        relative_path, size, sha256 = await self.storage.save_upload(
             project_id=project_id,
             upload=upload,
         )
@@ -65,6 +66,12 @@ class DocumentService:
             file_type=file_type,
             storage_path=relative_path,
             extracted_text=text,
+            content_sha256=sha256,
+            file_size_bytes=size,
+            mime_type=MIME_BY_TYPE.get(file_type),
+            status="completed",
+            page_count=1,
+            ocr_used=False,
         )
         return _to_summary(document)
 
@@ -109,4 +116,14 @@ def _to_summary(document) -> DocumentSummary:
         uploaded_at=document.uploaded_at,
         extracted_text=text,
         extracted_preview=preview,
+        content_sha256=getattr(document, "content_sha256", None),
+        file_size_bytes=getattr(document, "file_size_bytes", None),
+        mime_type=getattr(document, "mime_type", None),
+        status=getattr(document, "status", None) or "completed",
+        page_count=getattr(document, "page_count", None),
+        language=getattr(document, "language", None),
+        ocr_used=bool(getattr(document, "ocr_used", False)),
+        needs_manual_review=bool(getattr(document, "needs_manual_review", False)),
+        error_message=getattr(document, "error_message", None),
+        processing_job_id=None,
     )

@@ -22,14 +22,14 @@ ZIP / PPTX / TIFF / Visio are **deferred** past 2.1.
 
 ## Delivery stages (A → F)
 
-### Stage A — Foundations (docs + contracts) — **IN PROGRESS**
+### Stage A — Foundations (docs + contracts) — **DONE**
 - Renumber / record ATLAS-020+ decisions
 - Reset false-complete task/acceptance checkboxes
 - Freeze RKM JSON Schema v1.0 (typed)
 - Align API, file, evidence docs to locks above
 - **Exit:** Stage A PR merged; no application feature code required
 
-### Stage B — Sprint 2.1a Document Intelligence (ingest)
+### Stage B — Sprint 2.1a Document Intelligence (ingest) — **IN PROGRESS**
 - Multi-file upload within locked limits
 - Native text extraction + OCR for images / scanned PDFs only
 - SHA-256 checksum, basic duplicate detection

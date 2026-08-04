@@ -10,5 +10,10 @@ PyJWT==2.10.1
 email-validator==2.2.0
 pypdf==5.9.0
 python-docx==1.1.2
+openpyxl==3.1.5
+Pillow==11.3.0
+pytesseract==0.3.13
+pdf2image==1.17.0
 openai==1.99.1
 google-genai==2.16.0
+pytest==8.4.1

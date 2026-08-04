@@ -1,4 +1,4 @@
-"""Requirement document model."""
+"""Requirement document model (Sprint 1 + Phase 2 Stage B fields)."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import DateTime, ForeignKey, Text, func
+from sqlalchemy import BigInteger, Boolean, DateTime, ForeignKey, Integer, Text, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -39,5 +39,17 @@ class RequirementDocument(Base):
         nullable=False,
         server_default=func.now(),
     )
+
+    # Phase 2 Stage B
+    content_sha256: Mapped[str | None] = mapped_column(Text)
+    file_size_bytes: Mapped[int | None] = mapped_column(BigInteger)
+    mime_type: Mapped[str | None] = mapped_column(Text)
+    status: Mapped[str] = mapped_column(Text, nullable=False, default="completed")
+    page_count: Mapped[int | None] = mapped_column(Integer)
+    language: Mapped[str | None] = mapped_column(Text)
+    ocr_used: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    needs_manual_review: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    error_message: Mapped[str | None] = mapped_column(Text)
+    archived_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
     project: Mapped[Project] = relationship("Project", back_populates="documents")
