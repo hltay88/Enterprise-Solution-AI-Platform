@@ -101,3 +101,20 @@ export async function apiUpload<T>(path: string, file: File, auth = true): Promi
   formData.append("file", file);
   return apiRequest<T>(path, { method: "POST", body: formData, auth });
 }
+
+/** Phase 2 multi-file upload (`files` field + `project_id`). */
+export async function apiUploadMany<T>(
+  path: string,
+  files: File[],
+  fields: Record<string, string>,
+  auth = true,
+): Promise<T> {
+  const formData = new FormData();
+  for (const [key, value] of Object.entries(fields)) {
+    formData.append(key, value);
+  }
+  for (const file of files) {
+    formData.append("files", file);
+  }
+  return apiRequest<T>(path, { method: "POST", body: formData, auth });
+}

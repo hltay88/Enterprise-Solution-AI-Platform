@@ -70,7 +70,9 @@ class Settings(BaseSettings):
         return cleaned if cleaned in allowed else "auto"
 
     storage_path: str = "/app/storage/uploads"
-    max_upload_mb: int = 10
+    # Sprint 1 sync upload default; Phase 2 /api/v1 enforces ATLAS-027 (50 MB) separately.
+    max_upload_mb: int = 50
+    max_batch_upload_mb: int = 200
 
     cors_origins: str = "http://localhost:3000"
 

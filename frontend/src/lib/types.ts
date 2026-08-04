@@ -86,6 +86,45 @@ export type DocumentSummary = {
   uploaded_at: string;
   extracted_text: string | null;
   extracted_preview: string | null;
+  content_sha256?: string | null;
+  file_size_bytes?: number | null;
+  mime_type?: string | null;
+  status?: string;
+  page_count?: number | null;
+  language?: string | null;
+  ocr_used?: boolean;
+  needs_manual_review?: boolean;
+  error_message?: string | null;
+  processing_job_id?: string | null;
+  duplicate_of?: string | null;
+  metadata?: Record<string, string | null>;
+};
+
+export type JobStatus = {
+  id: string;
+  project_id: string;
+  document_id: string | null;
+  job_type: string;
+  status: string;
+  progress: number;
+  error_message: string | null;
+  result_json: Record<string, unknown> | null;
+  created_at: string;
+  started_at: string | null;
+  completed_at: string | null;
+};
+
+export type DocumentUploadItem = {
+  document: DocumentSummary;
+  job: JobStatus | null;
+  duplicate: boolean;
+};
+
+export type DocumentUploadBatchResult = {
+  project_id: string;
+  items: DocumentUploadItem[];
+  accepted_count: number;
+  duplicate_count: number;
 };
 
 export type AnalysisResult = {

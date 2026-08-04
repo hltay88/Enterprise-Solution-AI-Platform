@@ -12,24 +12,25 @@ Roadmap: `PHASE2_ROADMAP.md`
 - [x] Publish Phase 2 roadmap A→F
 - [x] Reset false-complete checklists
 - [x] Freeze RKM Schema v1.0 typed contract
-- [ ] OpenAPI stub for `/api/v1` Phase 2 routes (optional before Stage B)
+- [x] OpenAPI stub for `/api/v1` Phase 2 routes (optional before Stage B)
 
 ---
 
 ## Sprint 2.1a — Document Intelligence (Stage B)
 
-- [ ] Multi-file upload (within ATLAS-027 limits)
-- [ ] PDF parser (native text)
-- [ ] DOCX / DOC parser
-- [ ] Excel / CSV parser
-- [ ] Image OCR (PNG/JPG; scanned PDF)
-- [ ] Text normalization
-- [ ] Metadata extraction
-- [ ] Duplicate detection (SHA-256)
-- [ ] Page / chunk persistence
-- [ ] Async processing job status
+- [x] Multi-file upload (within ATLAS-027 limits)
+- [x] PDF parser (native text)
+- [x] DOCX / DOC parser
+- [x] Excel / CSV parser
+- [x] Image OCR (PNG/JPG; scanned PDF)
+- [x] Text normalization
+- [x] Metadata extraction
+- [x] Duplicate detection (SHA-256)
+- [x] Page / chunk persistence
+- [x] Async processing job status
 
-**Deliverable:** Working document ingest + extract pipeline.
+**Deliverable:** Working document ingest + extract pipeline.  
+**Evidence:** `/api/v1/documents/*` + `/api/v1/jobs/{id}`; `backend/tests/test_parsers.py`, `test_normalize_and_chunking.py`, `test_phase2_file_types.py`.
 
 ---
 

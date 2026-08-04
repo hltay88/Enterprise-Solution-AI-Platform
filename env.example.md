@@ -36,9 +36,10 @@ ATLAS_AI_PROVIDER=auto
 # Optional future providers
 ANTHROPIC_API_KEY=
 
-# File storage (ATLAS-013)
+# File storage (ATLAS-013 / ATLAS-027 Phase 2.1)
 STORAGE_PATH=/app/storage/uploads
-MAX_UPLOAD_MB=10
+MAX_UPLOAD_MB=50
+MAX_BATCH_UPLOAD_MB=200
 
 # Domain clarification checklists (mounted from repo knowledge/ in Compose)
 KNOWLEDGE_PATH=/app/knowledge

@@ -18,9 +18,9 @@ Rule: checkboxes reflect verified delivery only (see `PHASE2_ROADMAP.md`).
 
 Phase 2 product delivery is complete only when:
 
-- [ ] Multi-file upload works within ATLAS-027 limits
-- [ ] OCR functions correctly for images / scanned PDFs
-- [ ] Text extraction succeeds for allowed native formats
+- [x] Multi-file upload works within ATLAS-027 limits
+- [x] OCR functions correctly for images / scanned PDFs
+- [x] Text extraction succeeds for allowed native formats
 - [ ] Requirement Knowledge Model generated (Draft)
 - [ ] Requirement classification completed
 - [ ] Evidence mapping completed (including non-document source types)

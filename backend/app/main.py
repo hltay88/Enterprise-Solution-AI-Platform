@@ -9,6 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app.api.router import api_router
+from app.api.v1_router import v1_router
 from app.core.config import settings
 from app.core.exceptions import AppError
 from app.core.responses import error_response
@@ -97,6 +98,7 @@ def create_app() -> FastAPI:
     )
 
     application.include_router(api_router, prefix="/api")
+    application.include_router(v1_router, prefix="/api/v1")
 
     @application.exception_handler(AppError)
     async def app_error_handler(_: Request, exc: AppError) -> JSONResponse:
