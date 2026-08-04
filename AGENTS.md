@@ -6,6 +6,10 @@ AI requirement analysis → clarification questions). Product/vision docs live i
 Intelligence Engine / RKM) specs live in `docs/Phase 2/` — see that folder’s `README.md`
 for the read order. Do not recreate a parallel `docs/phase-2/` tree.
 
+For **Mac Docker one-command start/stop**, use `./start-atlas.sh` / `./stop-atlas.sh`
+(see `docs/LOCAL_START.md`). Cloud agents still prefer the native Postgres + uvicorn +
+`npm run dev` flow below.
+
 ## Cursor Cloud specific instructions
 
 The environment runs this stack **natively** (not via Docker Compose). The Docker Compose
