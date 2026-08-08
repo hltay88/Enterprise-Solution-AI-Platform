@@ -60,6 +60,9 @@ Project Atlas — Atlas Foundation 0.2
 - Publish blockers (score thresholds + human approval gate)
 - Frontend `GapAnalysisPanel` with answer → version round-trip
 
+### Fixed
+- Clarification answers now **merge into Draft RKM content** (requirement/environment/stakeholder text), not evidence links only — so the new minor version visibly reflects submitted answers
+
 ---
 
 ## Planned
