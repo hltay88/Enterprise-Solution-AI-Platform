@@ -40,7 +40,7 @@ class RkmGenerationService:
 
     def get_active_draft(self, project_id: UUID, user_id: UUID) -> RkmDraftOut:
         self._require_project(project_id, user_id)
-        row = self.rkms.get_active_draft(project_id)
+        row = self.rkms.ensure_active_draft(project_id)
         if row is None:
             raise NotFoundError("No Draft RKM found for this project")
         return RkmDraftOut.model_validate(row.payload_json)

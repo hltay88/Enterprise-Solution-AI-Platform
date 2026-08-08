@@ -48,7 +48,7 @@ class GapAnalysisService:
 
     def run_gap_analysis(self, project_id: UUID, user_id: UUID) -> GapAnalysisOut:
         self._require_project(project_id, user_id)
-        row = self.rkms.get_active_draft(project_id)
+        row = self.rkms.ensure_active_draft(project_id)
         if row is None:
             raise NotFoundError("No Draft RKM found for this project")
 
@@ -120,7 +120,7 @@ class GapAnalysisService:
 
     def list_clarifications(self, project_id: UUID, user_id: UUID) -> list[ClarificationOut]:
         self._require_project(project_id, user_id)
-        row = self.rkms.get_active_draft(project_id)
+        row = self.rkms.ensure_active_draft(project_id)
         if row is None:
             raise NotFoundError("No Draft RKM found for this project")
         items = (row.payload_json or {}).get("clarification_questions") or []
@@ -140,7 +140,7 @@ class GapAnalysisService:
         if not body.answers:
             raise ValidationAppError("At least one clarification answer is required")
 
-        row = self.rkms.get_active_draft(project_id)
+        row = self.rkms.ensure_active_draft(project_id)
         if row is None:
             raise NotFoundError("No Draft RKM found for this project")
 
@@ -231,8 +231,10 @@ class GapAnalysisService:
             "published_at": None,
         }
 
+        # Requirement/evidence UUIDs must be unique across versions (PK). Remap
+        # before persist so answer→minor-version never collides with the prior draft.
+        payload = _remap_payload_entity_ids(payload)
         requirements, evidence_rows, links = _flatten_payload_for_persist(payload)
-        # Ensure new RKM id is used consistently in payload after create.
         validated = RkmDraftOut.model_validate(payload)
 
         created = self.rkms.create_draft(
@@ -650,6 +652,92 @@ class GapAnalysisService:
         if project is None:
             raise NotFoundError("Project not found")
         return project
+
+
+def _remap_payload_entity_ids(payload: dict[str, Any]) -> dict[str, Any]:
+    """Assign fresh UUIDs to requirements/evidence so new versions can persist."""
+    data = copy.deepcopy(payload)
+    id_map: dict[str, str] = {}
+
+    def map_id(old: Any) -> str | None:
+        if old is None:
+            return None
+        key = str(old)
+        if key not in id_map:
+            id_map[key] = str(uuid.uuid4())
+        return id_map[key]
+
+    def remap_items(items: list[Any]) -> list[dict[str, Any]]:
+        remapped: list[dict[str, Any]] = []
+        for item in items:
+            if not isinstance(item, dict):
+                continue
+            row = dict(item)
+            if row.get("id") is not None:
+                row["id"] = map_id(row.get("id"))
+            evidence_ids = []
+            for evidence_id in row.get("evidence_ids") or []:
+                mapped = map_id(evidence_id)
+                if mapped:
+                    evidence_ids.append(mapped)
+            row["evidence_ids"] = evidence_ids
+            remapped.append(row)
+        return remapped
+
+    for section in (
+        "business_objectives",
+        "functional_requirements",
+        "non_functional_requirements",
+        "constraints",
+        "dependencies",
+        "risks",
+        "assumptions",
+    ):
+        data[section] = remap_items(list(data.get(section) or []))
+
+    env = dict(data.get("current_environment") or {})
+    env["items"] = remap_items(list(env.get("items") or []))
+    data["current_environment"] = env
+
+    stakeholders = []
+    for item in list(data.get("stakeholders") or []):
+        if not isinstance(item, dict):
+            continue
+        row = dict(item)
+        if row.get("id") is not None:
+            row["id"] = map_id(row.get("id"))
+        evidence_ids = []
+        for evidence_id in row.get("evidence_ids") or []:
+            mapped = map_id(evidence_id)
+            if mapped:
+                evidence_ids.append(mapped)
+        row["evidence_ids"] = evidence_ids
+        stakeholders.append(row)
+    data["stakeholders"] = stakeholders
+
+    evidence_rows = []
+    for item in list(data.get("evidence") or []):
+        if not isinstance(item, dict):
+            continue
+        row = dict(item)
+        if row.get("id") is not None:
+            row["id"] = map_id(row.get("id"))
+        evidence_rows.append(row)
+    data["evidence"] = evidence_rows
+
+    clarifications = []
+    for item in list(data.get("clarification_questions") or []):
+        if not isinstance(item, dict):
+            continue
+        row = dict(item)
+        affected = []
+        for requirement_id in row.get("affected_requirement_ids") or []:
+            key = str(requirement_id)
+            affected.append(id_map.get(key, key))
+        row["affected_requirement_ids"] = affected
+        clarifications.append(row)
+    data["clarification_questions"] = clarifications
+    return data
 
 
 def _flatten_payload_for_persist(
