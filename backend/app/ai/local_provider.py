@@ -101,6 +101,14 @@ class LocalAIProvider(AIProvider):
             "model": "local-heuristics",
         }
 
+    async def recommend_architecture(
+        self,
+        published_rkm: dict[str, Any],
+        *,
+        knowledge_pack_context: str = "",
+    ) -> dict[str, Any]:
+        return _local_architecture(published_rkm, knowledge_pack_context=knowledge_pack_context)
+
     async def generate_clarifications(
         self,
         analysis: dict[str, Any],
@@ -346,3 +354,179 @@ def _pick(sentences: list[str], keywords: tuple[str, ...], limit: int) -> list[s
 
 def _as_bullets(items: list[str]) -> str:
     return "\n".join(f"- {item.rstrip('.')}" for item in items if item.strip())
+
+
+def _local_architecture(
+    published_rkm: dict[str, Any],
+    *,
+    knowledge_pack_context: str = "",
+) -> dict[str, Any]:
+    """Vendor-neutral architecture heuristic from Published RKM fields."""
+    blob_parts: list[str] = []
+    titles: list[str] = []
+    for key in (
+        "business_objectives",
+        "functional_requirements",
+        "non_functional_requirements",
+        "constraints",
+        "risks",
+    ):
+        for item in published_rkm.get(key) or []:
+            if not isinstance(item, dict):
+                continue
+            title = str(item.get("title") or "").strip()
+            desc = str(item.get("description") or "").strip()
+            if title:
+                titles.append(title)
+            blob_parts.extend([title, desc])
+    haystack = " ".join(blob_parts + [knowledge_pack_context]).lower()
+
+    wants_wifi = any(token in haystack for token in ("wifi", "wi-fi", "wlan", "wireless", "access point"))
+    wants_switching = any(token in haystack for token in ("switch", "switching", "10g", "uplink", "lan"))
+    wants_security = any(token in haystack for token in ("802.1x", "nac", "firewall", "security", "ad "))
+    wants_ops = any(token in haystack for token in ("nms", "monitor", "observability", "alerting"))
+
+    domains: list[str] = []
+    if wants_wifi:
+        domains.append("campus wireless")
+    if wants_switching:
+        domains.append("campus LAN switching")
+    if wants_security:
+        domains.append("network access security")
+    if wants_ops:
+        domains.append("network operations")
+    if not domains:
+        domains.append("enterprise infrastructure")
+
+    high_level = [
+        f"Deliver a layered {', '.join(domains)} architecture aligned to published business outcomes.",
+        "Separate access, distribution/core, and services/management planes.",
+        "Keep design vendor-neutral; select products in a later BOM phase.",
+    ]
+    logical = [
+        "User / device access layer for wired and/or wireless endpoints",
+        "Aggregation / core layer for east-west and north-south traffic",
+        "Identity and policy services for authentication and segmentation",
+        "Management / observability plane for configuration and alerting",
+    ]
+    physical = [
+        "Per-floor or per-IDF access infrastructure as required by coverage/density",
+        "Redundant uplinks from access to distribution/core where HA is required",
+        "Centralized or distributed controllers/services per site scale",
+    ]
+    stack: list[dict[str, str]] = []
+    if wants_wifi:
+        stack.append(
+            {
+                "layer": "Access",
+                "category": "Enterprise Wi-Fi 6/6E WLAN",
+                "rationale": "Satisfies wireless coverage and concurrent client requirements.",
+            },
+        )
+    if wants_switching:
+        stack.append(
+            {
+                "layer": "Campus LAN",
+                "category": "Multi-gig / 10G capable access and aggregation switching",
+                "rationale": "Supports uplink capacity and wired aggregation needs.",
+            },
+        )
+    if wants_security:
+        stack.append(
+            {
+                "layer": "Security",
+                "category": "802.1X / NAC with directory integration",
+                "rationale": "Enforces authenticated access aligned to identity requirements.",
+            },
+        )
+    if wants_ops:
+        stack.append(
+            {
+                "layer": "Operations",
+                "category": "Centralized NMS / observability",
+                "rationale": "Provides monitoring and alerting for day-2 operations.",
+            },
+        )
+    if not stack:
+        stack.append(
+            {
+                "layer": "Platform",
+                "category": "Enterprise infrastructure platform",
+                "rationale": "Baseline architecture pending richer published requirements.",
+            },
+        )
+
+    components = [
+        {
+            "name": item,
+            "purpose": f"Supports published requirement: {item}",
+            "maps_to_requirements": [item],
+        }
+        for item in titles[:6]
+    ] or [
+        {
+            "name": "Core solution fabric",
+            "purpose": "Primary architecture backbone for published objectives",
+            "maps_to_requirements": [],
+        },
+    ]
+
+    assumptions = [
+        "Published RKM is complete enough for high-level architecture.",
+        "Detailed BOM and vendor selection occur in later phases.",
+    ]
+    if knowledge_pack_context.strip():
+        assumptions.append("Vendor-neutral knowledge pack guidance was applied.")
+
+    risks = [
+        str(item.get("title") or item.get("description") or "Technical risk")
+        for item in (published_rkm.get("risks") or [])
+        if isinstance(item, dict)
+    ][:5] or [
+        "Incomplete site surveys may change access density and topology.",
+        "Identity integration details may alter security control placement.",
+    ]
+
+    return {
+        "summary": (
+            f"Vendor-neutral architecture recommendation for {', '.join(domains)} "
+            "derived from the Published Requirement Knowledge Model."
+        ),
+        "high_level_architecture": high_level,
+        "logical_architecture": logical,
+        "physical_architecture": physical,
+        "technology_stack": stack,
+        "solution_components": components,
+        "design_assumptions": assumptions,
+        "technical_risks": risks,
+        "architecture_decisions": [
+            {
+                "decision": "Use layered campus architecture with separated management plane",
+                "rationale": "Improves operability and limits blast radius of access changes.",
+                "impact": "Guides switching, WLAN, and ops tool placement.",
+            },
+            {
+                "decision": "Remain vendor-neutral in Phase 3 MVP",
+                "rationale": "ATLAS phase separation defers product SKUs to BOM/vendor stages.",
+                "impact": "Technology categories only; no OEM lock-in yet.",
+            },
+        ],
+        "alternatives": [
+            {
+                "name": "Controller-light / distributed edge",
+                "summary": "Push more policy to the access edge",
+                "tradeoffs": "Simpler core, more complex edge operations.",
+            },
+            {
+                "name": "Centralized services hub",
+                "summary": "Concentrate identity and management centrally",
+                "tradeoffs": "Stronger consistency; higher WAN/dependency risk for remote sites.",
+            },
+        ],
+        "reasoning_summary": (
+            "Generated with local architecture heuristics from Published RKM"
+            + (" and knowledge pack stubs." if knowledge_pack_context.strip() else ".")
+        ),
+        "provider": "local",
+        "model": "local-architecture-heuristics",
+    }

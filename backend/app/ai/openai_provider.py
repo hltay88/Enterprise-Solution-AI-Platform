@@ -21,6 +21,7 @@ from app.ai.common import (
     clarification_system_prompt,
     clarification_user_prompt,
     extract_questions,
+    normalize_architecture,
     normalize_rkm_extraction,
 )
 from app.core.config import settings
@@ -195,6 +196,57 @@ class OpenAIProvider(AIProvider):
             ) from exc
 
         result = normalize_rkm_extraction(payload)
+        result["provider"] = "openai"
+        result["model"] = self.model
+        return result
+
+    async def recommend_architecture(
+        self,
+        published_rkm: dict[str, Any],
+        *,
+        knowledge_pack_context: str = "",
+    ) -> dict[str, Any]:
+        system_prompt = _load_prompt("architecture_recommendation.txt")
+        pack = knowledge_pack_context.strip()
+        user_content = (
+            "Create a vendor-neutral architecture recommendation from this "
+            "Published Requirement Knowledge Model JSON:\n\n"
+            + json.dumps(published_rkm, ensure_ascii=True)[:120000]
+        )
+        if pack:
+            user_content += (
+                "\n\nAdditional vendor-neutral knowledge pack guidance:\n" + pack[:8000]
+            )
+        try:
+            response = await self.client.chat.completions.create(
+                model=self.model,
+                temperature=0.2,
+                response_format={"type": "json_object"},
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_content},
+                ],
+            )
+        except Exception as exc:
+            _raise_provider_error("recommend architecture", exc)
+
+        content = response.choices[0].message.content
+        if not content:
+            raise AppError(
+                "INTERNAL_ERROR",
+                "AI provider returned an empty architecture response",
+                status_code=502,
+            )
+        try:
+            payload = json.loads(content)
+        except json.JSONDecodeError as exc:
+            raise AppError(
+                "INTERNAL_ERROR",
+                "AI provider returned invalid JSON for architecture",
+                status_code=502,
+            ) from exc
+
+        result = normalize_architecture(payload)
         result["provider"] = "openai"
         result["model"] = self.model
         return result

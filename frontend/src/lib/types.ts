@@ -36,6 +36,46 @@ export type AuditLogEntry = {
   created_at: string;
 };
 
+export type ArchitectureRecommendation = {
+  id: string;
+  project_id: string;
+  rkm_id: string | null;
+  rkm_version_label: string | null;
+  status: string;
+  version_label: string;
+  summary: string;
+  high_level_architecture: string[];
+  logical_architecture: string[];
+  physical_architecture: string[];
+  technology_stack: Array<{
+    layer: string;
+    category: string;
+    rationale: string;
+  }>;
+  solution_components: Array<{
+    name: string;
+    purpose: string;
+    maps_to_requirements: string[];
+  }>;
+  design_assumptions: string[];
+  technical_risks: string[];
+  architecture_decisions: Array<{
+    decision: string;
+    rationale: string;
+    impact: string;
+  }>;
+  alternatives: Array<{
+    name: string;
+    summary: string;
+    tradeoffs: string;
+  }>;
+  reasoning_summary: string;
+  model: string | null;
+  prompt_version: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
 export type LoginData = {
   access_token: string;
   token_type: string;

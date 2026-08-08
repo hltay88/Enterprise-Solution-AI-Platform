@@ -1,10 +1,10 @@
 # AGENTS.md
 
 Project Atlas — an AI presales assistant (login → create project → upload requirement doc →
-AI requirement analysis → clarification questions). Product/vision docs live in `docs/`
-(`README.md`, `PROJECT.md`, `DATABASE.md`, `API_STANDARD.md`). Phase 2 (Requirement
-Intelligence Engine / RKM) specs live in `docs/Phase 2/` — see that folder’s `README.md`
-for the read order. Do not recreate a parallel `docs/phase-2/` tree.
+AI requirement analysis → clarification questions → Draft/Published RKM → architecture).
+Product/vision docs live in `docs/` (`README.md`, `PROJECT.md`, `DATABASE.md`,
+`API_STANDARD.md`). Phase 2 specs: `docs/Phase 2/`. Phase 3 specs: `docs/Phase 3/`.
+Do not recreate parallel lowercase doc trees.
 
 For **Mac Docker one-command start/stop**, use `./start-atlas.sh` / `./stop-atlas.sh`
 (see `docs/LOCAL_START.md`). Cloud agents still prefer the native Postgres + uvicorn +

@@ -191,3 +191,37 @@ def normalize_rkm_extraction(payload: dict[str, Any]) -> dict[str, Any]:
         "provider": payload.get("provider"),
         "model": payload.get("model"),
     }
+
+
+def normalize_architecture(payload: dict[str, Any]) -> dict[str, Any]:
+    """Normalize architecture recommendation JSON from cloud providers."""
+
+    def _strings(key: str) -> list[str]:
+        value = payload.get(key) or []
+        if isinstance(value, str) and value.strip():
+            return [value.strip()]
+        if not isinstance(value, list):
+            return []
+        return [str(item).strip() for item in value if str(item).strip()]
+
+    def _dicts(key: str) -> list[dict[str, Any]]:
+        value = payload.get(key) or []
+        if not isinstance(value, list):
+            return []
+        return [item for item in value if isinstance(item, dict)]
+
+    return {
+        "summary": str(payload.get("summary") or "").strip(),
+        "high_level_architecture": _strings("high_level_architecture"),
+        "logical_architecture": _strings("logical_architecture"),
+        "physical_architecture": _strings("physical_architecture"),
+        "technology_stack": _dicts("technology_stack"),
+        "solution_components": _dicts("solution_components"),
+        "design_assumptions": _strings("design_assumptions"),
+        "technical_risks": _strings("technical_risks"),
+        "architecture_decisions": _dicts("architecture_decisions"),
+        "alternatives": _dicts("alternatives"),
+        "reasoning_summary": str(payload.get("reasoning_summary") or "").strip(),
+        "provider": payload.get("provider"),
+        "model": payload.get("model"),
+    }

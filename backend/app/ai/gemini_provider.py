@@ -17,6 +17,7 @@ from app.ai.common import (
     extract_questions,
     load_prompt,
     normalize_analysis,
+    normalize_architecture,
     normalize_rkm_extraction,
     parse_json_object,
     sanitize_secret,
@@ -134,6 +135,39 @@ class GeminiProvider(AIProvider):
             invalid_message="AI provider returned invalid JSON for RKM extraction",
         )
         result = normalize_rkm_extraction(payload)
+        result["provider"] = "gemini"
+        result["model"] = self.model
+        return result
+
+    async def recommend_architecture(
+        self,
+        published_rkm: dict[str, Any],
+        *,
+        knowledge_pack_context: str = "",
+    ) -> dict[str, Any]:
+        system_prompt = load_prompt("architecture_recommendation.txt")
+        pack = knowledge_pack_context.strip()
+        user_prompt = (
+            "Create a vendor-neutral architecture recommendation from this "
+            "Published Requirement Knowledge Model JSON:\n\n"
+            + json.dumps(published_rkm, ensure_ascii=True)[:120000]
+        )
+        if pack:
+            user_prompt += (
+                "\n\nAdditional vendor-neutral knowledge pack guidance:\n" + pack[:8000]
+            )
+        response = await self._generate(
+            action="recommend architecture",
+            system_prompt=system_prompt,
+            user_prompt=user_prompt,
+            temperature=0.2,
+        )
+        payload = parse_json_object(
+            response.text or "",
+            empty_message="AI provider returned an empty architecture response",
+            invalid_message="AI provider returned invalid JSON for architecture",
+        )
+        result = normalize_architecture(payload)
         result["provider"] = "gemini"
         result["model"] = self.model
         return result

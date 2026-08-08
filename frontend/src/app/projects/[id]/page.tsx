@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { AnalysisPanel } from "@/components/AnalysisPanel";
+import { ArchitecturePanel } from "@/components/ArchitecturePanel";
 import { AppHeader } from "@/components/AppHeader";
 import { AuditLogPanel } from "@/components/AuditLogPanel";
 import { ClarificationPanel } from "@/components/ClarificationPanel";
@@ -139,6 +140,10 @@ function ProjectDetailContent({ userName }: { userName: string }) {
                 setRkmRefreshToken((value) => value + 1);
                 setRkmHighlightVersion(versionLabel || null);
               }}
+            />
+            <ArchitecturePanel
+              projectId={projectId}
+              refreshToken={rkmRefreshToken}
             />
             <AnalysisPanel projectId={projectId} />
             <ClarificationPanel projectId={projectId} />

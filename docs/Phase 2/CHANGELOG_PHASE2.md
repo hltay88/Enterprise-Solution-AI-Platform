@@ -101,12 +101,11 @@ Project Atlas — Atlas Foundation 0.2
 
 ## Planned
 
-### Phase 3 — Architecture Recommendation Engine
+See `docs/Phase 3/` for Architecture Recommendation Engine delivery notes.
 
 ---
 
 ## Future (Phase 3+)
-- Architecture Recommendation Engine
 - Proposal Generator
 - PowerPoint Generator
 - Statement of Work Generator

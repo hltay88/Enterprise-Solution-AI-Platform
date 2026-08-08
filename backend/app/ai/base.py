@@ -27,3 +27,12 @@ class AIProvider(ABC):
     @abstractmethod
     async def extract_rkm_draft(self, source_text: str) -> dict[str, Any]:
         """Return structured Draft RKM extraction payload (Stage C)."""
+
+    @abstractmethod
+    async def recommend_architecture(
+        self,
+        published_rkm: dict[str, Any],
+        *,
+        knowledge_pack_context: str = "",
+    ) -> dict[str, Any]:
+        """Return vendor-neutral architecture recommendation from a Published RKM."""
