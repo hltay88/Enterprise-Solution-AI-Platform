@@ -343,14 +343,26 @@ class GapAnalysisService:
                     continue
                 item_id = item.get("id")
                 affected = [UUID(str(item_id))] if item_id else []
-                description = str(item.get("description") or "").strip()
-                if len(description) < 20:
+                label = str(
+                    item.get("title")
+                    or item.get("name")
+                    or item.get("role")
+                    or "untitled",
+                ).strip()
+                description = str(
+                    item.get("description")
+                    or item.get("designation")
+                    or item.get("role")
+                    or "",
+                ).strip()
+                # Stakeholders often only have name/contact; don't treat as thin content.
+                if section != "stakeholders" and len(description) < 20:
                     gaps.append(
                         GapItem(
                             code="thin_description",
                             section=section,
                             severity="medium",
-                            message=f"Requirement needs more detail: {item.get('title') or 'untitled'}",
+                            message=f"Requirement needs more detail: {label}",
                             affected_requirement_ids=affected,
                         ),
                     )
@@ -361,7 +373,7 @@ class GapAnalysisService:
                             code="missing_evidence",
                             section=section,
                             severity="high",
-                            message=f"No evidence linked for: {item.get('title') or 'untitled'}",
+                            message=f"No evidence linked for: {label}",
                             affected_requirement_ids=affected,
                         ),
                     )
