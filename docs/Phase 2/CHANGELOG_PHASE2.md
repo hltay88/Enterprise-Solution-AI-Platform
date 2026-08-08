@@ -50,9 +50,20 @@ Project Atlas — Atlas Foundation 0.2
 
 ---
 
+## Version 0.2.3 — Stage D Gap Analysis (Sprint 2.2)
+
+### Added
+- Deterministic completeness / confidence / consistency / evidence scoring
+- `POST /api/v1/projects/{id}/requirements/gap-analysis`
+- Clarification APIs: generate / list / answer under `/api/v1/projects/{id}/clarification*`
+- Clarification answers create a new Draft RKM **minor** version with `clarification_answer` evidence
+- Publish blockers (score thresholds + human approval gate)
+- Frontend `GapAnalysisPanel` with answer → version round-trip
+
+---
+
 ## Planned
 
-### 0.2.3 — Sprint 2.2 gap analysis (Stage D)
 ### 0.2.4 — Sprint 2.3 workspace + publish (Stage E)
 ### 0.2.5 — Hardening (Stage F)
 

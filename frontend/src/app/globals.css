@@ -495,8 +495,34 @@ body {
   line-height: 1.5;
 }
 
-.rkm-panel {
+.rkm-panel,
+.gap-panel {
   margin-top: 1.5rem;
+}
+
+.gap-blockers {
+  margin: 0 0 1rem;
+}
+
+.gap-blockers h3 {
+  margin: 0 0 0.4rem;
+  font-size: 1rem;
+}
+
+.gap-blockers ul {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+.gap-answer {
+  width: 100%;
+  margin-top: 0.5rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--color-line);
+  border-radius: 0;
+  font: inherit;
+  resize: vertical;
+  background: rgba(255, 255, 255, 0.9);
 }
 
 .rkm-meta {

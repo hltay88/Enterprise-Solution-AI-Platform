@@ -24,9 +24,9 @@ Phase 2 product delivery is complete only when:
 - [x] Requirement Knowledge Model generated (Draft)
 - [x] Requirement classification completed
 - [x] Evidence mapping completed (including non-document source types)
-- [ ] Gap analysis available
-- [ ] Clarification questions generated
-- [ ] Requirement scoring completed
+- [x] Gap analysis available
+- [x] Clarification questions generated
+- [x] Requirement scoring completed
 - [ ] Human review available
 - [ ] Approval workflow operational
 - [ ] Version control implemented

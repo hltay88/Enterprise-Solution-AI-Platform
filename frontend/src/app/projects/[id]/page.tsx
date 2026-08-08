@@ -8,6 +8,7 @@ import { AnalysisPanel } from "@/components/AnalysisPanel";
 import { AppHeader } from "@/components/AppHeader";
 import { ClarificationPanel } from "@/components/ClarificationPanel";
 import { DocumentUploadPanel } from "@/components/DocumentUploadPanel";
+import { GapAnalysisPanel } from "@/components/GapAnalysisPanel";
 import { ProjectForm } from "@/components/ProjectForm";
 import { RequireAuth } from "@/components/RequireAuth";
 import { RkmPanel } from "@/components/RkmPanel";
@@ -25,6 +26,7 @@ function ProjectDetailContent({ userName }: { userName: string }) {
   const projectId = params.id;
   const [state, setState] = useState<DetailState>({ kind: "loading" });
   const [deleting, setDeleting] = useState(false);
+  const [rkmRefreshKey, setRkmRefreshKey] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -92,8 +94,8 @@ function ProjectDetailContent({ userName }: { userName: string }) {
           </p>
           <h1>Project details</h1>
           <p>
-            Update sales intake, upload documents, generate a Draft RKM with evidence, and
-            run clarification questions.
+            Update sales intake, upload documents, generate a Draft RKM, run gap analysis,
+            and answer clarifications.
           </p>
         </section>
 
@@ -113,7 +115,11 @@ function ProjectDetailContent({ userName }: { userName: string }) {
             </section>
 
             <DocumentUploadPanel projectId={projectId} />
-            <RkmPanel projectId={projectId} />
+            <RkmPanel key={rkmRefreshKey} projectId={projectId} />
+            <GapAnalysisPanel
+              projectId={projectId}
+              onDraftUpdated={() => setRkmRefreshKey((value) => value + 1)}
+            />
             <AnalysisPanel projectId={projectId} />
             <ClarificationPanel projectId={projectId} />
 

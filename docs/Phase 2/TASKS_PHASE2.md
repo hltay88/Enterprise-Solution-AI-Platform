@@ -50,15 +50,16 @@ Roadmap: `PHASE2_ROADMAP.md`
 
 ## Sprint 2.2 — Gap Analysis (Stage D)
 
-- [ ] Missing information detection
-- [ ] Completeness score
-- [ ] Confidence score
-- [ ] Dependency / conflict detection (MVP)
-- [ ] Requirement validation (publish blockers)
-- [ ] Clarification question generator
-- [ ] Clarification answers → RKM minor version
+- [x] Missing information detection
+- [x] Completeness score
+- [x] Confidence score
+- [x] Dependency / conflict detection (MVP)
+- [x] Requirement validation (publish blockers)
+- [x] Clarification question generator
+- [x] Clarification answers → RKM minor version
 
-**Deliverable:** Gap Analysis Engine.
+**Deliverable:** Gap Analysis Engine.  
+**Evidence:** `/api/v1/.../gap-analysis` + clarification generate/answer; `GapAnalysisPanel`; `backend/tests/test_gap_*.py`.
 
 ---
 
