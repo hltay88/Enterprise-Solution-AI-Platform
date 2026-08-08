@@ -36,13 +36,13 @@ ZIP / PPTX / TIFF / Visio are **deferred** past 2.1.
 - Page/chunk + metadata persistence (minimal)
 - **Exit:** multi-file ingest + extract on sample RFP set
 
-### Stage C — Sprint 2.1b RKM Generation — **IN PROGRESS**
+### Stage C — Sprint 2.1b RKM Generation — **DONE**
 - AI extraction → structured requirements + classification + evidence refs
 - Persist Draft RKM (`requirement_models`, `requirements`, `requirement_evidence`)
 - Map Sprint 1.1 sales intake into RKM project/stakeholders/details
 - **Exit:** Draft RKM viewable with evidence links
 
-### Stage D — Sprint 2.2 Gap Analysis
+### Stage D — Sprint 2.2 Gap Analysis — **IN PROGRESS**
 - Deterministic completeness + confidence scoring first
 - Gap report + clarification generation (priority, reason, affected requirement)
 - Clarification answers create a new RKM **minor** version

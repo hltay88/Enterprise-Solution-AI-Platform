@@ -270,3 +270,54 @@ export type RkmAnalyzeAccepted = {
   status: string;
   message: string;
 };
+
+export type RkmClarification = {
+  id: string;
+  question: string;
+  priority: string;
+  category: string;
+  reason: string;
+  affected_requirement_ids: string[];
+  status: string;
+  answer: string | null;
+  confidence_impact?: number | null;
+};
+
+export type GapItem = {
+  code: string;
+  section: string;
+  severity: string;
+  message: string;
+  affected_requirement_ids: string[];
+};
+
+export type GapAnalysisReport = {
+  project_id: string;
+  rkm_id: string;
+  version_label: string;
+  completeness_score: number;
+  confidence_score: number;
+  consistency_score: number;
+  evidence_coverage: number;
+  overall_quality: number;
+  quality_level: string;
+  missing_sections: string[];
+  gaps: GapItem[];
+  conflicts: Array<{
+    code: string;
+    message: string;
+    affected_requirement_ids: string[];
+  }>;
+  publish_blockers: Array<{ code: string; message: string }>;
+  clarifications: RkmClarification[];
+  created_at: string | null;
+};
+
+export type ClarificationAnswerResult = {
+  project_id: string;
+  rkm_id: string;
+  version_label: string;
+  answered_count: number;
+  clarifications: RkmClarification[];
+  draft: RkmDraft | null;
+};
