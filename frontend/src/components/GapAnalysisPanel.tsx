@@ -7,15 +7,17 @@ import type {
   ClarificationAnswerResult,
   GapAnalysisReport,
   RkmClarification,
+  RkmDraft,
 } from "@/lib/types";
 
 type GapAnalysisPanelProps = {
   projectId: string;
-  onDraftUpdated?: () => void;
+  onDraftUpdated?: (versionLabel?: string) => void;
 };
 
 type PanelState =
   | { kind: "loading" }
+  | { kind: "no_draft" }
   | { kind: "idle" }
   | { kind: "ready"; report: GapAnalysisReport }
   | { kind: "error"; message: string };
@@ -31,23 +33,43 @@ export function GapAnalysisPanel({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [note, setNote] = useState<string | null>(null);
+  const [lastVersion, setLastVersion] = useState<string | null>(null);
+
+  async function checkDraftExists(): Promise<boolean> {
+    try {
+      const draft = await apiGet<RkmDraft>(
+        `/api/v1/projects/${projectId}/requirements?status=draft`,
+        true,
+      );
+      setLastVersion(draft.version.number);
+      return true;
+    } catch (err) {
+      if (err instanceof ApiClientError && err.status === 404) {
+        return false;
+      }
+      throw err;
+    }
+  }
 
   async function loadClarifications() {
     try {
+      const hasDraft = await checkDraftExists();
+      if (!hasDraft) {
+        setQuestions([]);
+        setState({ kind: "no_draft" });
+        return;
+      }
+
       const items = await apiGet<RkmClarification[]>(
         `/api/v1/projects/${projectId}/clarification`,
         true,
       );
       setQuestions(items);
-      if (items.length === 0) {
-        setState((prev) => (prev.kind === "ready" ? prev : { kind: "idle" }));
-      } else if (state.kind !== "ready") {
-        setState({ kind: "idle" });
-      }
+      setState((prev) => (prev.kind === "ready" ? prev : { kind: "idle" }));
     } catch (err) {
       if (err instanceof ApiClientError && err.status === 404) {
         setQuestions([]);
-        setState({ kind: "idle" });
+        setState({ kind: "no_draft" });
         return;
       }
       setState({
@@ -65,11 +87,22 @@ export function GapAnalysisPanel({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId]);
 
-  async function runGapAnalysis() {
+  async function runGapAnalysis(options?: { preserveNote?: string }) {
     setRunning(true);
     setError(null);
-    setNote(null);
+    if (!options?.preserveNote) {
+      setNote(null);
+    }
     try {
+      const hasDraft = await checkDraftExists();
+      if (!hasDraft) {
+        setState({ kind: "no_draft" });
+        setQuestions([]);
+        setError(null);
+        setNote("Generate a Draft RKM above first, then run gap analysis here.");
+        return;
+      }
+
       const report = await apiPost<GapAnalysisReport>(
         `/api/v1/projects/${projectId}/requirements/gap-analysis`,
         {},
@@ -77,7 +110,7 @@ export function GapAnalysisPanel({
       );
       setState({ kind: "ready", report });
       setQuestions(report.clarifications);
-      // Keep typed answers only for clarifications that still exist.
+      setLastVersion(report.version_label);
       const validIds = new Set(report.clarifications.map((item) => item.id));
       setAnswers((prev) =>
         Object.fromEntries(
@@ -85,21 +118,25 @@ export function GapAnalysisPanel({
         ),
       );
       setNote(
-        `Gap analysis complete · overall ${Math.round(report.overall_quality)}% (${report.quality_level.replaceAll("_", " ")})`,
+        options?.preserveNote
+          || `Gap analysis complete · Draft RKM v${report.version_label} · overall ${Math.round(report.overall_quality)}% (${report.quality_level.replaceAll("_", " ")})`,
       );
-      onDraftUpdated?.();
+      // Do not remount Draft RKM panel here — that steals focus to "Regenerate Draft RKM".
     } catch (err) {
       const message =
         err instanceof ApiClientError
           ? err.message
           : "Gap analysis failed — generate a Draft RKM first";
-      setError(message);
       if (
         err instanceof ApiClientError &&
         (err.status === 404 || message.toLowerCase().includes("no draft rkm"))
       ) {
-        setState({ kind: "idle" });
+        setState({ kind: "no_draft" });
         setQuestions([]);
+        setError(null);
+        setNote("Generate a Draft RKM above first, then run gap analysis here.");
+      } else {
+        setError(message);
       }
     } finally {
       setRunning(false);
@@ -120,7 +157,7 @@ export function GapAnalysisPanel({
 
     if (payload.length === 0) {
       setError(
-        "Enter at least one clarification answer for the current open questions. If you re-ran gap analysis, type the answers again.",
+        "Enter at least one clarification answer for the current open questions.",
       );
       return;
     }
@@ -136,12 +173,16 @@ export function GapAnalysisPanel({
       );
       setQuestions(result.clarifications);
       setAnswers({});
-      setNote(
-        `Saved ${result.answered_count} answer(s) · Draft RKM updated to v${result.version_label}`,
-      );
-      onDraftUpdated?.();
-      // Refresh gap scores against new draft (IDs are preserved by question text).
-      await runGapAnalysis();
+      setLastVersion(result.version_label);
+      const successNote =
+        `Saved ${result.answered_count} answer(s). Draft RKM updated to v${result.version_label} — check the Draft RKM panel above for the new version.`;
+      setNote(successNote);
+      onDraftUpdated?.(result.version_label);
+      // Soft refresh scores; keep the version-update message visible.
+      await runGapAnalysis({ preserveNote: successNote });
+      document
+        .getElementById("draft-rkm-panel")
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
     } catch (err) {
       setError(
         err instanceof ApiClientError
@@ -155,9 +196,10 @@ export function GapAnalysisPanel({
 
   const openQuestions = questions.filter((q) => q.status !== "answered");
   const answeredQuestions = questions.filter((q) => q.status === "answered");
+  const canRun = state.kind !== "no_draft" && state.kind !== "loading";
 
   return (
-    <section className="panel gap-panel">
+    <section className="panel gap-panel" id="gap-analysis-panel">
       <div className="panel-heading">
         <div>
           <h2>Gap analysis & clarifications</h2>
@@ -170,7 +212,7 @@ export function GapAnalysisPanel({
           className="btn-primary btn-compact"
           type="button"
           onClick={() => void runGapAnalysis()}
-          disabled={running || saving}
+          disabled={running || saving || !canRun}
         >
           {running ? "Analyzing…" : "Run gap analysis"}
         </button>
@@ -178,6 +220,20 @@ export function GapAnalysisPanel({
 
       {error ? <p className="form-error">{error}</p> : null}
       {note ? <p className="status">{note}</p> : null}
+      {lastVersion && state.kind !== "no_draft" ? (
+        <p className="muted">Active Draft RKM version: v{lastVersion}</p>
+      ) : null}
+
+      {state.kind === "no_draft" ? (
+        <div className="empty-state">
+          <p>No Draft RKM yet — gap analysis needs a draft first.</p>
+          <p className="muted">
+            Scroll up to <strong>Draft Requirement Knowledge Model</strong>,
+            click <strong>Generate Draft RKM</strong>, wait until it is ready,
+            then return here and run gap analysis to get answer boxes.
+          </p>
+        </div>
+      ) : null}
 
       {state.kind === "ready" ? (
         <>
@@ -244,7 +300,8 @@ export function GapAnalysisPanel({
         <div className="empty-state">
           <p>No gap analysis yet.</p>
           <p className="muted">
-            Generate a Draft RKM first, then run gap analysis.
+            Click <strong>Run gap analysis</strong> to score the Draft RKM and
+            generate clarification answer boxes.
           </p>
         </div>
       ) : null}

@@ -14,6 +14,8 @@ import type {
 
 type RkmPanelProps = {
   projectId: string;
+  refreshToken?: number;
+  highlightVersion?: string | null;
 };
 
 type PanelState =
@@ -93,7 +95,11 @@ function RequirementList({
   );
 }
 
-export function RkmPanel({ projectId }: RkmPanelProps) {
+export function RkmPanel({
+  projectId,
+  refreshToken = 0,
+  highlightVersion = null,
+}: RkmPanelProps) {
   const [state, setState] = useState<PanelState>({ kind: "loading" });
   const [running, setRunning] = useState(false);
   const [runError, setRunError] = useState<string | null>(null);
@@ -180,7 +186,7 @@ export function RkmPanel({ projectId }: RkmPanelProps) {
     void loadVersions();
     return () => clearPoll();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [projectId]);
+  }, [projectId, refreshToken]);
 
   async function generateDraft() {
     setRunning(true);
@@ -210,7 +216,7 @@ export function RkmPanel({ projectId }: RkmPanelProps) {
       : new Map<string, RkmEvidence>();
 
   return (
-    <section className="panel rkm-panel">
+    <section className="panel rkm-panel" id="draft-rkm-panel">
       <div className="panel-heading">
         <div>
           <h2>Draft Requirement Knowledge Model</h2>
@@ -235,6 +241,11 @@ export function RkmPanel({ projectId }: RkmPanelProps) {
         </button>
       </div>
 
+      {highlightVersion ? (
+        <p className="status">
+          Draft RKM refreshed to v{highlightVersion} from clarification answers.
+        </p>
+      ) : null}
       {runError ? <p className="form-error">{runError}</p> : null}
 
       {state.kind === "loading" ? <p className="status">Loading Draft RKM…</p> : null}
@@ -342,7 +353,7 @@ export function RkmPanel({ projectId }: RkmPanelProps) {
             </div>
           ) : null}
 
-          {versions.length > 1 ? (
+          {versions.length > 0 ? (
             <div className="rkm-section">
               <h3>Version history</h3>
               <ul className="rkm-list">

@@ -26,7 +26,10 @@ function ProjectDetailContent({ userName }: { userName: string }) {
   const projectId = params.id;
   const [state, setState] = useState<DetailState>({ kind: "loading" });
   const [deleting, setDeleting] = useState(false);
-  const [rkmRefreshKey, setRkmRefreshKey] = useState(0);
+  const [rkmRefreshToken, setRkmRefreshToken] = useState(0);
+  const [rkmHighlightVersion, setRkmHighlightVersion] = useState<string | null>(
+    null,
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -115,10 +118,17 @@ function ProjectDetailContent({ userName }: { userName: string }) {
             </section>
 
             <DocumentUploadPanel projectId={projectId} />
-            <RkmPanel key={rkmRefreshKey} projectId={projectId} />
+            <RkmPanel
+              projectId={projectId}
+              refreshToken={rkmRefreshToken}
+              highlightVersion={rkmHighlightVersion}
+            />
             <GapAnalysisPanel
               projectId={projectId}
-              onDraftUpdated={() => setRkmRefreshKey((value) => value + 1)}
+              onDraftUpdated={(versionLabel) => {
+                setRkmRefreshToken((value) => value + 1);
+                setRkmHighlightVersion(versionLabel || null);
+              }}
             />
             <AnalysisPanel projectId={projectId} />
             <ClarificationPanel projectId={projectId} />
