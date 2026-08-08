@@ -42,16 +42,16 @@ ZIP / PPTX / TIFF / Visio are **deferred** past 2.1.
 - Map Sprint 1.1 sales intake into RKM project/stakeholders/details
 - **Exit:** Draft RKM viewable with evidence links
 
-### Stage D — Sprint 2.2 Gap Analysis — **IN PROGRESS**
+### Stage D — Sprint 2.2 Gap Analysis — **DONE**
 - Deterministic completeness + confidence scoring first
 - Gap report + clarification generation (priority, reason, affected requirement)
 - Clarification answers create a new RKM **minor** version
 - **Exit:** scores + clarification round-trip on Draft RKM
 
-### Stage E — Sprint 2.3 Workspace & Governance
+### Stage E — Sprint 2.3 Workspace & Governance — **DONE (MVP)**
 - Requirement edit UI, version timeline/compare, reasoning viewer
 - Review → approve → publish; published RKM immutable
-- Optional AI chat **Draft-only**
+- Optional AI chat **Draft-only** (deferred)
 - **Exit:** publish gate enforced; Phase 3 can fetch published RKM only
 
 ### Stage F — Hardening

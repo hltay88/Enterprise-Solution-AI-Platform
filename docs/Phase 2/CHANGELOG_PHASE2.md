@@ -65,9 +65,25 @@ Project Atlas — Atlas Foundation 0.2
 
 ---
 
+## Version 0.2.4 — Stage E Workspace & Governance (Sprint 2.3)
+
+### Added
+- `POST /api/v1/projects/{id}/requirements/review` — Draft edits create a **patch** version
+- `POST /api/v1/projects/{id}/requirements/approve` — human approval stamp
+- `POST /api/v1/projects/{id}/requirements/publish` — enforces score/gap/approval gates; published RKM immutable
+- `GET /api/v1/projects/{id}/requirements?status=published` — Phase 3 consumption path
+- `GET /api/v1/projects/{id}/requirements/compare?from=&to=` — version diff MVP
+- `POST /api/v1/projects/{id}/requirements/version` — fork new Draft from published
+- Frontend `RkmGovernancePanel` (edit, reasoning, approve, publish, compare)
+
+### Deferred
+- Draft-only AI requirement chat (optional Stage E item)
+- Full audit trail / RBAC (Stage F)
+
+---
+
 ## Planned
 
-### 0.2.4 — Sprint 2.3 workspace + publish (Stage E)
 ### 0.2.5 — Hardening (Stage F)
 
 ---

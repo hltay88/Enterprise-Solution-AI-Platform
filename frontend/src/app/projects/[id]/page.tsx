@@ -11,6 +11,7 @@ import { DocumentUploadPanel } from "@/components/DocumentUploadPanel";
 import { GapAnalysisPanel } from "@/components/GapAnalysisPanel";
 import { ProjectForm } from "@/components/ProjectForm";
 import { RequireAuth } from "@/components/RequireAuth";
+import { RkmGovernancePanel } from "@/components/RkmGovernancePanel";
 import { RkmPanel } from "@/components/RkmPanel";
 import { apiDelete, apiGet, apiPut, ApiClientError } from "@/lib/api";
 import type { ProjectInput, ProjectSummary } from "@/lib/types";
@@ -98,7 +99,7 @@ function ProjectDetailContent({ userName }: { userName: string }) {
           <h1>Project details</h1>
           <p>
             Update sales intake, upload documents, generate a Draft RKM, run gap analysis,
-            and answer clarifications.
+            answer clarifications, then approve and publish.
           </p>
         </section>
 
@@ -125,6 +126,14 @@ function ProjectDetailContent({ userName }: { userName: string }) {
             />
             <GapAnalysisPanel
               projectId={projectId}
+              onDraftUpdated={(versionLabel) => {
+                setRkmRefreshToken((value) => value + 1);
+                setRkmHighlightVersion(versionLabel || null);
+              }}
+            />
+            <RkmGovernancePanel
+              projectId={projectId}
+              refreshToken={rkmRefreshToken}
               onDraftUpdated={(versionLabel) => {
                 setRkmRefreshToken((value) => value + 1);
                 setRkmHighlightVersion(versionLabel || null);

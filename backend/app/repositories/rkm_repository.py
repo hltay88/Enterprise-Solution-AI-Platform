@@ -68,20 +68,22 @@ class RkmRepository:
             self.db.commit()
 
     def ensure_active_draft(self, project_id: UUID) -> RequirementModel | None:
-        """If no active draft exists, mark the latest version active (recovery)."""
+        """Return the active Draft, or None if none exists.
+
+        Never reactivates published/archived RKMs (immutable). Also does **not**
+        resurrect historical Draft snapshots after publish — Stage E requires an
+        explicit fork (`POST .../requirements/version`) to continue editing.
+        """
         active = self.get_active_draft(project_id)
-        if active is not None:
-            return active
-        versions = self.list_versions(project_id)
-        if not versions:
+        if active is None:
             return None
-        latest = versions[0]
-        latest.is_active_draft = True
-        latest.updated_at = datetime.now(timezone.utc)
-        self.db.add(latest)
-        self.db.commit()
-        self.db.refresh(latest)
-        return latest
+        if active.status in {"published", "archived"}:
+            active.is_active_draft = False
+            active.updated_at = datetime.now(timezone.utc)
+            self.db.add(active)
+            self.db.commit()
+            return None
+        return active
 
     def create_draft(
         self,
@@ -176,8 +178,22 @@ class RkmRepository:
             return rkm
         except Exception:
             self.db.rollback()
-            # Best-effort recovery if a prior failed attempt cleared the flag.
-            self.ensure_active_draft(project_id)
+            # Best-effort recovery if a prior failed attempt cleared the flag
+            # inside a partially committed transaction (should be rare with rollback).
+            latest_mutable = next(
+                (
+                    row
+                    for row in self.list_versions(project_id)
+                    if row.status not in {"published", "archived"}
+                ),
+                None,
+            )
+            if latest_mutable is not None and not latest_mutable.is_active_draft:
+                if self.get_active_draft(project_id) is None:
+                    latest_mutable.is_active_draft = True
+                    latest_mutable.updated_at = datetime.now(timezone.utc)
+                    self.db.add(latest_mutable)
+                    self.db.commit()
             raise
 
     def next_draft_version(self, project_id: UUID) -> tuple[int, int, int]:
@@ -187,3 +203,42 @@ class RkmRepository:
         latest = versions[0]
         # Stage C regenerates Active Draft as a new minor bump.
         return latest.version_major, latest.version_minor + 1, 0
+
+    def next_patch_version(self, project_id: UUID) -> tuple[int, int, int]:
+        versions = self.list_versions(project_id)
+        if not versions:
+            return 1, 0, 1
+        latest = versions[0]
+        return latest.version_major, latest.version_minor, latest.version_patch + 1
+
+    def get_published(self, project_id: UUID) -> RequirementModel | None:
+        statement = (
+            select(RequirementModel)
+            .where(
+                RequirementModel.project_id == project_id,
+                RequirementModel.status == "published",
+            )
+            .order_by(
+                RequirementModel.version_major.desc(),
+                RequirementModel.version_minor.desc(),
+                RequirementModel.version_patch.desc(),
+                RequirementModel.updated_at.desc(),
+            )
+        )
+        return self.db.scalars(statement).first()
+
+    def archive_published(self, project_id: UUID, *, except_id: UUID | None = None) -> None:
+        """Mark prior published RKMs as archived so only one published remains active."""
+        statement = update(RequirementModel).where(
+            RequirementModel.project_id == project_id,
+            RequirementModel.status == "published",
+        )
+        if except_id is not None:
+            statement = statement.where(RequirementModel.id != except_id)
+        self.db.execute(
+            statement.values(
+                status="archived",
+                is_active_draft=False,
+                updated_at=datetime.now(timezone.utc),
+            ),
+        )

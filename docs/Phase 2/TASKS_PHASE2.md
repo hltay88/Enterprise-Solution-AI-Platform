@@ -65,15 +65,16 @@ Roadmap: `PHASE2_ROADMAP.md`
 
 ## Sprint 2.3 — Interactive Workshop (Stage E)
 
-- [ ] Requirement editing (Draft)
-- [ ] Requirement timeline / version history
-- [ ] Version compare (MVP)
-- [ ] AI reasoning viewer
-- [ ] Approval workflow
-- [ ] Publish RKM (immutable)
+- [x] Requirement editing (Draft)
+- [x] Requirement timeline / version history
+- [x] Version compare (MVP)
+- [x] AI reasoning viewer
+- [x] Approval workflow
+- [x] Publish RKM (immutable)
 - [ ] AI requirement chat (Draft-only, optional)
 
-**Deliverable:** Interactive Requirement Workspace.
+**Deliverable:** Interactive Requirement Workspace.  
+**Evidence:** `/api/v1/.../requirements/review|approve|publish|compare|version`; `RkmGovernancePanel`; `backend/tests/test_governance_helpers.py`.
 
 ---
 

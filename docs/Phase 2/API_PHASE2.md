@@ -36,10 +36,11 @@ Phase 2 UI and integrations should prefer `/api/v1`.
 | GET | `/projects/{projectId}/requirements` | Retrieve active Draft or Published RKM (query: `status`). |
 | GET | `/projects/{projectId}/requirements/versions` | List RKM versions. |
 | GET | `/projects/{projectId}/requirements/versions/{version}` | Get immutable version snapshot. |
-| POST | `/projects/{projectId}/requirements/review` | Submit review edits on Draft. |
+| POST | `/projects/{projectId}/requirements/review` | Submit review edits on Draft (creates patch version). |
 | POST | `/projects/{projectId}/requirements/approve` | Record human approval. |
 | POST | `/projects/{projectId}/requirements/publish` | Publish approved RKM (gates enforced). |
-| POST | `/projects/{projectId}/requirements/version` | Create new version from Draft/Published. |
+| POST | `/projects/{projectId}/requirements/version` | Fork new Draft from Published (or a version). |
+| GET | `/projects/{projectId}/requirements/compare` | Compare two versions (`from`, `to` query params). |
 | POST | `/projects/{projectId}/requirements/gap-analysis` | Generate missing-information report. |
 
 ---

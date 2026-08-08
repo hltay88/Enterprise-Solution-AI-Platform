@@ -27,12 +27,12 @@ Phase 2 product delivery is complete only when:
 - [x] Gap analysis available
 - [x] Clarification questions generated
 - [x] Requirement scoring completed
-- [ ] Human review available
-- [ ] Approval workflow operational
-- [ ] Version control implemented
+- [x] Human review available
+- [x] Approval workflow operational
+- [x] Version control implemented
 - [ ] Audit trail working
-- [ ] Published Requirement Knowledge Model available
-- [ ] Downstream-facing fetch of **Published** RKM only is enforced
+- [x] Published Requirement Knowledge Model available
+- [x] Downstream-facing fetch of **Published** RKM only is enforced
 
 ---
 

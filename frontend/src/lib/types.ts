@@ -321,3 +321,57 @@ export type ClarificationAnswerResult = {
   clarifications: RkmClarification[];
   draft: RkmDraft | null;
 };
+
+export type ReviewResult = {
+  project_id: string;
+  rkm_id: string;
+  version_label: string;
+  edited_count: number;
+  draft: RkmDraft;
+};
+
+export type ApproveResult = {
+  project_id: string;
+  rkm_id: string;
+  version_label: string;
+  status: string;
+  approved_by: string | null;
+  approved_at: string | null;
+  draft: RkmDraft;
+};
+
+export type PublishResult = {
+  project_id: string;
+  rkm_id: string;
+  version_label: string;
+  status: string;
+  published_at: string;
+  draft: RkmDraft;
+  publish_blockers: Array<{ code: string; message: string }>;
+};
+
+export type VersionDiffItem = {
+  section: string;
+  change_type: "added" | "removed" | "modified" | string;
+  item_id: string | null;
+  title: string | null;
+  before: string | null;
+  after: string | null;
+};
+
+export type VersionCompare = {
+  project_id: string;
+  from_version: string;
+  to_version: string;
+  from_status: string;
+  to_status: string;
+  from_reasoning: string;
+  to_reasoning: string;
+  diffs: VersionDiffItem[];
+  summary: {
+    added?: number;
+    removed?: number;
+    modified?: number;
+    reasoning_changed?: boolean;
+  };
+};

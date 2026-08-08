@@ -1,0 +1,16 @@
+---
+description: Prefer simple commit and push straight to main
+alwaysApply: true
+---
+
+# Git workflow preference (Lawrence)
+
+When the user asks to save / commit / remember work on the repo:
+
+1. **Commit on `main`** — do not create feature branches or PRs unless they explicitly ask.
+2. **Push to `origin/main`** after a successful commit when they asked to push or "save to GitHub".
+3. Keep the flow simple: status → add → commit → push.
+4. Still follow safety rules: never force-push, never amend unless the usual amend conditions are met, never commit secrets (`.env`, keys, `.venv`).
+5. Use conventional commit messages (`feat`, `fix`, `chore`, `docs`).
+
+This overrides the default "feature branch + PR" habit for this repository unless the user says otherwise for a specific change.
