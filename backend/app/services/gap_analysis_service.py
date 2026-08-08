@@ -70,27 +70,38 @@ class GapAnalysisService:
             },
         )
         payload["analysis"] = analysis
-        payload["clarification_questions"] = [
-            item.model_dump(mode="json") for item in report.clarifications
-        ]
-        # Keep existing answered clarifications if regenerating gaps.
-        existing = {
-            str(item.get("id")): item
+        # Preserve clarification IDs across re-runs (by question text) so in-progress
+        # answers still match; keep previously answered items.
+        previous = [
+            item
             for item in (row.payload_json or {}).get("clarification_questions") or []
-            if isinstance(item, dict) and item.get("status") == "answered"
+            if isinstance(item, dict)
+        ]
+        previous_by_question = {
+            str(item.get("question") or "").strip().lower(): item
+            for item in previous
+            if str(item.get("question") or "").strip()
         }
         merged: list[dict[str, Any]] = []
-        seen: set[str] = set()
-        for item in payload["clarification_questions"]:
-            cid = str(item.get("id"))
-            if cid in existing:
-                merged.append(existing[cid])
-            else:
+        seen_questions: set[str] = set()
+        for item in report.clarifications:
+            data = item.model_dump(mode="json")
+            key = str(data.get("question") or "").strip().lower()
+            prior = previous_by_question.get(key)
+            if prior is not None:
+                # Reuse stable id; keep answered status/answer when present.
+                data["id"] = str(prior.get("id") or data["id"])
+                if prior.get("status") == "answered" and prior.get("answer"):
+                    data["status"] = "answered"
+                    data["answer"] = prior.get("answer")
+            merged.append(data)
+            if key:
+                seen_questions.add(key)
+        for item in previous:
+            key = str(item.get("question") or "").strip().lower()
+            if item.get("status") == "answered" and key and key not in seen_questions:
                 merged.append(item)
-            seen.add(cid)
-        for cid, item in existing.items():
-            if cid not in seen:
-                merged.append(item)
+                seen_questions.add(key)
         payload["clarification_questions"] = merged
         report.clarifications = [ClarificationOut.model_validate(item) for item in merged]
 
@@ -142,12 +153,14 @@ class GapAnalysisService:
         }
 
         answered = 0
+        unknown_ids: list[str] = []
         new_evidence: list[dict[str, Any]] = list(payload.get("evidence") or [])
         for answer in body.answers:
             key = str(answer.clarification_id)
             item = by_id.get(key)
             if item is None:
-                raise ValidationAppError(f"Clarification not found: {key}")
+                unknown_ids.append(key)
+                continue
             text = (answer.answer or "").strip()
             if not text:
                 raise ValidationAppError("Answer text is required")
@@ -170,6 +183,13 @@ class GapAnalysisService:
             # Attach evidence to affected requirements (or first functional/business item).
             affected = [str(x) for x in (item.get("affected_requirement_ids") or [])]
             self._attach_evidence_to_requirements(payload, affected, str(evidence_id))
+
+        if answered == 0:
+            detail = ", ".join(unknown_ids[:3]) if unknown_ids else "none"
+            raise ValidationAppError(
+                "No matching clarification questions found for the submitted answers. "
+                f"Run gap analysis again, then resubmit. Unknown ids: {detail}",
+            )
 
         payload["evidence"] = new_evidence
         payload["clarification_questions"] = list(by_id.values())

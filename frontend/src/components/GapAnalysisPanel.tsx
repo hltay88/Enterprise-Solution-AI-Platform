@@ -77,6 +77,13 @@ export function GapAnalysisPanel({
       );
       setState({ kind: "ready", report });
       setQuestions(report.clarifications);
+      // Keep typed answers only for clarifications that still exist.
+      const validIds = new Set(report.clarifications.map((item) => item.id));
+      setAnswers((prev) =>
+        Object.fromEntries(
+          Object.entries(prev).filter(([id]) => validIds.has(id)),
+        ),
+      );
       setNote(
         `Gap analysis complete · overall ${Math.round(report.overall_quality)}% (${report.quality_level.replaceAll("_", " ")})`,
       );
@@ -94,15 +101,20 @@ export function GapAnalysisPanel({
 
   async function submitAnswers(event: FormEvent) {
     event.preventDefault();
+    const validIds = new Set(questions.map((item) => item.id));
     const payload = Object.entries(answers)
       .map(([clarification_id, answer]) => ({
         clarification_id,
         answer: answer.trim(),
       }))
-      .filter((item) => item.answer.length > 0);
+      .filter(
+        (item) => item.answer.length > 0 && validIds.has(item.clarification_id),
+      );
 
     if (payload.length === 0) {
-      setError("Enter at least one clarification answer");
+      setError(
+        "Enter at least one clarification answer for the current open questions. If you re-ran gap analysis, type the answers again.",
+      );
       return;
     }
 
@@ -121,7 +133,7 @@ export function GapAnalysisPanel({
         `Saved ${result.answered_count} answer(s) · Draft RKM updated to v${result.version_label}`,
       );
       onDraftUpdated?.();
-      // Refresh gap scores against new draft.
+      // Refresh gap scores against new draft (IDs are preserved by question text).
       await runGapAnalysis();
     } catch (err) {
       setError(
