@@ -55,7 +55,7 @@ class RkmRepository:
         )
         return list(self.db.scalars(statement).all())
 
-    def clear_active_drafts(self, project_id: UUID) -> None:
+    def clear_active_drafts(self, project_id: UUID, *, commit: bool = False) -> None:
         self.db.execute(
             update(RequirementModel)
             .where(
@@ -64,7 +64,24 @@ class RkmRepository:
             )
             .values(is_active_draft=False, updated_at=datetime.now(timezone.utc)),
         )
+        if commit:
+            self.db.commit()
+
+    def ensure_active_draft(self, project_id: UUID) -> RequirementModel | None:
+        """If no active draft exists, mark the latest version active (recovery)."""
+        active = self.get_active_draft(project_id)
+        if active is not None:
+            return active
+        versions = self.list_versions(project_id)
+        if not versions:
+            return None
+        latest = versions[0]
+        latest.is_active_draft = True
+        latest.updated_at = datetime.now(timezone.utc)
+        self.db.add(latest)
         self.db.commit()
+        self.db.refresh(latest)
+        return latest
 
     def create_draft(
         self,
@@ -84,7 +101,9 @@ class RkmRepository:
         evidence: list[dict[str, Any]],
         links: list[tuple[UUID, UUID]],
     ) -> RequirementModel:
-        self.clear_active_drafts(project_id)
+        # Keep clear + insert in one transaction so a failed insert cannot
+        # leave the project with zero active drafts.
+        self.clear_active_drafts(project_id, commit=False)
         version_label = f"{version_major}.{version_minor}.{version_patch}"
         now = datetime.now(timezone.utc)
 
@@ -108,52 +127,58 @@ class RkmRepository:
             created_at=now,
             updated_at=now,
         )
-        self.db.add(rkm)
-        self.db.flush()
+        try:
+            self.db.add(rkm)
+            self.db.flush()
 
-        for item in requirements:
-            self.db.add(
-                RequirementItem(
-                    id=item["id"],
-                    rkm_id=rkm.id,
-                    section=item["section"],
-                    category=item.get("category"),
-                    subcategory=item.get("subcategory"),
-                    title=item["title"],
-                    description=item.get("description") or "",
-                    priority=item.get("priority") or "medium",
-                    status=item.get("status") or "draft",
-                    confidence=float(item.get("confidence") or 0),
-                    sort_order=int(item.get("sort_order") or 0),
-                ),
-            )
+            for item in requirements:
+                self.db.add(
+                    RequirementItem(
+                        id=item["id"],
+                        rkm_id=rkm.id,
+                        section=item["section"],
+                        category=item.get("category"),
+                        subcategory=item.get("subcategory"),
+                        title=item["title"],
+                        description=item.get("description") or "",
+                        priority=item.get("priority") or "medium",
+                        status=item.get("status") or "draft",
+                        confidence=float(item.get("confidence") or 0),
+                        sort_order=int(item.get("sort_order") or 0),
+                    ),
+                )
 
-        for evidence_row in evidence:
-            self.db.add(
-                RequirementEvidence(
-                    id=evidence_row["id"],
-                    rkm_id=rkm.id,
-                    source_type=evidence_row["source_type"],
-                    document_id=evidence_row.get("document_id"),
-                    page=evidence_row.get("page"),
-                    excerpt=evidence_row.get("excerpt"),
-                    field_name=evidence_row.get("field_name"),
-                    note=evidence_row.get("note"),
-                ),
-            )
+            for evidence_row in evidence:
+                self.db.add(
+                    RequirementEvidence(
+                        id=evidence_row["id"],
+                        rkm_id=rkm.id,
+                        source_type=evidence_row["source_type"],
+                        document_id=evidence_row.get("document_id"),
+                        page=evidence_row.get("page"),
+                        excerpt=evidence_row.get("excerpt"),
+                        field_name=evidence_row.get("field_name"),
+                        note=evidence_row.get("note"),
+                    ),
+                )
 
-        self.db.flush()
-        for requirement_id, evidence_id in links:
-            self.db.add(
-                RequirementEvidenceLink(
-                    requirement_id=requirement_id,
-                    evidence_id=evidence_id,
-                ),
-            )
+            self.db.flush()
+            for requirement_id, evidence_id in links:
+                self.db.add(
+                    RequirementEvidenceLink(
+                        requirement_id=requirement_id,
+                        evidence_id=evidence_id,
+                    ),
+                )
 
-        self.db.commit()
-        self.db.refresh(rkm)
-        return rkm
+            self.db.commit()
+            self.db.refresh(rkm)
+            return rkm
+        except Exception:
+            self.db.rollback()
+            # Best-effort recovery if a prior failed attempt cleared the flag.
+            self.ensure_active_draft(project_id)
+            raise
 
     def next_draft_version(self, project_id: UUID) -> tuple[int, int, int]:
         versions = self.list_versions(project_id)

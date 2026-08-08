@@ -89,11 +89,18 @@ export function GapAnalysisPanel({
       );
       onDraftUpdated?.();
     } catch (err) {
-      setError(
+      const message =
         err instanceof ApiClientError
           ? err.message
-          : "Gap analysis failed — generate a Draft RKM first",
-      );
+          : "Gap analysis failed — generate a Draft RKM first";
+      setError(message);
+      if (
+        err instanceof ApiClientError &&
+        (err.status === 404 || message.toLowerCase().includes("no draft rkm"))
+      ) {
+        setState({ kind: "idle" });
+        setQuestions([]);
+      }
     } finally {
       setRunning(false);
     }
