@@ -117,3 +117,77 @@ def extract_questions(payload: dict[str, Any]) -> list[str]:
     if not isinstance(questions, list):
         return []
     return [str(item).strip() for item in questions if str(item).strip()]
+
+
+def normalize_rkm_extraction(payload: dict[str, Any]) -> dict[str, Any]:
+    """Normalize AI RKM extraction JSON into a stable dict of lists/objects."""
+
+    def _items(key: str) -> list[dict[str, Any]]:
+        raw = payload.get(key, [])
+        if not isinstance(raw, list):
+            return []
+        items: list[dict[str, Any]] = []
+        for entry in raw:
+            if isinstance(entry, str) and entry.strip():
+                items.append({"title": entry.strip()[:120], "description": entry.strip()})
+            elif isinstance(entry, dict):
+                title = str(entry.get("title") or "").strip()
+                description = str(entry.get("description") or title).strip()
+                if not title and description:
+                    title = description[:120]
+                if not title:
+                    continue
+                items.append(
+                    {
+                        "title": title,
+                        "description": description,
+                        "category": entry.get("category"),
+                        "subcategory": entry.get("subcategory"),
+                        "priority": entry.get("priority"),
+                        "confidence": entry.get("confidence"),
+                    },
+                )
+        return items
+
+    environment = payload.get("current_environment") or {}
+    if isinstance(environment, str):
+        environment = {"summary": environment, "items": []}
+    if not isinstance(environment, dict):
+        environment = {"summary": "", "items": []}
+    env_items = environment.get("items", [])
+    if not isinstance(env_items, list):
+        env_items = []
+    normalized_env_items: list[dict[str, Any]] = []
+    for entry in env_items:
+        if isinstance(entry, str) and entry.strip():
+            normalized_env_items.append(
+                {"title": entry.strip()[:120], "description": entry.strip()},
+            )
+        elif isinstance(entry, dict):
+            title = str(entry.get("title") or "").strip()
+            description = str(entry.get("description") or title).strip()
+            if title or description:
+                normalized_env_items.append(
+                    {
+                        "title": title or description[:120],
+                        "description": description or title,
+                        "confidence": entry.get("confidence"),
+                    },
+                )
+
+    return {
+        "business_objectives": _items("business_objectives"),
+        "current_environment": {
+            "summary": str(environment.get("summary") or "").strip(),
+            "items": normalized_env_items,
+        },
+        "functional_requirements": _items("functional_requirements"),
+        "non_functional_requirements": _items("non_functional_requirements"),
+        "constraints": _items("constraints"),
+        "dependencies": _items("dependencies"),
+        "risks": _items("risks"),
+        "assumptions": _items("assumptions"),
+        "reasoning_summary": str(payload.get("reasoning_summary") or "").strip(),
+        "provider": payload.get("provider"),
+        "model": payload.get("model"),
+    }

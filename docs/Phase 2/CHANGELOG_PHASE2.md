@@ -38,9 +38,20 @@ Project Atlas — Atlas Foundation 0.2
 
 ---
 
+## Version 0.2.2 — Stage C Draft RKM Generation (Sprint 2.1b)
+
+### Added
+- Async `POST /api/v1/projects/{id}/requirements/analyze` (`job_type=rkm_generate`)
+- `GET /api/v1/projects/{id}/requirements` (+ versions list/detail)
+- Tables: `requirement_models`, `requirements`, `requirement_evidence`, `requirement_evidence_links`
+- AI `extract_rkm_draft` across Gemini / OpenAI / local + prompt `rkm_extraction.txt`
+- Sales intake → RKM project/stakeholders mapping; evidence `sales_intake` + `document`
+- Frontend `RkmPanel` with evidence links and job polling
+
+---
+
 ## Planned
 
-### 0.2.2 — Sprint 2.1b RKM generation (Stage C)
 ### 0.2.3 — Sprint 2.2 gap analysis (Stage D)
 ### 0.2.4 — Sprint 2.3 workspace + publish (Stage E)
 ### 0.2.5 — Hardening (Stage F)

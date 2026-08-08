@@ -29,14 +29,14 @@ ZIP / PPTX / TIFF / Visio are **deferred** past 2.1.
 - Align API, file, evidence docs to locks above
 - **Exit:** Stage A PR merged; no application feature code required
 
-### Stage B — Sprint 2.1a Document Intelligence (ingest) — **IN PROGRESS**
+### Stage B — Sprint 2.1a Document Intelligence (ingest) — **DONE**
 - Multi-file upload within locked limits
 - Native text extraction + OCR for images / scanned PDFs only
 - SHA-256 checksum, basic duplicate detection
 - Page/chunk + metadata persistence (minimal)
 - **Exit:** multi-file ingest + extract on sample RFP set
 
-### Stage C — Sprint 2.1b RKM Generation
+### Stage C — Sprint 2.1b RKM Generation — **IN PROGRESS**
 - AI extraction → structured requirements + classification + evidence refs
 - Persist Draft RKM (`requirement_models`, `requirements`, `requirement_evidence`)
 - Map Sprint 1.1 sales intake into RKM project/stakeholders/details

@@ -17,6 +17,7 @@ from app.ai.common import (
     extract_questions,
     load_prompt,
     normalize_analysis,
+    normalize_rkm_extraction,
     parse_json_object,
     sanitize_secret,
 )
@@ -114,6 +115,28 @@ class GeminiProvider(AIProvider):
             invalid_message="AI provider returned invalid JSON for clarifications",
         )
         return extract_questions(payload)
+
+    async def extract_rkm_draft(self, source_text: str) -> dict[str, Any]:
+        system_prompt = load_prompt("rkm_extraction.txt")
+        user_prompt = (
+            "Build a Draft Requirement Knowledge Model from this source text:\n\n"
+            + source_text
+        )
+        response = await self._generate(
+            action="extract RKM draft",
+            system_prompt=system_prompt,
+            user_prompt=user_prompt,
+            temperature=0.2,
+        )
+        payload = parse_json_object(
+            response.text or "",
+            empty_message="AI provider returned an empty RKM extraction response",
+            invalid_message="AI provider returned invalid JSON for RKM extraction",
+        )
+        result = normalize_rkm_extraction(payload)
+        result["provider"] = "gemini"
+        result["model"] = self.model
+        return result
 
     async def _generate(
         self,

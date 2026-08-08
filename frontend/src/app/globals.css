@@ -495,6 +495,84 @@ body {
   line-height: 1.5;
 }
 
+.rkm-panel {
+  margin-top: 1.5rem;
+}
+
+.rkm-meta {
+  margin: 0 0 0.75rem;
+  font-size: 0.9rem;
+}
+
+.rkm-scores {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.25rem;
+  margin: 0 0 1rem;
+  font-size: 0.92rem;
+  color: #334155;
+}
+
+.rkm-reasoning {
+  margin: 0 0 1.25rem;
+  color: #445061;
+  line-height: 1.5;
+}
+
+.rkm-section {
+  margin: 0 0 1.25rem;
+}
+
+.rkm-section h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+}
+
+.rkm-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.rkm-item p {
+  margin: 0.35rem 0 0;
+  line-height: 1.5;
+}
+
+.rkm-item-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.75rem;
+  align-items: baseline;
+}
+
+.rkm-evidence {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.rkm-evidence-chip {
+  border: 1px solid var(--color-line);
+  padding: 0.35rem 0.55rem;
+  font-size: 0.85rem;
+  max-width: 100%;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.rkm-evidence-chip summary {
+  cursor: pointer;
+}
+
+.rkm-evidence-chip p {
+  margin: 0.4rem 0 0;
+  max-width: 28rem;
+}
+
 .clarification-panel {
   margin-top: 2rem;
 }
