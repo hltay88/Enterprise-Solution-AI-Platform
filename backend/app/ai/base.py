@@ -23,3 +23,7 @@ class AIProvider(ABC):
         max_questions: int = 16,
     ) -> list[str]:
         """Return clarification questions from analysis, source text, and domain packs."""
+
+    @abstractmethod
+    async def extract_rkm_draft(self, source_text: str) -> dict[str, Any]:
+        """Return structured Draft RKM extraction payload (Stage C)."""

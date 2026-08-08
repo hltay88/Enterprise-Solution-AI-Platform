@@ -36,14 +36,15 @@ Roadmap: `PHASE2_ROADMAP.md`
 
 ## Sprint 2.1b — RKM Generation (Stage C)
 
-- [ ] Requirement extraction → structured items
-- [ ] Requirement classification
-- [ ] Evidence mapping (`document` / `sales_intake` / …)
-- [ ] Draft Requirement Knowledge Model persistence
-- [ ] Sales intake → RKM mapping
-- [ ] Requirement repository / Draft RKM API
+- [x] Requirement extraction → structured items
+- [x] Requirement classification
+- [x] Evidence mapping (`document` / `sales_intake` / …)
+- [x] Draft Requirement Knowledge Model persistence
+- [x] Sales intake → RKM mapping
+- [x] Requirement repository / Draft RKM API
 
-**Deliverable:** Draft RKM generated and readable in UI.
+**Deliverable:** Draft RKM generated and readable in UI.  
+**Evidence:** `/api/v1/projects/{id}/requirements*`; `RkmPanel`; `backend/tests/test_rkm_*.py`.
 
 ---
 

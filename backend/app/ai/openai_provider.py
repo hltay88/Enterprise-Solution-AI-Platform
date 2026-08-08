@@ -21,6 +21,7 @@ from app.ai.common import (
     clarification_system_prompt,
     clarification_user_prompt,
     extract_questions,
+    normalize_rkm_extraction,
 )
 from app.core.config import settings
 from app.core.exceptions import AppError, ValidationAppError
@@ -155,6 +156,48 @@ class OpenAIProvider(AIProvider):
             ) from exc
 
         return extract_questions(payload)
+
+    async def extract_rkm_draft(self, source_text: str) -> dict[str, Any]:
+        system_prompt = _load_prompt("rkm_extraction.txt")
+        try:
+            response = await self.client.chat.completions.create(
+                model=self.model,
+                temperature=0.2,
+                response_format={"type": "json_object"},
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {
+                        "role": "user",
+                        "content": (
+                            "Build a Draft Requirement Knowledge Model from this "
+                            f"source text:\n\n{source_text}"
+                        ),
+                    },
+                ],
+            )
+        except Exception as exc:
+            _raise_provider_error("extract RKM draft", exc)
+
+        content = response.choices[0].message.content
+        if not content:
+            raise AppError(
+                "INTERNAL_ERROR",
+                "AI provider returned an empty RKM extraction response",
+                status_code=502,
+            )
+        try:
+            payload = json.loads(content)
+        except json.JSONDecodeError as exc:
+            raise AppError(
+                "INTERNAL_ERROR",
+                "AI provider returned invalid JSON for RKM extraction",
+                status_code=502,
+            ) from exc
+
+        result = normalize_rkm_extraction(payload)
+        result["provider"] = "openai"
+        result["model"] = self.model
+        return result
 
 
 def _raise_provider_error(action: str, exc: Exception) -> NoReturn:

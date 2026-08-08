@@ -8,6 +8,9 @@ from app.models.processing_job import ProcessingJob
 from app.models.project import Project
 from app.models.requirement_analysis import RequirementAnalysis
 from app.models.requirement_document import RequirementDocument
+from app.models.requirement_evidence import RequirementEvidence, RequirementEvidenceLink
+from app.models.requirement_item import RequirementItem
+from app.models.requirement_model import RequirementModel
 from app.models.user import User
 
 __all__ = [
@@ -20,4 +23,8 @@ __all__ = [
     "DocumentPage",
     "DocumentChunk",
     "DocumentMetadata",
+    "RequirementModel",
+    "RequirementItem",
+    "RequirementEvidence",
+    "RequirementEvidenceLink",
 ]

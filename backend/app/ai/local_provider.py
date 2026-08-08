@@ -15,102 +15,90 @@ class LocalAIProvider(AIProvider):
     """Produce usable Sprint 1 analysis without calling an external LLM."""
 
     async def analyze_requirements(self, document_text: str) -> dict[str, Any]:
-        text = (document_text or "").strip()
-        sentences = _extract_sentences(text)
+        buckets = _heuristic_buckets(document_text)
+        return {
+            "business_objectives": _as_bullets(buckets["objectives"]),
+            "functional_requirements": _as_bullets(buckets["functional"]),
+            "non_functional_requirements": _as_bullets(buckets["non_functional"]),
+            "assumptions": _as_bullets(buckets["assumptions"]),
+            "risks": _as_bullets(buckets["risks"]),
+            "provider": "local",
+        }
 
-        objectives = _pick(
-            sentences,
-            keywords=(
-                "objective",
-                "goal",
-                "outcome",
-                "business",
-                "improve",
-                "reduce",
-                "increase",
-                "enable",
-                "transform",
-            ),
-            limit=6,
-        )
-        functional = _pick(
-            sentences,
-            keywords=(
-                "must",
-                "shall",
-                "should",
-                "need",
-                "require",
-                "system",
-                "user",
-                "workflow",
-                "process",
-                "feature",
-                "function",
-            ),
-            limit=8,
-        )
-        non_functional = _pick(
-            sentences,
-            keywords=(
-                "performance",
-                "latency",
-                "availability",
-                "security",
-                "compliance",
-                "scalability",
-                "uptime",
-                "sla",
-                "privacy",
-                "audit",
-                "encryption",
-            ),
-            limit=6,
-        )
-        assumptions = _pick(
-            sentences,
-            keywords=("assume", "assumption", "expected", "probably", "likely"),
-            limit=4,
-        )
-        risks = _pick(
-            sentences,
-            keywords=("risk", "issue", "constraint", "blocker", "dependency", "concern"),
-            limit=4,
-        )
+    async def extract_rkm_draft(self, source_text: str) -> dict[str, Any]:
+        buckets = _heuristic_buckets(source_text)
+        haystack = (source_text or "").lower()
 
-        if not objectives:
-            objectives = [
-                "Clarify primary business outcomes the solution must deliver.",
-                "Identify measurable success criteria with the customer stakeholders.",
-            ]
-        if not functional:
-            functional = sentences[:5] or [
-                "Capture core user workflows that the solution must support.",
-                "Define required integrations with existing enterprise systems.",
-            ]
-        if not non_functional:
-            non_functional = [
-                "Confirm availability, security, and performance expectations.",
-                "Confirm compliance, audit, and data residency constraints.",
-            ]
-        if not assumptions:
-            assumptions = [
-                "Document text is representative of the current customer scope.",
-                "Stakeholders will validate prioritized requirements in a follow-up workshop.",
-            ]
-        if not risks:
-            risks = [
-                "Scope may be incomplete until clarification questions are answered.",
-                "Missing non-functional targets may delay solution design.",
-            ]
+        def _req_items(lines: list[str], *, category: str, priority: str = "medium") -> list[dict]:
+            items = []
+            for line in lines:
+                items.append(
+                    {
+                        "title": line[:120],
+                        "description": line,
+                        "category": category,
+                        "subcategory": None,
+                        "priority": priority,
+                        "confidence": 55,
+                    },
+                )
+            return items
+
+        env_items: list[dict[str, Any]] = []
+        for token, title in (
+            ("wifi", "Existing wireless footprint"),
+            ("firewall", "Existing security controls"),
+            ("server room", "Existing server room / core"),
+            ("wap", "Wireless access points present in drawings"),
+        ):
+            if token in haystack:
+                env_items.append(
+                    {
+                        "title": title,
+                        "description": f"Source material references '{token}'.",
+                        "confidence": 50,
+                    },
+                )
 
         return {
-            "business_objectives": _as_bullets(objectives),
-            "functional_requirements": _as_bullets(functional),
-            "non_functional_requirements": _as_bullets(non_functional),
-            "assumptions": _as_bullets(assumptions),
-            "risks": _as_bullets(risks),
+            "business_objectives": [
+                {
+                    "title": line[:120],
+                    "description": line,
+                    "priority": "high",
+                    "confidence": 55,
+                }
+                for line in buckets["objectives"]
+            ],
+            "current_environment": {
+                "summary": "Inferred from sales intake and uploaded drawings/documents.",
+                "items": env_items
+                or [
+                    {
+                        "title": "Current environment details incomplete",
+                        "description": "Confirm as-is topology, sites, and constraints with the customer.",
+                        "confidence": 40,
+                    },
+                ],
+            },
+            "functional_requirements": _req_items(
+                buckets["functional"],
+                category="infrastructure" if "wifi" in haystack or "network" in haystack else "functional",
+            ),
+            "non_functional_requirements": _req_items(
+                buckets["non_functional"],
+                category="non_functional",
+            ),
+            "constraints": [],
+            "dependencies": [],
+            "risks": _req_items(buckets["risks"], category="business", priority="high"),
+            "assumptions": _req_items(buckets["assumptions"], category="business"),
+            "reasoning_summary": (
+                "Draft RKM generated locally from sales intake and document text heuristics. "
+                "Validate with stakeholders before review/publish."
+            ),
             "provider": "local",
+            "model": "local-heuristics",
         }
 
     async def generate_clarifications(
@@ -217,6 +205,112 @@ class LocalAIProvider(AIProvider):
                 deduped.append(question)
         upper = max(min_questions, min(max_questions, len(deduped)))
         return deduped[:upper]
+
+
+def _heuristic_buckets(document_text: str) -> dict[str, list[str]]:
+    text = (document_text or "").strip()
+    sentences = _extract_sentences(text)
+
+    objectives = _pick(
+        sentences,
+        keywords=(
+            "objective",
+            "goal",
+            "outcome",
+            "business",
+            "improve",
+            "reduce",
+            "increase",
+            "enable",
+            "transform",
+        ),
+        limit=6,
+    )
+    functional = _pick(
+        sentences,
+        keywords=(
+            "must",
+            "shall",
+            "should",
+            "need",
+            "require",
+            "system",
+            "user",
+            "workflow",
+            "process",
+            "feature",
+            "function",
+            "wifi",
+            "network",
+            "firewall",
+            "server",
+            "coverage",
+        ),
+        limit=8,
+    )
+    non_functional = _pick(
+        sentences,
+        keywords=(
+            "performance",
+            "latency",
+            "availability",
+            "security",
+            "compliance",
+            "scalability",
+            "uptime",
+            "sla",
+            "privacy",
+            "audit",
+            "encryption",
+            "10gbps",
+            "redundant",
+        ),
+        limit=6,
+    )
+    assumptions = _pick(
+        sentences,
+        keywords=("assume", "assumption", "expected", "probably", "likely"),
+        limit=4,
+    )
+    risks = _pick(
+        sentences,
+        keywords=("risk", "issue", "constraint", "blocker", "dependency", "concern"),
+        limit=4,
+    )
+
+    if not objectives:
+        objectives = [
+            "Clarify primary business outcomes the solution must deliver.",
+            "Identify measurable success criteria with the customer stakeholders.",
+        ]
+    if not functional:
+        functional = sentences[:5] or [
+            "Capture core user workflows that the solution must support.",
+            "Define required integrations with existing enterprise systems.",
+        ]
+    if not non_functional:
+        non_functional = [
+            "Confirm availability, security, and performance expectations.",
+            "Confirm compliance, audit, and data residency constraints.",
+        ]
+    if not assumptions:
+        assumptions = [
+            "Document text is representative of the current customer scope.",
+            "Stakeholders will validate prioritized requirements in a follow-up workshop.",
+        ]
+    if not risks:
+        risks = [
+            "Scope may be incomplete until clarification questions are answered.",
+            "Missing non-functional targets may delay solution design.",
+        ]
+
+    return {
+        "objectives": objectives,
+        "functional": functional,
+        "non_functional": non_functional,
+        "assumptions": assumptions,
+        "risks": risks,
+    }
 
 
 def _extract_sentences(text: str) -> list[str]:

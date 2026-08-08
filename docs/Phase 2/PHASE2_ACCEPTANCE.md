@@ -21,9 +21,9 @@ Phase 2 product delivery is complete only when:
 - [x] Multi-file upload works within ATLAS-027 limits
 - [x] OCR functions correctly for images / scanned PDFs
 - [x] Text extraction succeeds for allowed native formats
-- [ ] Requirement Knowledge Model generated (Draft)
-- [ ] Requirement classification completed
-- [ ] Evidence mapping completed (including non-document source types)
+- [x] Requirement Knowledge Model generated (Draft)
+- [x] Requirement classification completed
+- [x] Evidence mapping completed (including non-document source types)
 - [ ] Gap analysis available
 - [ ] Clarification questions generated
 - [ ] Requirement scoring completed

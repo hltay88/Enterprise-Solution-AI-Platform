@@ -159,3 +159,114 @@ export type ClarificationQuestion = {
   status: string;
   created_at: string;
 };
+
+export type RkmEvidence = {
+  id: string;
+  source_type: "document" | "sales_intake" | "workshop" | "clarification_answer" | string;
+  document_id: string | null;
+  page: number | null;
+  excerpt: string | null;
+  field_name: string | null;
+  note: string | null;
+};
+
+export type RkmRequirement = {
+  id: string;
+  category: string | null;
+  subcategory: string | null;
+  title: string;
+  description: string;
+  priority: string;
+  status: string;
+  confidence: number;
+  evidence_ids: string[];
+};
+
+export type RkmStakeholder = {
+  id: string;
+  name: string;
+  role: string | null;
+  contact: string | null;
+  designation: string | null;
+  evidence_ids: string[];
+};
+
+export type RkmDraft = {
+  id: string;
+  project_id: string;
+  project: {
+    project_name: string;
+    customer: string | null;
+    industry: string | null;
+    account_manager: string | null;
+    deal_id: string | null;
+    deal_name: string | null;
+    request_type: string | null;
+    required_completion_date: string | null;
+    budget_information: string | null;
+    winning_probability: number | null;
+  };
+  business_objectives: RkmRequirement[];
+  current_environment: {
+    summary: string;
+    items: Array<{
+      id: string;
+      title: string;
+      description: string;
+      evidence_ids: string[];
+    }>;
+  };
+  functional_requirements: RkmRequirement[];
+  non_functional_requirements: RkmRequirement[];
+  constraints: RkmRequirement[];
+  dependencies: RkmRequirement[];
+  risks: RkmRequirement[];
+  assumptions: RkmRequirement[];
+  stakeholders: RkmStakeholder[];
+  clarification_questions: unknown[];
+  evidence: RkmEvidence[];
+  analysis: {
+    confidence_score: number;
+    completeness_score: number;
+    consistency_score: number;
+    evidence_coverage: number;
+    reasoning_summary: string;
+    prompt_version: string | null;
+    model: string | null;
+  };
+  approval: {
+    status: string;
+    reviewed_by: string | null;
+    approved_by: string | null;
+    approved_at: string | null;
+    published_at: string | null;
+  };
+  version: {
+    number: string;
+    major: number;
+    minor: number;
+    patch: number;
+    created_at: string;
+    updated_at: string;
+    change_summary: string | null;
+  };
+};
+
+export type RkmVersionSummary = {
+  id: string;
+  project_id: string;
+  status: string;
+  version_label: string;
+  is_active_draft: boolean;
+  confidence_score: number;
+  completeness_score: number;
+  created_at: string;
+  updated_at: string;
+};
+
+export type RkmAnalyzeAccepted = {
+  project_id: string;
+  job_id: string;
+  status: string;
+  message: string;
+};
