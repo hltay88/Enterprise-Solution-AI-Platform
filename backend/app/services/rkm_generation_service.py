@@ -124,8 +124,22 @@ class RkmGenerationService:
             if not source.strip():
                 raise ValidationAppError("No source text available for RKM generation")
 
+            from app.services.knowledge_packs import build_knowledge_pack_context
+
+            pack_context = build_knowledge_pack_context(source)
+            if pack_context:
+                source = (
+                    f"{source}\n\n--- Vendor-neutral knowledge pack guidance ---\n"
+                    f"{pack_context}"
+                )
+
             provider = get_ai_provider()
             extraction = await provider.extract_rkm_draft(source)
+            if pack_context and isinstance(extraction, dict):
+                prior = str(extraction.get("reasoning_summary") or "").strip()
+                extraction["reasoning_summary"] = (
+                    f"{prior} Knowledge pack stub context applied (vendor-neutral)."
+                ).strip()
             self.jobs.mark_progress(job, 60)
 
             built = self._assemble_draft(

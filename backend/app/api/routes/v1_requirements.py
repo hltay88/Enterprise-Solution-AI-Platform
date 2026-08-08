@@ -4,7 +4,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, BackgroundTasks, Query
 
-from app.api.deps import CurrentUser, DbSession
+from app.api.deps import ApproverUser, CurrentUser, DbSession, EditorUser
 from app.core.responses import success_response
 from app.schemas.governance import ApproveIn, PublishIn, ReviewIn, VersionForkIn
 from app.services.rkm_generation_service import RkmGenerationService, run_rkm_generate_job
@@ -17,7 +17,7 @@ router = APIRouter(prefix="/projects", tags=["v1-requirements"])
 async def analyze_requirements(
     project_id: UUID,
     background_tasks: BackgroundTasks,
-    current_user: CurrentUser,
+    current_user: EditorUser,
     db: DbSession,
 ) -> dict:
     accepted, job_id = RkmGenerationService(db).start_analyze(
@@ -81,7 +81,7 @@ def compare_requirement_versions(
 def review_requirements(
     project_id: UUID,
     body: ReviewIn,
-    current_user: CurrentUser,
+    current_user: EditorUser,
     db: DbSession,
 ) -> dict:
     result = RkmGovernanceService(db).review(
@@ -97,7 +97,7 @@ def review_requirements(
 def approve_requirements(
     project_id: UUID,
     body: ApproveIn,
-    current_user: CurrentUser,
+    current_user: ApproverUser,
     db: DbSession,
 ) -> dict:
     result = RkmGovernanceService(db).approve(
@@ -113,7 +113,7 @@ def approve_requirements(
 def publish_requirements(
     project_id: UUID,
     body: PublishIn,
-    current_user: CurrentUser,
+    current_user: ApproverUser,
     db: DbSession,
 ) -> dict:
     result = RkmGovernanceService(db).publish(
@@ -129,7 +129,7 @@ def publish_requirements(
 def fork_requirement_version(
     project_id: UUID,
     body: VersionForkIn,
-    current_user: CurrentUser,
+    current_user: EditorUser,
     db: DbSession,
 ) -> dict:
     result = RkmGovernanceService(db).fork_version(

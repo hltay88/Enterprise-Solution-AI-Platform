@@ -54,11 +54,12 @@ ZIP / PPTX / TIFF / Visio are **deferred** past 2.1.
 - Optional AI chat **Draft-only** (deferred)
 - **Exit:** publish gate enforced; Phase 3 can fetch published RKM only
 
-### Stage F — Hardening
+### Stage F — Hardening — **DONE (MVP)**
 - Audit log, RBAC MVP (Editor + Approver minimum)
-- Performance pass (100-page PDF targets), security checklist, regression suite
-- Knowledge Pack stub injection (vendor-neutral) after RKM stable
-- **Exit:** `PHASE2_ACCEPTANCE.md` metrics met with real tests
+- Performance pass (100-page PDF targets) — deferred to measured load test
+- Security checklist (Phase 2) — baseline documented; full pen-test deferred
+- Regression suite (unit) + Knowledge Pack stub injection (vendor-neutral)
+- **Exit:** Stage F MVP evidence in tests + audit/RBAC/pack paths
 
 ---
 

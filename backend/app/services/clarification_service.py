@@ -12,6 +12,7 @@ from app.repositories.project_repository import ProjectRepository
 from app.schemas.clarification import ClarificationQuestionOut
 from app.services.analysis_service import AnalysisService
 from app.services.domain_checklists import build_checklist_context, detect_domains
+from app.services.knowledge_packs import build_knowledge_pack_context
 
 
 class ClarificationService:
@@ -55,6 +56,13 @@ class ClarificationService:
         analysis_blob = "\n".join(str(value) for value in analysis_payload.values())
         domains = detect_domains(document_text, analysis_blob)
         checklist_context = build_checklist_context(domains)
+        pack_context = build_knowledge_pack_context(document_text, analysis_blob)
+        if pack_context:
+            checklist_context = (
+                f"{checklist_context}\n\n{pack_context}".strip()
+                if checklist_context
+                else pack_context
+            )
         min_questions, max_questions = _question_budget(domains)
 
         provider = get_ai_provider()

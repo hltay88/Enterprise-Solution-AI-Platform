@@ -15,6 +15,7 @@ class UserPublic(BaseModel):
     id: UUID
     name: str
     email: str
+    role: str = "editor"
 
     model_config = {"from_attributes": True}
 

@@ -63,6 +63,16 @@ Phase 2 UI and integrations should prefer `/api/v1`.
 
 ---
 
+## Audit APIs (`/api/v1`) — Stage F
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/projects/{projectId}/audit-logs` | List recent audit events (upload / review / approve / publish). |
+
+RBAC MVP: `editor` may upload/review; `approver` required for approve/publish (demo user is Approver).
+
+---
+
 ## Envelope
 
 Phase 2 APIs continue the Sprint 1 envelope (`success`, `data`, `error`) unless a later ADR changes ATLAS-014.

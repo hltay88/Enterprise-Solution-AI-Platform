@@ -4,7 +4,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, BackgroundTasks, File, Form, UploadFile
 
-from app.api.deps import CurrentUser, DbSession
+from app.api.deps import CurrentUser, DbSession, EditorUser
 from app.core.exceptions import ValidationAppError
 from app.core.responses import success_response
 from app.services.document_ingest_service import DocumentIngestService, run_extract_job
@@ -15,7 +15,7 @@ router = APIRouter(tags=["v1-documents"])
 @router.post("/documents/upload")
 async def upload_documents(
     background_tasks: BackgroundTasks,
-    current_user: CurrentUser,
+    current_user: EditorUser,
     db: DbSession,
     project_id: UUID = Form(...),
     files: list[UploadFile] = File(...),
@@ -59,7 +59,7 @@ def list_project_documents(
 @router.delete("/documents/{document_id}")
 def delete_document(
     document_id: UUID,
-    current_user: CurrentUser,
+    current_user: EditorUser,
     db: DbSession,
 ) -> dict:
     DocumentIngestService(db).archive_document(document_id, current_user.id)

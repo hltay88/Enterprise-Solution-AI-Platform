@@ -29,6 +29,7 @@ from app.schemas.governance import (
     VersionForkIn,
 )
 from app.schemas.rkm import RkmDraftOut
+from app.services.audit_service import AuditService
 from app.services.gap_analysis_service import (
     GapAnalysisService,
     _flatten_payload_for_persist,
@@ -108,6 +109,19 @@ class RkmGovernanceService:
             actor_email=actor.email,
             as_reviewed_by=True,
         )
+        AuditService(self.db).record(
+            project_id=project_id,
+            user_id=user_id,
+            action="rkm.review",
+            summary=f"Reviewed Draft RKM → v{created.version_label} ({edited} edit(s))",
+            resource_type="requirement_model",
+            resource_id=created.id,
+            metadata={
+                "version_label": created.version_label,
+                "edited_count": edited,
+                "change_summary": change_summary,
+            },
+        )
         return ReviewResult(
             project_id=project_id,
             rkm_id=created.id,
@@ -159,6 +173,15 @@ class RkmGovernanceService:
         self.db.refresh(row)
 
         draft = RkmDraftOut.model_validate(row.payload_json)
+        AuditService(self.db).record(
+            project_id=project_id,
+            user_id=user_id,
+            action="rkm.approve",
+            summary=f"Approved Draft RKM v{row.version_label}",
+            resource_type="requirement_model",
+            resource_id=row.id,
+            metadata={"version_label": row.version_label, "approved_by": actor.email},
+        )
         return ApproveResult(
             project_id=project_id,
             rkm_id=row.id,
@@ -225,6 +248,18 @@ class RkmGovernanceService:
         self.db.commit()
         self.db.refresh(row)
 
+        AuditService(self.db).record(
+            project_id=project_id,
+            user_id=user_id,
+            action="rkm.publish",
+            summary=f"Published RKM v{row.version_label}",
+            resource_type="requirement_model",
+            resource_id=row.id,
+            metadata={
+                "version_label": row.version_label,
+                "published_by": actor.email,
+            },
+        )
         return PublishResult(
             project_id=project_id,
             rkm_id=row.id,

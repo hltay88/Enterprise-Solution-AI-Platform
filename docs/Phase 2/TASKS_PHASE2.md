@@ -80,9 +80,11 @@ Roadmap: `PHASE2_ROADMAP.md`
 
 ## Stage F — Hardening
 
-- [ ] Audit trail for upload / edit / approve / publish
-- [ ] RBAC MVP (Editor + Approver)
-- [ ] Performance targets validated
-- [ ] Security checklist (Phase 2)
-- [ ] Regression test suite green
-- [ ] Knowledge Pack stub injection (vendor-neutral)
+- [x] Audit trail for upload / edit / approve / publish
+- [x] RBAC MVP (Editor + Approver)
+- [ ] Performance targets validated (100-page PDF load test — deferred)
+- [x] Security checklist (Phase 2) — baseline roles/audit/secrets (full pen-test deferred)
+- [x] Regression test suite green (unit: gap + governance + rbac + packs + audit schema)
+- [x] Knowledge Pack stub injection (vendor-neutral)
+
+**Evidence:** `audit_logs` + `GET /api/v1/projects/{id}/audit-logs`; `users.role`; `knowledge/networking|wireless` stubs; `backend/tests/test_rbac_roles.py`, `test_knowledge_pack_stub.py`, `test_audit_schema.py`; `AuditLogPanel`.

@@ -4,6 +4,7 @@ from uuid import UUID
 
 from sqlalchemy.orm import Session
 
+from app.constants.roles import ROLE_APPROVER, normalize_role
 from app.core.exceptions import UnauthorizedError
 from app.core.security import (
     create_access_token,
@@ -49,13 +50,19 @@ class AuthService:
 
 
 def ensure_demo_user(db: Session, *, name: str, email: str, password: str) -> User:
-    """Create the Sprint 1 demo user if missing."""
+    """Create the Sprint 1 demo user if missing; ensure Approver role for local demos."""
     repo = UserRepository(db)
     existing = repo.get_by_email(email.lower().strip())
     if existing is not None:
+        if normalize_role(getattr(existing, "role", None)) != ROLE_APPROVER:
+            existing.role = ROLE_APPROVER
+            db.add(existing)
+            db.commit()
+            db.refresh(existing)
         return existing
     return repo.create(
         name=name,
         email=email.lower().strip(),
         password_hash=hash_password(password),
+        role=ROLE_APPROVER,
     )

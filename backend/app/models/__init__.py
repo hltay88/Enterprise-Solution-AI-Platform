@@ -1,5 +1,6 @@
 """ORM models mapped to Sprint 1 / Phase 2 Postgres schema."""
 
+from app.models.audit_log import AuditLog
 from app.models.clarification_question import ClarificationQuestion
 from app.models.document_chunk import DocumentChunk
 from app.models.document_metadata import DocumentMetadata
@@ -27,4 +28,5 @@ __all__ = [
     "RequirementItem",
     "RequirementEvidence",
     "RequirementEvidenceLink",
+    "AuditLog",
 ]

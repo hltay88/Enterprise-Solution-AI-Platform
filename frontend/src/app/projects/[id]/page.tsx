@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 
 import { AnalysisPanel } from "@/components/AnalysisPanel";
 import { AppHeader } from "@/components/AppHeader";
+import { AuditLogPanel } from "@/components/AuditLogPanel";
 import { ClarificationPanel } from "@/components/ClarificationPanel";
 import { DocumentUploadPanel } from "@/components/DocumentUploadPanel";
 import { GapAnalysisPanel } from "@/components/GapAnalysisPanel";
@@ -141,6 +142,7 @@ function ProjectDetailContent({ userName }: { userName: string }) {
             />
             <AnalysisPanel projectId={projectId} />
             <ClarificationPanel projectId={projectId} />
+            <AuditLogPanel projectId={projectId} refreshToken={rkmRefreshToken} />
 
             <section className="form-panel">
               <div className="danger-zone">

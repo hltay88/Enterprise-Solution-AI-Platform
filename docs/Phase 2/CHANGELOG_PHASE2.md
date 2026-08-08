@@ -82,9 +82,26 @@ Project Atlas — Atlas Foundation 0.2
 
 ---
 
+## Version 0.2.5 — Stage F Hardening (MVP)
+
+### Added
+- `audit_logs` table + `GET /api/v1/projects/{id}/audit-logs`
+- Audit events on document upload/archive and RKM review/approve/publish
+- RBAC MVP: `users.role` (`editor` | `approver`); approve/publish require Approver
+- Knowledge Pack stubs under `knowledge/networking` and `knowledge/wireless`
+- Pack stub injection into RKM generation + clarification context
+- Frontend `AuditLogPanel`
+
+### Deferred
+- Measured 100-page PDF performance validation
+- Full security pen-test / encryption-at-rest proof
+- Broader SECURITY_PHASE2 role catalog (Admin / Read Only / …)
+
+---
+
 ## Planned
 
-### 0.2.5 — Hardening (Stage F)
+### Phase 3 — Architecture Recommendation Engine
 
 ---
 

@@ -21,6 +21,19 @@ export type UserPublic = {
   id: string;
   name: string;
   email: string;
+  role?: string;
+};
+
+export type AuditLogEntry = {
+  id: string;
+  project_id: string;
+  user_id: string | null;
+  action: string;
+  resource_type: string | null;
+  resource_id: string | null;
+  summary: string;
+  metadata: Record<string, unknown>;
+  created_at: string;
 };
 
 export type LoginData = {

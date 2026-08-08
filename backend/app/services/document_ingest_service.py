@@ -73,6 +73,17 @@ class DocumentIngestService:
             raise NotFoundError("Document not found")
         self._require_project(document.project_id, user_id)
         self.documents.soft_archive(document)
+        from app.services.audit_service import AuditService
+
+        AuditService(self.db).record(
+            project_id=document.project_id,
+            user_id=user_id,
+            action="document.archive",
+            summary=f"Archived document {document.filename}",
+            resource_type="document",
+            resource_id=document.id,
+            metadata={"filename": document.filename},
+        )
 
     async def upload_batch(
         self,
@@ -151,6 +162,28 @@ class DocumentIngestService:
             accepted_count=sum(1 for item in items if not item.duplicate),
             duplicate_count=sum(1 for item in items if item.duplicate),
         )
+        if result.accepted_count or result.duplicate_count:
+            from app.services.audit_service import AuditService
+
+            AuditService(self.db).record(
+                project_id=project_id,
+                user_id=user_id,
+                action="document.upload",
+                summary=(
+                    f"Uploaded {result.accepted_count} document(s)"
+                    f" ({result.duplicate_count} duplicate(s) skipped)"
+                ),
+                resource_type="document_batch",
+                metadata={
+                    "accepted_count": result.accepted_count,
+                    "duplicate_count": result.duplicate_count,
+                    "filenames": [
+                        item.document.filename
+                        for item in items
+                        if item.document is not None
+                    ],
+                },
+            )
         return result, job_ids
 
     def process_extract_job(self, job_id: UUID) -> None:

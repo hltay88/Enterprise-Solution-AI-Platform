@@ -155,7 +155,7 @@ def test_require_mutable_draft_blocks_published():
         service._require_mutable_draft(uuid4())
 
 
-def test_publish_raises_when_blockers_present():
+def test_publish_raises_when_blockers_present(monkeypatch):
     service = RkmGovernanceService.__new__(RkmGovernanceService)
     payload = _payload(approval_status="ai_generated")
     row = SimpleNamespace(
@@ -180,6 +180,17 @@ def test_publish_raises_when_blockers_present():
                 ],
             )
 
+    class FakeAudit:
+        def __init__(self, _db):
+            pass
+
+        def record(self, **_kwargs):
+            return None
+
+    monkeypatch.setattr(
+        "app.services.rkm_governance_service.AuditService",
+        FakeAudit,
+    )
     service.projects = Projects()
     service.gap = Gap()
     service.rkms = SimpleNamespace(
@@ -191,7 +202,7 @@ def test_publish_raises_when_blockers_present():
     assert "Publish blocked" in str(exc.value)
 
 
-def test_approve_stamps_approval_in_place():
+def test_approve_stamps_approval_in_place(monkeypatch):
     service = RkmGovernanceService.__new__(RkmGovernanceService)
     payload = _payload(approval_status="under_review")
     row = SimpleNamespace(
@@ -220,6 +231,17 @@ def test_approve_stamps_approval_in_place():
         def refresh(self, _row):
             return None
 
+    class FakeAudit:
+        def __init__(self, _db):
+            pass
+
+        def record(self, **_kwargs):
+            return None
+
+    monkeypatch.setattr(
+        "app.services.rkm_governance_service.AuditService",
+        FakeAudit,
+    )
     service.projects = Projects()
     service.db = Db()
     service.rkms = SimpleNamespace(ensure_active_draft=lambda _pid: row)
