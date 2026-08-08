@@ -34,6 +34,7 @@ class ClarificationOut(BaseModel):
     priority: str
     category: str
     reason: str
+    section: str | None = None  # RKM section this answer should update
     affected_requirement_ids: list[UUID] = Field(default_factory=list)
     status: str = "open"  # open | answered | dismissed
     answer: str | None = None

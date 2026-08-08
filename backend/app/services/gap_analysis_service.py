@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import copy
 import logging
+import re
 import uuid
 from datetime import datetime, timezone
 from typing import Any
@@ -38,6 +39,20 @@ from app.services.gap_scoring import (
 logger = logging.getLogger(__name__)
 
 PUBLISH_THRESHOLD = 85.0
+CLARIFICATION_MARKER = "Customer clarification:"
+_SECTION_FROM_REASON = re.compile(r"Section '([a-z_]+)'")
+
+_SECTION_CREATE_TITLES: dict[str, str] = {
+    "business_objectives": "Business outcomes",
+    "current_environment": "Current environment",
+    "functional_requirements": "Functional requirement",
+    "non_functional_requirements": "Non-functional requirement",
+    "constraints": "Constraint",
+    "dependencies": "Dependency",
+    "risks": "Risk",
+    "assumptions": "Assumption",
+    "stakeholders": "Stakeholder",
+}
 
 
 class GapAnalysisService:
@@ -180,9 +195,13 @@ class GapAnalysisService:
             }
             new_evidence.append(evidence_row)
 
-            # Attach evidence to affected requirements (or first functional/business item).
-            affected = [str(x) for x in (item.get("affected_requirement_ids") or [])]
-            self._attach_evidence_to_requirements(payload, affected, str(evidence_id))
+            # Merge answer text into Draft RKM content + link clarification evidence.
+            self._apply_clarification_answer(
+                payload,
+                clarification=item,
+                answer_text=text,
+                evidence_id=str(evidence_id),
+            )
 
         if answered == 0:
             detail = ", ".join(unknown_ids[:3]) if unknown_ids else "none"
@@ -525,6 +544,7 @@ class GapAnalysisService:
                     priority=priority,
                     category=category,
                     reason=f"Section '{section}' is missing or empty in the Draft RKM.",
+                    section=section,
                     affected_requirement_ids=[],
                     status="open",
                     answer=None,
@@ -532,19 +552,19 @@ class GapAnalysisService:
                 ),
             )
 
-        # Domain-aware extras from functional text.
-        haystack = " ".join(
-            f"{item.get('title') or ''} {item.get('description') or ''}"
-            for item in (payload.get("functional_requirements") or [])
-            if isinstance(item, dict)
-        ).lower()
-        functional_ids = [
-            UUID(str(item.get("id")))
-            for item in (payload.get("functional_requirements") or [])
-            if isinstance(item, dict) and item.get("id")
-        ][:5]
+        # Domain-aware extras from functional text — only tag matching requirements.
+        def _ids_matching(*tokens: str) -> list[UUID]:
+            matched: list[UUID] = []
+            for item in payload.get("functional_requirements") or []:
+                if not isinstance(item, dict) or not item.get("id"):
+                    continue
+                text = f"{item.get('title') or ''} {item.get('description') or ''}".lower()
+                if any(token in text for token in tokens):
+                    matched.append(UUID(str(item.get("id"))))
+            return matched[:5]
 
-        if any(token in haystack for token in ("wifi", "wi-fi", "wireless", "wlan", "wap")):
+        wifi_ids = _ids_matching("wifi", "wi-fi", "wireless", "wlan", "wap")
+        if wifi_ids:
             questions.append(
                 ClarificationOut(
                     id=uuid.uuid4(),
@@ -552,12 +572,14 @@ class GapAnalysisService:
                     priority="high",
                     category="Networking",
                     reason="Wireless/WiFi requirements are present but coverage scope/density is unclear.",
-                    affected_requirement_ids=functional_ids,
+                    section="functional_requirements",
+                    affected_requirement_ids=wifi_ids,
                     status="open",
                     confidence_impact=10.0,
                 ),
             )
-        if "firewall" in haystack or "security" in haystack:
+        security_ids = _ids_matching("firewall", "security")
+        if security_ids:
             questions.append(
                 ClarificationOut(
                     id=uuid.uuid4(),
@@ -565,7 +587,8 @@ class GapAnalysisService:
                     priority="high",
                     category="Security",
                     reason="Security controls are referenced without measurable targets.",
-                    affected_requirement_ids=functional_ids,
+                    section="functional_requirements",
+                    affected_requirement_ids=security_ids,
                     status="open",
                     confidence_impact=8.0,
                 ),
@@ -584,6 +607,7 @@ class GapAnalysisService:
                     priority=gap.severity if gap.severity in {"critical", "high", "medium", "low"} else "medium",
                     category=gap.section.replace("_", " ").title(),
                     reason=gap.message,
+                    section=gap.section,
                     affected_requirement_ids=gap.affected_requirement_ids,
                     status="open",
                     confidence_impact=5.0,
@@ -601,14 +625,87 @@ class GapAnalysisService:
             deduped.append(item)
         return deduped[:12]
 
-    def _attach_evidence_to_requirements(
+    def _apply_clarification_answer(
         self,
         payload: dict[str, Any],
-        requirement_ids: list[str],
+        *,
+        clarification: dict[str, Any],
+        answer_text: str,
         evidence_id: str,
     ) -> None:
+        """Merge customer answer into Draft RKM content (not evidence-only)."""
+        affected = [str(x) for x in (clarification.get("affected_requirement_ids") or [])]
+        section = self._resolve_clarification_section(clarification)
+        impact = 10.0
+        try:
+            impact = float(clarification.get("confidence_impact") or 10.0)
+        except (TypeError, ValueError):
+            impact = 10.0
+
+        updated = self._enrich_items_with_answer(
+            payload,
+            requirement_ids=affected,
+            answer_text=answer_text,
+            evidence_id=evidence_id,
+            question=str(clarification.get("question") or ""),
+            confidence_bump=impact,
+        )
+        if updated:
+            return
+
+        # Missing-section / unmatched answers: create concrete RKM content.
+        target_section = section or "assumptions"
+        self._create_item_from_answer(
+            payload,
+            section=target_section,
+            answer_text=answer_text,
+            evidence_id=evidence_id,
+            clarification=clarification,
+            confidence=min(100.0, 55.0 + impact),
+        )
+
+    def _resolve_clarification_section(self, clarification: dict[str, Any]) -> str | None:
+        section = clarification.get("section")
+        if isinstance(section, str) and section in SECTION_WEIGHTS:
+            return section
+
+        reason = str(clarification.get("reason") or "")
+        match = _SECTION_FROM_REASON.search(reason)
+        if match and match.group(1) in SECTION_WEIGHTS:
+            return match.group(1)
+
+        category = str(clarification.get("category") or "").strip().lower()
+        for key in SECTION_WEIGHTS:
+            label = key.replace("_", " ")
+            if category == key or category == label:
+                return key
+
+        category_map = {
+            "networking": "functional_requirements",
+            "security": "functional_requirements",
+            "infrastructure": "current_environment",
+            "business": "business_objectives",
+            "technical": "functional_requirements",
+            "operations": "risks",
+        }
+        return category_map.get(category)
+
+    def _enrich_items_with_answer(
+        self,
+        payload: dict[str, Any],
+        *,
+        requirement_ids: list[str],
+        answer_text: str,
+        evidence_id: str,
+        question: str,
+        confidence_bump: float,
+    ) -> int:
+        if not requirement_ids:
+            return 0
         targets = set(requirement_ids)
-        sections = [
+        updated = 0
+
+        requirement_sections = [
             "business_objectives",
             "functional_requirements",
             "non_functional_requirements",
@@ -617,53 +714,210 @@ class GapAnalysisService:
             "risks",
             "assumptions",
         ]
-        attached = False
-        for section in sections:
-            items = payload.get(section) or []
-            if not isinstance(items, list):
-                continue
+        for section in requirement_sections:
+            items = list(payload.get(section) or [])
+            changed = False
             for item in items:
                 if not isinstance(item, dict):
                     continue
-                if targets and str(item.get("id")) not in targets:
+                if str(item.get("id")) not in targets:
                     continue
-                if not targets and attached:
-                    continue
-                evidence_ids = list(item.get("evidence_ids") or [])
-                if evidence_id not in evidence_ids:
-                    evidence_ids.append(evidence_id)
-                item["evidence_ids"] = evidence_ids
-                # Small confidence bump when clarified.
-                try:
-                    item["confidence"] = min(100.0, float(item.get("confidence") or 50) + 5)
-                except (TypeError, ValueError):
-                    item["confidence"] = 55.0
-                attached = True
-                if targets:
-                    # continue attaching to all explicitly affected ids
-                    continue
-                break
-            payload[section] = items
+                item["description"] = _merge_answer_into_text(
+                    str(item.get("description") or ""),
+                    answer_text,
+                )
+                self._link_evidence_and_bump(item, evidence_id, confidence_bump)
+                updated += 1
+                changed = True
+            if changed:
+                payload[section] = items
 
-        env = payload.get("current_environment") or {}
+        env = dict(payload.get("current_environment") or {})
         env_items = list(env.get("items") or [])
+        env_changed = False
         for item in env_items:
             if not isinstance(item, dict):
                 continue
-            if targets and str(item.get("id")) not in targets:
+            if str(item.get("id")) not in targets:
                 continue
-            evidence_ids = list(item.get("evidence_ids") or [])
-            if evidence_id not in evidence_ids:
-                evidence_ids.append(evidence_id)
-            item["evidence_ids"] = evidence_ids
-        env["items"] = env_items
-        payload["current_environment"] = env
+            item["description"] = _merge_answer_into_text(
+                str(item.get("description") or ""),
+                answer_text,
+            )
+            self._link_evidence_and_bump(item, evidence_id, confidence_bump)
+            updated += 1
+            env_changed = True
+        if env_changed:
+            env["items"] = env_items
+            if not str(env.get("summary") or "").strip():
+                env["summary"] = answer_text[:500]
+            payload["current_environment"] = env
+
+        stakeholders = list(payload.get("stakeholders") or [])
+        stake_changed = False
+        for item in stakeholders:
+            if not isinstance(item, dict):
+                continue
+            if str(item.get("id")) not in targets:
+                continue
+            designation = str(item.get("designation") or item.get("role") or "")
+            merged = _merge_answer_into_text(designation, answer_text)
+            item["designation"] = merged
+            if not str(item.get("role") or "").strip():
+                item["role"] = answer_text[:160]
+            self._link_evidence_and_bump(item, evidence_id, confidence_bump)
+            updated += 1
+            stake_changed = True
+        if stake_changed:
+            payload["stakeholders"] = stakeholders
+
+        # Fallback: if IDs were stale, still surface the answer somewhere readable.
+        if updated == 0 and answer_text.strip():
+            logger.info(
+                "Clarification answer had affected ids but none matched; creating fallback content. question=%s",
+                question[:80],
+            )
+        return updated
+
+    def _create_item_from_answer(
+        self,
+        payload: dict[str, Any],
+        *,
+        section: str,
+        answer_text: str,
+        evidence_id: str,
+        clarification: dict[str, Any],
+        confidence: float,
+    ) -> None:
+        title = _title_from_clarification(clarification, section)
+        item_id = str(uuid.uuid4())
+
+        if section == "stakeholders":
+            name, role = _parse_stakeholder_answer(answer_text)
+            stakeholders = list(payload.get("stakeholders") or [])
+            stakeholders.append(
+                {
+                    "id": item_id,
+                    "name": name or title,
+                    "role": role,
+                    "contact": None,
+                    "designation": answer_text.strip(),
+                    "evidence_ids": [evidence_id],
+                },
+            )
+            payload["stakeholders"] = stakeholders
+            return
+
+        if section == "current_environment":
+            env = dict(payload.get("current_environment") or {})
+            items = list(env.get("items") or [])
+            items.append(
+                {
+                    "id": item_id,
+                    "title": title,
+                    "description": answer_text.strip(),
+                    "evidence_ids": [evidence_id],
+                    "confidence": confidence,
+                    "priority": clarification.get("priority") or "high",
+                    "status": "draft",
+                    "category": "infrastructure",
+                },
+            )
+            env["items"] = items
+            if not str(env.get("summary") or "").strip():
+                env["summary"] = answer_text.strip()[:500]
+            else:
+                summary = str(env.get("summary") or "").strip()
+                if answer_text.strip() not in summary:
+                    env["summary"] = f"{summary}\n\n{CLARIFICATION_MARKER} {answer_text.strip()}"[:1000]
+            payload["current_environment"] = env
+            return
+
+        requirement = {
+            "id": item_id,
+            "title": title,
+            "description": answer_text.strip(),
+            "priority": clarification.get("priority") or "high",
+            "status": "draft",
+            "confidence": confidence,
+            "evidence_ids": [evidence_id],
+            "category": {
+                "business_objectives": "business",
+                "functional_requirements": "functional",
+                "non_functional_requirements": "non_functional",
+                "constraints": "business",
+                "dependencies": "functional",
+                "risks": "business",
+                "assumptions": "business",
+            }.get(section, "business"),
+        }
+        items = list(payload.get(section) or [])
+        items.append(requirement)
+        payload[section] = items
+
+    @staticmethod
+    def _link_evidence_and_bump(
+        item: dict[str, Any],
+        evidence_id: str,
+        confidence_bump: float,
+    ) -> None:
+        evidence_ids = list(item.get("evidence_ids") or [])
+        if evidence_id not in evidence_ids:
+            evidence_ids.append(evidence_id)
+        item["evidence_ids"] = evidence_ids
+        try:
+            current = float(item.get("confidence") or 50)
+        except (TypeError, ValueError):
+            current = 50.0
+        item["confidence"] = min(100.0, current + max(5.0, confidence_bump))
 
     def _require_project(self, project_id: UUID, user_id: UUID):
         project = self.projects.get_for_user(project_id, user_id)
         if project is None:
             raise NotFoundError("Project not found")
         return project
+
+
+def _merge_answer_into_text(existing: str, answer: str) -> str:
+    existing = (existing or "").strip()
+    answer = (answer or "").strip()
+    if not answer:
+        return existing
+    if answer in existing:
+        return existing
+    if not existing or len(existing) < 20:
+        if existing and existing.lower() not in answer.lower():
+            return f"{answer}\n\n(Prior note: {existing})"
+        return answer
+    return f"{existing}\n\n{CLARIFICATION_MARKER} {answer}"
+
+
+def _title_from_clarification(clarification: dict[str, Any], section: str) -> str:
+    default = _SECTION_CREATE_TITLES.get(section, "Clarified requirement")
+    question = str(clarification.get("question") or "").strip()
+    if question.lower().startswith("please clarify:"):
+        rest = question.split(":", 1)[-1].strip()
+        # "Requirement needs more detail: Campus WiFi" → Campus WiFi
+        if ":" in rest:
+            rest = rest.split(":")[-1].strip()
+        return (rest or default)[:80]
+    return default
+
+
+def _parse_stakeholder_answer(answer: str) -> tuple[str, str | None]:
+    text = (answer or "").strip()
+    if not text:
+        return "Clarified stakeholder", None
+    first_line = text.splitlines()[0].strip()
+    if "," in first_line:
+        parts = [part.strip() for part in first_line.split(",") if part.strip()]
+        name = parts[0]
+        role = ", ".join(parts[1:]) if len(parts) > 1 else None
+        return name[:120], (role[:160] if role else None)
+    if " - " in first_line:
+        name, role = first_line.split(" - ", 1)
+        return name.strip()[:120], role.strip()[:160] or None
+    return first_line[:120], None
 
 
 def _remap_payload_entity_ids(payload: dict[str, Any]) -> dict[str, Any]:
