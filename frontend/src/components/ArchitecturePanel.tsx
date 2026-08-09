@@ -2,11 +2,14 @@
 
 import { useEffect, useState } from "react";
 
-import { apiGet, apiPost, ApiClientError } from "@/lib/api";
+import { apiGet, apiPatch, apiPost, ApiClientError } from "@/lib/api";
 import type {
   ArchitectureGenerateResult,
   ArchitectureOption,
   ArchitectureOptionSummary,
+  ArchitectureProductMapResult,
+  ArchitectureProductMapping,
+  ArchitectureReviewResult,
 } from "@/lib/types";
 
 type ArchitecturePanelProps = {
@@ -46,6 +49,12 @@ export function ArchitecturePanel({
   const [running, setRunning] = useState(false);
   const [selecting, setSelecting] = useState(false);
   const [runError, setRunError] = useState<string | null>(null);
+  const [mappings, setMappings] = useState<ArchitectureProductMapping[]>([]);
+  const [mappingBusy, setMappingBusy] = useState(false);
+  const [governanceBusy, setGovernanceBusy] = useState<string | null>(null);
+  const [reviewNote, setReviewNote] = useState("");
+  const [approveNote, setApproveNote] = useState("");
+  const [governanceNote, setGovernanceNote] = useState<string | null>(null);
 
   async function loadDetail(
     options: ArchitectureOptionSummary[],
@@ -64,6 +73,19 @@ export function ArchitecturePanel({
       true,
     );
     setState({ kind: "ready", options, selected });
+    await loadMappings(preferred.id);
+  }
+
+  async function loadMappings(architectureId: string) {
+    try {
+      const rows = await apiGet<ArchitectureProductMapping[]>(
+        `/api/v1/projects/${projectId}/architectures/${architectureId}/product-mappings`,
+        true,
+      );
+      setMappings(rows);
+    } catch {
+      setMappings([]);
+    }
   }
 
   async function load() {
@@ -129,12 +151,14 @@ export function ArchitecturePanel({
     if (state.kind !== "ready" || state.selected.id === optionId) return;
     setSelecting(true);
     setRunError(null);
+    setGovernanceNote(null);
     try {
       const selected = await apiGet<ArchitectureOption>(
         `/api/v1/projects/${projectId}/architectures/${optionId}`,
         true,
       );
       setState({ kind: "ready", options: state.options, selected });
+      await loadMappings(optionId);
     } catch (err) {
       setRunError(
         err instanceof ApiClientError
@@ -146,14 +170,131 @@ export function ArchitecturePanel({
     }
   }
 
+  async function mapProducts() {
+    if (state.kind !== "ready") return;
+    setMappingBusy(true);
+    setRunError(null);
+    try {
+      const result = await apiPost<ArchitectureProductMapResult>(
+        `/api/v1/projects/${projectId}/architectures/${state.selected.id}/map-products`,
+        {},
+        true,
+      );
+      setMappings(result.mappings);
+      setGovernanceNote(
+        `Mapped ${result.mappings.length} product candidate(s)` +
+          (result.unmatched_component_ids.length
+            ? `; ${result.unmatched_component_ids.length} component(s) unmatched`
+            : ""),
+      );
+    } catch (err) {
+      setRunError(
+        err instanceof ApiClientError
+          ? err.message
+          : "Unable to map products (seed catalogue first)",
+      );
+    } finally {
+      setMappingBusy(false);
+    }
+  }
+
+  async function updateMappingStatus(
+    mappingId: string,
+    status: "selected" | "rejected" | "candidate",
+  ) {
+    setMappingBusy(true);
+    setRunError(null);
+    try {
+      const updated = await apiPatch<ArchitectureProductMapping>(
+        `/api/v1/projects/${projectId}/product-mappings/${mappingId}`,
+        { status },
+        true,
+      );
+      setMappings((rows) =>
+        rows.map((row) => (row.id === updated.id ? updated : row)),
+      );
+    } catch (err) {
+      setRunError(
+        err instanceof ApiClientError
+          ? err.message
+          : "Unable to update product mapping",
+      );
+    } finally {
+      setMappingBusy(false);
+    }
+  }
+
+  async function reviewArchitecture() {
+    if (state.kind !== "ready") return;
+    setGovernanceBusy("review");
+    setRunError(null);
+    setGovernanceNote(null);
+    try {
+      const result = await apiPost<ArchitectureReviewResult>(
+        `/api/v1/projects/${projectId}/architectures/${state.selected.id}/review`,
+        { note: reviewNote.trim() || undefined },
+        true,
+      );
+      setGovernanceNote(
+        `Under review` +
+          (result.uncovered_critical_count
+            ? ` · ${result.uncovered_critical_count} uncovered critical/high (soft signal)`
+            : " · coverage looks clean"),
+      );
+      setReviewNote("");
+      const options = await apiGet<ArchitectureOptionSummary[]>(
+        `/api/v1/projects/${projectId}/architectures`,
+        true,
+      );
+      await loadDetail(options, state.selected.id);
+    } catch (err) {
+      setRunError(
+        err instanceof ApiClientError
+          ? err.message
+          : "Unable to mark architecture under review",
+      );
+    } finally {
+      setGovernanceBusy(null);
+    }
+  }
+
+  async function approveArchitecture() {
+    if (state.kind !== "ready") return;
+    setGovernanceBusy("approve");
+    setRunError(null);
+    setGovernanceNote(null);
+    try {
+      const result = await apiPost<ArchitectureReviewResult>(
+        `/api/v1/projects/${projectId}/architectures/${state.selected.id}/approve`,
+        { note: approveNote.trim() || undefined },
+        true,
+      );
+      setGovernanceNote(`Architecture ${result.status}`);
+      setApproveNote("");
+      const options = await apiGet<ArchitectureOptionSummary[]>(
+        `/api/v1/projects/${projectId}/architectures`,
+        true,
+      );
+      await loadDetail(options, state.selected.id);
+    } catch (err) {
+      setRunError(
+        err instanceof ApiClientError
+          ? err.message
+          : "Unable to approve architecture",
+      );
+    } finally {
+      setGovernanceBusy(null);
+    }
+  }
+
   return (
     <section className="panel rkm-panel" id="architecture-panel">
       <div className="panel-heading">
         <div>
           <h2>Architecture candidates</h2>
           <p className="muted">
-            Phase 3 — reviewable options from Published RKM + latest domain
-            analysis (vendor-neutral; no approve yet)
+            Phase 3 — map products, human review, then Approver Complete
+            (hard uncovered-critical gate)
           </p>
         </div>
         <button
@@ -171,6 +312,7 @@ export function ArchitecturePanel({
       </div>
 
       {runError ? <p className="form-error">{runError}</p> : null}
+      {governanceNote ? <p className="status">{governanceNote}</p> : null}
       {state.kind === "loading" ? <p className="status">Loading…</p> : null}
       {state.kind === "empty" ? (
         <div className="empty-state">
@@ -195,6 +337,23 @@ export function ArchitecturePanel({
           />
           {selecting ? <p className="status">Loading candidate…</p> : null}
           <ArchitectureOptionView option={state.selected} />
+          <ProductMappingSection
+            option={state.selected}
+            mappings={mappings}
+            busy={mappingBusy || selecting || running}
+            onMap={() => void mapProducts()}
+            onUpdateStatus={(id, status) => void updateMappingStatus(id, status)}
+          />
+          <ArchitectureGovernanceSection
+            option={state.selected}
+            reviewNote={reviewNote}
+            approveNote={approveNote}
+            busy={governanceBusy}
+            onReviewNote={setReviewNote}
+            onApproveNote={setApproveNote}
+            onReview={() => void reviewArchitecture()}
+            onApprove={() => void approveArchitecture()}
+          />
         </>
       ) : null}
     </section>
@@ -243,7 +402,8 @@ function CandidatePicker({
                     <span className="muted">({item.candidate_key})</span>
                   </strong>
                   <span className="muted">
-                    score {formatScore(item.overall_score)} · confidence{" "}
+                    {item.status.replace(/_/g, " ")} · score{" "}
+                    {formatScore(item.overall_score)} · confidence{" "}
                     {formatConfidence(item.confidence)} · v{item.version_label}
                   </span>
                 </span>
@@ -262,12 +422,195 @@ function CandidatePicker({
   );
 }
 
+function ProductMappingSection({
+  option,
+  mappings,
+  busy,
+  onMap,
+  onUpdateStatus,
+}: {
+  option: ArchitectureOption;
+  mappings: ArchitectureProductMapping[];
+  busy: boolean;
+  onMap: () => void;
+  onUpdateStatus: (
+    mappingId: string,
+    status: "selected" | "rejected" | "candidate",
+  ) => void;
+}) {
+  const nameById = new Map(
+    option.components.map((component) => [component.id, component.name]),
+  );
+
+  return (
+    <div className="rkm-section">
+      <div className="panel-heading">
+        <div>
+          <h3>Vendor product mapping</h3>
+          <p className="muted">
+            Explicit Map products (not run on generate). Seed catalogue from the
+            BOM panel first.
+          </p>
+        </div>
+        <button
+          className="btn-primary btn-compact"
+          type="button"
+          disabled={busy}
+          onClick={onMap}
+        >
+          {busy ? "Mapping…" : "Map products"}
+        </button>
+      </div>
+      {mappings.length === 0 ? (
+        <p className="muted">No product mappings for this candidate yet.</p>
+      ) : (
+        <ul className="rkm-list">
+          {mappings.map((mapping) => (
+            <li key={mapping.id} className="rkm-item">
+              <div className="rkm-item-head">
+                <strong>
+                  {nameById.get(mapping.component_id) || "Component"} →{" "}
+                  {mapping.vendor || "Vendor"} {mapping.product_model || ""}
+                </strong>
+                <span className="muted">
+                  {mapping.status} · fit{" "}
+                  {mapping.fit_score != null
+                    ? Number(mapping.fit_score).toFixed(1)
+                    : "—"}
+                </span>
+              </div>
+              {mapping.rationale ? (
+                <p className="muted">{mapping.rationale}</p>
+              ) : null}
+              <div className="governance-actions">
+                <button
+                  className="btn-secondary btn-compact"
+                  type="button"
+                  disabled={busy || mapping.status === "selected"}
+                  onClick={() => onUpdateStatus(mapping.id, "selected")}
+                >
+                  Select
+                </button>{" "}
+                <button
+                  className="btn-secondary btn-compact"
+                  type="button"
+                  disabled={busy || mapping.status === "rejected"}
+                  onClick={() => onUpdateStatus(mapping.id, "rejected")}
+                >
+                  Reject
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+function ArchitectureGovernanceSection({
+  option,
+  reviewNote,
+  approveNote,
+  busy,
+  onReviewNote,
+  onApproveNote,
+  onReview,
+  onApprove,
+}: {
+  option: ArchitectureOption;
+  reviewNote: string;
+  approveNote: string;
+  busy: string | null;
+  onReviewNote: (value: string) => void;
+  onApproveNote: (value: string) => void;
+  onReview: () => void;
+  onApprove: () => void;
+}) {
+  const status = option.status;
+  const canReview = !["approved", "complete"].includes(status);
+  const canApprove = status === "under_review" || status === "approved";
+
+  return (
+    <div className="rkm-section governance-actions">
+      <h3>Review &amp; Complete</h3>
+      <p className="muted">
+        Status: <strong>{status.replace(/_/g, " ")}</strong>
+        {option.reviewed_at
+          ? ` · reviewed ${new Date(option.reviewed_at).toLocaleString()}`
+          : ""}
+        {option.approved_at
+          ? ` · approved ${new Date(option.approved_at).toLocaleString()}`
+          : ""}
+      </p>
+      {option.review_note ? (
+        <p className="muted">Review note: {option.review_note}</p>
+      ) : null}
+      {option.approval_note ? (
+        <p className="muted">Approval note: {option.approval_note}</p>
+      ) : null}
+
+      {canReview ? (
+        <>
+          <label className="field">
+            <span>Review note</span>
+            <input
+              value={reviewNote}
+              onChange={(event) => onReviewNote(event.target.value)}
+            />
+          </label>
+          <button
+            className="btn-primary btn-compact"
+            type="button"
+            disabled={busy != null}
+            onClick={onReview}
+          >
+            {busy === "review" ? "Saving…" : "Mark under review"}
+          </button>
+        </>
+      ) : null}
+
+      {canApprove ? (
+        <>
+          <label className="field">
+            <span>Approval note</span>
+            <input
+              value={approveNote}
+              onChange={(event) => onApproveNote(event.target.value)}
+            />
+          </label>
+          <button
+            className="btn-primary btn-compact"
+            type="button"
+            disabled={busy != null}
+            onClick={onApprove}
+          >
+            {busy === "approve" ? "Approving…" : "Approve / Complete"}
+          </button>
+          <p className="muted">
+            Approver role required. Complete hard-fails if critical/high
+            requirements remain uncovered.
+          </p>
+        </>
+      ) : null}
+
+      {status === "complete" ? (
+        <p className="muted">This candidate is complete and ready for Phase 4.</p>
+      ) : null}
+      {!canReview && !canApprove && status !== "complete" ? (
+        <p className="muted">Review this candidate before approve/Complete.</p>
+      ) : null}
+    </div>
+  );
+}
+
 function ArchitectureOptionView({ option }: { option: ArchitectureOption }) {
   return (
     <>
       <div className="rkm-meta muted">
         <span>
-          {option.title} · v{option.version_label}
+          {option.title} · {option.status.replace(/_/g, " ")} · v
+          {option.version_label}
         </span>
         <span>
           {" "}

@@ -1,5 +1,11 @@
 # Phase 3 Changelog
 
+## 0.3.3-task11 (frontend vendor / BOM / review panels)
+
+Sprint 3.3 Task 11: project-page UI for Map products, select/reject mappings,
+architecture review/Complete, and BOM import/validate (+ seed catalogue) via
+`ArchitecturePanel` and `BomValidationPanel`.
+
 ## 0.3.3-task10 (architecture approve / Complete gate)
 
 Sprint 3.3 Task 10: Approver-only `POST …/architectures/{id}/approve` sets

@@ -25,19 +25,28 @@ On the project page, after RKM governance and **before** Architecture:
 
 - **Architecture candidates** (`ArchitecturePanel`) — Generate/list/select candidates from
   Published RKM + latest domains; inspect components, scores, risks, assumptions, capacity
-  notes, and pattern/RKM/domain pins. No approve UI yet (3.3).
+  notes, and pattern/RKM/domain pins.
+
+## Implemented (Sprint 3.3 Task 11)
+
+- **Vendor product mapping** (on `ArchitecturePanel`) — explicit Map products; select/reject
+  mappings.
+- **Review & Complete** (on `ArchitecturePanel`) — Mark under review; Approver Complete with
+  uncovered-critical hard-gate errors surfaced in UI.
+- **BOM import & validation** (`BomValidationPanel`) — seed catalogue, import pipe-delimited
+  evidence lines, validate, inspect human-flagged issues (ATLAS-039).
 
 ## Main screens
 - Solution Overview
 - Domain Map — **partial (3.1 panel on project page)**
-- Architecture Designer — **candidates panel (3.2)**; compare/approve later
+- Architecture Designer — **candidates + map/review/approve (3.3)**
 - Architecture Comparison
 - Requirement Traceability — **partial (domain stage in Domain panel; arch links via API)**
 - Capacity Calculator — **partial (capacity notes on candidate)**
 - Risks & Assumptions — **partial (on candidate + `/risks` `/assumptions` APIs)**
-- Vendor Comparison
-- BOM Validation
-- Architecture Approval
+- Vendor Comparison — **partial (product mapping on Architecture panel)**
+- BOM Validation — **live (`BomValidationPanel`)**
+- Architecture Decision — **review/Complete on Architecture panel**
 
 ## UX principle
 Show why the AI made a recommendation.

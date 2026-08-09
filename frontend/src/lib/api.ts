@@ -20,7 +20,7 @@ export class ApiClientError extends Error {
 }
 
 type RequestOptions = {
-  method?: "GET" | "POST" | "PUT" | "DELETE";
+  method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   body?: unknown | FormData;
   auth?: boolean;
 };
@@ -90,6 +90,10 @@ export async function apiPost<T>(path: string, body: unknown, auth = false): Pro
 
 export async function apiPut<T>(path: string, body: unknown, auth = false): Promise<T> {
   return apiRequest<T>(path, { method: "PUT", body, auth });
+}
+
+export async function apiPatch<T>(path: string, body: unknown, auth = false): Promise<T> {
+  return apiRequest<T>(path, { method: "PATCH", body, auth });
 }
 
 export async function apiDelete<T = null>(path: string, auth = false): Promise<T> {

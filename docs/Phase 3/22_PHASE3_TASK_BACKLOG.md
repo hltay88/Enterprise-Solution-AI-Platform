@@ -13,8 +13,8 @@
 - [x] Capacity planning — Sprint 3.2 Task 7 (`capacity_notes`; no fabricate; full calculator UI later)
 - [x] Scoring — Sprint 3.2 Task 9 (decision support)
 - [x] Risk/assumption engine — Sprint 3.2 Task 8
-- [ ] Vendor catalogue — Sprint 3.3
-- [ ] Product mapping — Sprint 3.3
+- [x] Vendor catalogue — Sprint 3.3 Tasks 3–4 (+ seed UI in Task 11)
+- [x] Product mapping — Sprint 3.3 Tasks 5–6 (+ UI in Task 11)
 
 ## P2
 - [x] BOM import — Sprint 3.3 Task 7 (immutable evidence; validation Task 8)

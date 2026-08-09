@@ -6,7 +6,7 @@
 **Sprint 3.0 locks:** [21_PHASE3_DECISIONS.md](./21_PHASE3_DECISIONS.md) (ATLAS-031…034) — complete.  
 **Sprint 3.1:** Solution Domain Identification — implemented (catalog → analyze API → UI).  
 **Sprint 3.2:** Architecture engine — complete (Tasks 1–14).  
-**Sprint 3.3:** Vendor / BOM / approve — in progress (catalogue import + seed live).
+**Sprint 3.3:** Vendor / BOM / approve — in progress (API through Task 10; UI Task 11).
 
 ## Read order
 
@@ -61,11 +61,10 @@ Handover context from Phase 2: [../Phase 2/PHASE3_HANDOVER.md](../Phase%202/PHAS
 - Pattern catalog, normalized `architecture_options` (+ components/risks/scores/capacity)
 - `ArchitectureGenerationService` (Published RKM + domain gate, capacity/risks/scoring/traceability)
 - API: `POST/GET …/architectures…`, `GET …/risks`, `GET …/assumptions` (+ singular MVP aliases)
-- UI: `ArchitecturePanel` candidate picker/detail (no approve yet)
-- Verify: `scripts/verify_sprint_3_2.py`
+- UI: `ArchitecturePanel` candidates + map/review/Complete; `BomValidationPanel`
+- Verify: `scripts/verify_sprint_3_2.py` (3.3 verify is Task 13)
 
-**Not yet built:** Sprint 3.3 vendor/BOM/architecture review-approve
-(see [15_API_PHASE3.md](./15_API_PHASE3.md), [22_PHASE3_TASK_BACKLOG.md](./22_PHASE3_TASK_BACKLOG.md)).
+**Remaining in 3.3:** docs polish (Task 12), `scripts/verify_sprint_3_3.py` (Task 13).
 
 API namespace remains `/api/v1/projects/{id}/…` — no `/solutions/` surface (ATLAS-031).
 

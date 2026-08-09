@@ -91,6 +91,8 @@ export type ArchitectureOptionSummary = {
   version_label: string;
   rkm_version_label: string | null;
   domain_analysis_id: string | null;
+  reviewed_at?: string | null;
+  approved_at?: string | null;
   created_at: string;
 };
 
@@ -198,6 +200,12 @@ export type ArchitectureOption = {
   capacity_notes: CapacityNote[];
   advantages: string[];
   disadvantages: string[];
+  reviewed_at?: string | null;
+  reviewed_by?: string | null;
+  review_note?: string | null;
+  approved_at?: string | null;
+  approved_by?: string | null;
+  approval_note?: string | null;
   created_at: string;
   updated_at: string;
   payload?: Record<string, unknown>;
@@ -207,6 +215,100 @@ export type ArchitectureGenerateResult = {
   generation_id: string;
   version_label: string;
   architectures: ArchitectureOption[];
+};
+
+export type ArchitectureProductMapping = {
+  id: string;
+  project_id: string;
+  architecture_id: string;
+  component_id: string;
+  product_id: string;
+  fit_score: number | null;
+  rationale: string;
+  status: "candidate" | "selected" | "rejected" | string;
+  preference_kind: string;
+  limitations?: string;
+  vendor?: string;
+  product_model?: string;
+  category?: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type ArchitectureProductMapResult = {
+  architecture_id: string;
+  unmatched_component_ids: string[];
+  mappings: ArchitectureProductMapping[];
+};
+
+export type ArchitectureReviewResult = {
+  id: string;
+  project_id: string;
+  status: string;
+  reviewed_at: string | null;
+  reviewed_by: string | null;
+  review_note: string | null;
+  approved_at: string | null;
+  approved_by: string | null;
+  approval_note: string | null;
+  uncovered_critical_count: number | null;
+};
+
+export type BomItem = {
+  id: string;
+  bom_import_id: string;
+  line_number: number;
+  vendor: string;
+  product_model: string;
+  description: string;
+  quantity: number | null;
+  unit: string | null;
+  category: string;
+  sku: string | null;
+  mapped_product_id: string | null;
+  notes: string | null;
+  created_at: string;
+};
+
+export type BomImport = {
+  id: string;
+  project_id: string;
+  architecture_id: string | null;
+  source: string;
+  source_filename: string | null;
+  notes: string | null;
+  item_count: number;
+  created_at: string;
+  items: BomItem[];
+};
+
+export type BomValidationIssue = {
+  code: string;
+  severity: string;
+  message: string;
+  bom_item_id: string | null;
+  line_number: number | null;
+  related_component_id: string | null;
+  requires_human_validation: boolean;
+};
+
+export type BomValidationResult = {
+  id: string;
+  bom_import_id: string;
+  project_id: string;
+  status: string;
+  summary: string;
+  issues: BomValidationIssue[];
+  created_at: string;
+};
+
+export type VendorCatalogue = {
+  id: string;
+  name: string;
+  source: string;
+  version_label: string;
+  product_count: number;
+  created_at: string;
 };
 
 export type DomainDependency = {
