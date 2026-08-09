@@ -19,6 +19,13 @@ _PRICE_RE = re.compile(
     r"(\$\s?\d|\bUSD\b|\bpricing\b|\bunit price\b|\bdiscount\b|\bquotation\b)",
     re.I,
 )
+# ATLAS-047: stating that pricing is omitted/unavailable is compliant, not a breach.
+_PRICE_DISCLAIMER_RE = re.compile(
+    r"\b(omitted|excluded|not included|unavailable|not present|without|"
+    r"no authoritative|do not invent|exclude pricing|pricing excluded|"
+    r"commercial figures are omitted|commercial pricing is excluded)\b",
+    re.I,
+)
 _DATE_COMMIT_RE = re.compile(
     r"\b(shall be completed by|go-live on|warranty of \d+|SLA of)\b",
     re.I,
@@ -152,7 +159,11 @@ class DeliverableValidationService:
                         str(slide.get("speaker_notes") or ""),
                     ]
                 )
-                if not bom_validated and _PRICE_RE.search(combined):
+                if (
+                    not bom_validated
+                    and _PRICE_RE.search(combined)
+                    and not _PRICE_DISCLAIMER_RE.search(combined)
+                ):
                     issues.append(
                         ValidationIssue(
                             code="pricing_without_authority",

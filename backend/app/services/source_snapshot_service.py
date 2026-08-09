@@ -302,26 +302,42 @@ class SourceSnapshotService:
         if not imports:
             return {"validated": False, "items": [], "note": "No BOM imported"}
 
-        # Prefer imports linked to this architecture if column exists
-        chosen = None
-        for row in imports:
-            linked = getattr(row, "architecture_id", None)
-            if linked is not None and linked == architecture_id:
-                chosen = row
-                break
-        if chosen is None:
-            chosen = imports[0]
+        def _validation_for(bom_id: UUID) -> BomValidationResult | None:
+            return self.db.scalars(
+                select(BomValidationResult)
+                .where(BomValidationResult.bom_import_id == bom_id)
+                .order_by(BomValidationResult.created_at.desc())
+            ).first()
 
-        validation = self.db.scalars(
-            select(BomValidationResult)
-            .where(BomValidationResult.bom_import_id == chosen.id)
-            .order_by(BomValidationResult.created_at.desc())
-        ).first()
-        validated = bool(
-            validation
-            and str(validation.status or "").lower()
-            in {"passed", "pass", "valid", "ok", "validated"}
-        )
+        def _is_validated(validation: BomValidationResult | None) -> bool:
+            return bool(
+                validation
+                and str(validation.status or "").lower()
+                in {"passed", "pass", "valid", "ok", "validated"}
+            )
+
+        # Prefer: architecture-linked + validated > any validated >
+        # architecture-linked > newest import.
+        scored: list[tuple[int, BomImport, BomValidationResult | None]] = []
+        for row in imports:
+            validation = _validation_for(row.id)
+            linked = getattr(row, "architecture_id", None) == architecture_id
+            validated = _is_validated(validation)
+            score = 0
+            if linked and validated:
+                score = 400
+            elif validated:
+                score = 300
+            elif linked:
+                score = 200
+            else:
+                score = 100
+            scored.append((score, row, validation))
+
+        scored.sort(key=lambda item: item[0], reverse=True)
+        chosen = scored[0][1]
+        validation = scored[0][2]
+        validated = _is_validated(validation)
         items = list(
             self.db.scalars(
                 select(BomItem).where(BomItem.bom_import_id == chosen.id)
