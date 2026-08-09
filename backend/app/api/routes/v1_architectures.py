@@ -9,9 +9,10 @@ from uuid import UUID
 
 from fastapi import APIRouter, Query
 
-from app.api.deps import CurrentUser, DbSession, EditorUser
+from app.api.deps import ApproverUser, CurrentUser, DbSession, EditorUser
 from app.core.responses import success_response
 from app.schemas.vendor_bom import (
+    ArchitectureApproveIn,
     ArchitectureProductMapIn,
     ArchitectureProductMappingUpdateIn,
     ArchitectureReviewIn,
@@ -132,6 +133,24 @@ def review_architecture(
         architecture_id,
         current_user.id,
         body or ArchitectureReviewIn(),
+    )
+    return success_response(data=result.model_dump(mode="json"))
+
+
+@router.post("/{project_id}/architectures/{architecture_id}/approve")
+def approve_architecture(
+    project_id: UUID,
+    architecture_id: UUID,
+    current_user: ApproverUser,
+    db: DbSession,
+    body: ArchitectureApproveIn | None = None,
+) -> dict:
+    """Approver Complete — hard-fails if critical/high uncovered (ATLAS-036)."""
+    result = ArchitectureReviewService(db).approve(
+        project_id,
+        architecture_id,
+        current_user.id,
+        body or ArchitectureApproveIn(),
     )
     return success_response(data=result.model_dump(mode="json"))
 

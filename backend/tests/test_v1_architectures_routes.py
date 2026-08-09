@@ -76,6 +76,7 @@ def test_architecture_route_paths_registered():
     )
     assert "/projects/{project_id}/product-mappings/{mapping_id}" in plural
     assert "/projects/{project_id}/architectures/{architecture_id}/review" in plural
+    assert "/projects/{project_id}/architectures/{architecture_id}/approve" in plural
     assert "/projects/{project_id}/risks" in plural
     assert "/projects/{project_id}/assumptions" in plural
     assert "/projects/{project_id}/architecture" in singular
@@ -357,3 +358,56 @@ def test_review_architecture_returns_200():
     assert response.status_code == 200
     assert response.json()["data"]["status"] == "under_review"
     service_cls.return_value.review.assert_called_once()
+
+
+def test_approve_architecture_returns_200():
+    user = _user("approver")
+    project_id = uuid4()
+    architecture_id = uuid4()
+    now = datetime.now(timezone.utc)
+    out = ArchitectureReviewOut(
+        id=architecture_id,
+        project_id=project_id,
+        status="complete",
+        reviewed_at=now,
+        reviewed_by=user.id,
+        approved_at=now,
+        approved_by=user.id,
+        approval_note="ship",
+        uncovered_critical_count=0,
+    )
+    client = TestClient(_app(user))
+
+    with patch(
+        "app.api.routes.v1_architectures.ArchitectureReviewService",
+    ) as service_cls:
+        service_cls.return_value.approve.return_value = out
+        response = client.post(
+            f"/api/v1/projects/{project_id}/architectures/{architecture_id}/approve",
+            json={"note": "ship"},
+        )
+
+    assert response.status_code == 200
+    assert response.json()["data"]["status"] == "complete"
+    service_cls.return_value.approve.assert_called_once()
+
+
+def test_approve_architecture_maps_validation_error():
+    user = _user("approver")
+    project_id = uuid4()
+    architecture_id = uuid4()
+    client = TestClient(_app(user))
+
+    with patch(
+        "app.api.routes.v1_architectures.ArchitectureReviewService",
+    ) as service_cls:
+        service_cls.return_value.approve.side_effect = ValidationAppError(
+            "Cannot Complete architecture: 2 critical/high requirement(s) remain uncovered",
+        )
+        response = client.post(
+            f"/api/v1/projects/{project_id}/architectures/{architecture_id}/approve",
+            json={},
+        )
+
+    assert response.status_code == 422
+    assert "Cannot Complete" in response.json()["error"]["message"]

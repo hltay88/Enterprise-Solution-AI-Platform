@@ -110,6 +110,35 @@ class ArchitectureOptionRepository:
             self.db.flush()
         return row
 
+    def mark_complete(
+        self,
+        architecture_id: UUID,
+        *,
+        approved_by: UUID,
+        approval_note: str | None,
+        commit: bool = True,
+    ) -> ArchitectureOption:
+        """Stamp Approver Complete (ATLAS-036/037). Caller enforces uncovered gate."""
+        row = self.get_by_id(architecture_id)
+        if row is None:
+            raise ValueError("Architecture option not found")
+        now = datetime.now(timezone.utc)
+        note = (str(approval_note).strip() if approval_note else "") or None
+        row.status = "complete"
+        row.approved_at = now
+        row.approved_by = approved_by
+        row.approval_note = note
+        if row.reviewed_at is None:
+            row.reviewed_at = now
+            row.reviewed_by = row.reviewed_by or approved_by
+        row.updated_at = now
+        if commit:
+            self.db.commit()
+            self.db.refresh(row)
+        else:
+            self.db.flush()
+        return row
+
     def list_for_project(self, project_id: UUID) -> list[ArchitectureOption]:
         statement = (
             select(ArchitectureOption)

@@ -1,5 +1,11 @@
 # Phase 3 Changelog
 
+## 0.3.3-task10 (architecture approve / Complete gate)
+
+Sprint 3.3 Task 10: Approver-only `POST …/architectures/{id}/approve` sets
+status `complete` only when uncovered critical/high count is 0; hard-fails
+otherwise (ATLAS-036/037). Requires prior `under_review`.
+
 ## 0.3.3-task09 (architecture review)
 
 Sprint 3.3 Task 9: human review marks architecture candidates `under_review`

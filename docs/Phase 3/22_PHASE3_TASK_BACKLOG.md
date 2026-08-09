@@ -6,7 +6,7 @@
 - [x] Domain identification — Sprint 3.1 (AI + service + API + UI)
 - [x] Traceability — Sprint 3.1 domain stage; Sprint 3.2 architecture/component stage
 - [x] Architecture generation — Sprint 3.2 (normalized `/architectures`; singular MVP aliases)
-- [ ] Architecture validation / approve gate — Sprint 3.3 Task 10 (review live in Task 9; Complete gate next)
+- [x] Architecture validation / approve gate — Sprint 3.3 Task 10 (hard Complete on uncovered criticals)
 
 ## P1
 - [x] Pattern library — Sprint 3.2 Task 1
