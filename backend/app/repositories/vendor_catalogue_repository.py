@@ -24,6 +24,23 @@ class VendorCatalogueRepository:
             select(VendorCatalogue).where(VendorCatalogue.id == catalogue_id),
         ).first()
 
+    def get_by_name_and_source(
+        self,
+        *,
+        name: str,
+        source: str,
+    ) -> VendorCatalogue | None:
+        """Latest catalogue matching name + source (used for seed idempotency)."""
+        statement = (
+            select(VendorCatalogue)
+            .where(
+                VendorCatalogue.name == name,
+                VendorCatalogue.source == source,
+            )
+            .order_by(VendorCatalogue.created_at.desc())
+        )
+        return self.db.scalars(statement).first()
+
     def list_catalogues(self, *, limit: int = 50) -> list[VendorCatalogue]:
         statement = (
             select(VendorCatalogue)

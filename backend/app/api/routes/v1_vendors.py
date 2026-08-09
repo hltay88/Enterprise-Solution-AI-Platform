@@ -25,6 +25,20 @@ def import_catalogue(
     return success_response(data=result.model_dump(mode="json"), status_code=201)
 
 
+@router.post("/catalogue/seed")
+def seed_catalogue(
+    current_user: EditorUser,
+    db: DbSession,
+    force: bool = Query(default=False),
+) -> dict:
+    """Load the frozen Atlas seed catalogue (idempotent unless force=true)."""
+    result = VendorCatalogueService(db).seed_default_catalogue(
+        current_user.id,
+        force=force,
+    )
+    return success_response(data=result.model_dump(mode="json"), status_code=201)
+
+
 @router.get("/catalogue/search")
 def search_catalogue(
     current_user: CurrentUser,

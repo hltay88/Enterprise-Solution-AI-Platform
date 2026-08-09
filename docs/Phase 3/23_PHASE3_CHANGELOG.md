@@ -1,5 +1,11 @@
 # Phase 3 Changelog
 
+## 0.3.3-task04 (vendor seed catalogue pack)
+
+Sprint 3.3 Task 4: frozen seed at `knowledge/phase3/vendors/seed_catalogue.json`
+(fictional reference vendors only), loader `phase3_vendor_seed.py`, and
+`POST /api/v1/vendors/catalogue/seed` (idempotent; `force=true` re-imports).
+
 ## 0.3.3-task03 (vendor catalogue import + search API)
 
 Sprint 3.3 Task 3: `VendorCatalogueRepository` + `VendorCatalogueService` and

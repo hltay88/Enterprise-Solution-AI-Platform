@@ -23,6 +23,13 @@ from app.schemas.vendor_bom import (
     VendorProductOut,
     VendorProductSummaryOut,
 )
+from app.services.phase3_vendor_seed import (
+    SEED_CATALOGUE_NAME,
+    SEED_SOURCE,
+    VendorSeedError,
+    build_seed_catalogue_import,
+    seed_version,
+)
 
 STALE_AFTER_DAYS = 365
 
@@ -40,6 +47,39 @@ class VendorCatalogueService:
     def __init__(self, db: Session) -> None:
         self.db = db
         self.catalogues = VendorCatalogueRepository(db)
+
+    def seed_default_catalogue(
+        self,
+        user_id: UUID,
+        *,
+        force: bool = False,
+    ) -> VendorCatalogueOut:
+        """Import the frozen Atlas seed pack (idempotent unless ``force``)."""
+        try:
+            body = build_seed_catalogue_import()
+        except VendorSeedError as exc:
+            raise ValidationAppError(str(exc)) from exc
+
+        if not force:
+            existing = self.catalogues.get_by_name_and_source(
+                name=body.name or SEED_CATALOGUE_NAME,
+                source=body.source or SEED_SOURCE,
+            )
+            if existing is not None:
+                return self._catalogue_out(existing, include_products=True)
+
+        out = self.import_catalogue(body, user_id)
+        # Annotate seed metadata on payload for auditability (already committed).
+        catalogue = self.catalogues.get_catalogue(out.id)
+        if catalogue is not None:
+            meta = dict(catalogue.payload_json or {})
+            meta["seed"] = True
+            meta["seed_version"] = seed_version()
+            catalogue.payload_json = meta
+            self.db.commit()
+            self.db.refresh(catalogue)
+            return self._catalogue_out(catalogue, include_products=True)
+        return out
 
     def import_catalogue(
         self,

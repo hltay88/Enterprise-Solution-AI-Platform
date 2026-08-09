@@ -38,8 +38,36 @@ def _app(user) -> FastAPI:
 def test_vendor_route_paths_registered():
     paths = {route.path for route in v1_vendors.router.routes}
     assert "/vendors/catalogue/import" in paths
+    assert "/vendors/catalogue/seed" in paths
     assert "/vendors/catalogue/search" in paths
     assert "/vendors/catalogue/{catalogue_id}" in paths
+
+
+def test_seed_catalogue_returns_201():
+    user = _user("editor")
+    catalogue_id = uuid4()
+    now = datetime.now(timezone.utc)
+    out = VendorCatalogueOut(
+        id=catalogue_id,
+        name="Atlas seed catalogue",
+        source="Approved internal catalogue (Atlas seed)",
+        version_label="1.0.0",
+        product_count=10,
+        created_at=now,
+        products=[],
+    )
+    client = TestClient(_app(user))
+
+    with patch("app.api.routes.v1_vendors.VendorCatalogueService") as service_cls:
+        service_cls.return_value.seed_default_catalogue.return_value = out
+        response = client.post("/api/v1/vendors/catalogue/seed")
+
+    assert response.status_code == 201
+    assert response.json()["data"]["name"] == "Atlas seed catalogue"
+    service_cls.return_value.seed_default_catalogue.assert_called_once_with(
+        user.id,
+        force=False,
+    )
 
 
 def test_import_catalogue_returns_201():

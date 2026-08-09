@@ -32,7 +32,8 @@ Regional availability must be treated separately from technical compatibility.
 
 ## Implementation status
 
-**Sprint 3.3 Task 3 (live):** `VendorCatalogueService` +
-`POST/GET /api/v1/vendors/catalogue…` (import, search, get). Import requires
-Editor+. Products with `source_date` older than 365 days are flagged `is_stale`
-unless already marked. Seed pack lands in Task 4.
+**Sprint 3.3 Tasks 3–4 (live):** `VendorCatalogueService` +
+`POST/GET /api/v1/vendors/catalogue…` (import, seed, search, get). Import/seed
+require Editor+. Products with `source_date` older than 365 days are flagged
+`is_stale` unless already marked. Seed pack:
+`knowledge/phase3/vendors/seed_catalogue.json` (fictional reference vendors only).

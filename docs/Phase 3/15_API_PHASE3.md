@@ -38,10 +38,12 @@ Envelope: ATLAS-014 `success_response`. No `/solutions/` routes.
 Global (not project-scoped):
 
 - `POST /vendors/catalogue/import` (Editor+)
+- `POST /vendors/catalogue/seed` (Editor+; idempotent Atlas seed pack; `?force=true` re-imports)
 - `GET /vendors/catalogue/search` (`q`, `vendor`, `category`, `region`, `catalogue_id`, `include_stale`, `limit`)
 - `GET /vendors/catalogue/{catalogue_id}`
 
 Never invents SKU specs; products older than 365 days (by `source_date`) are flagged `is_stale`.
+Seed file: `knowledge/phase3/vendors/seed_catalogue.json` (fictional vendors only).
 
 ## Target surface (Sprint 3.3 remaining)
 
