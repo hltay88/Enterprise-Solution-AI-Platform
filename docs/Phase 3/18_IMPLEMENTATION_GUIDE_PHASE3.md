@@ -51,7 +51,7 @@ Verify: `python3 scripts/verify_sprint_3_2.py` (backend up; rebuild Docker after
 6. ~~Mapping APIs~~ (Task 6)
 7. BOM import — Sprint 3.3 Task 7 (`POST …/bom/import`; immutable)
 8. BOM validation — Sprint 3.3 Task 8 (`POST …/bom/{id}/validate`)
-9. Architecture review
+9. Architecture review — Sprint 3.3 Task 9 (`POST …/architectures/{id}/review`)
 10. Architecture approve (hard Complete gate on uncovered criticals)
 11. Frontend panels
 12. Docs polish

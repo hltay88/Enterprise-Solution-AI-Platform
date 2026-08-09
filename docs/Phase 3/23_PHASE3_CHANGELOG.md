@@ -1,5 +1,12 @@
 # Phase 3 Changelog
 
+## 0.3.3-task09 (architecture review)
+
+Sprint 3.3 Task 9: human review marks architecture candidates `under_review`
+(`reviewed_*` stamps, audit `architectures.review`). Soft
+`uncovered_critical_count` signal included; Approver Complete gate is Task 10
+(ATLAS-037).
+
 ## 0.3.3-task08 (BOM validation)
 
 Sprint 3.3 Task 8: validate imported BOM evidence into `bom_validation_results`

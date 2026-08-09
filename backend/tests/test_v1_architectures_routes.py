@@ -24,6 +24,7 @@ from app.schemas.architecture_option import (
 from app.schemas.vendor_bom import (
     ArchitectureProductMappingOut,
     ArchitectureProductMapResultOut,
+    ArchitectureReviewOut,
 )
 
 
@@ -74,6 +75,7 @@ def test_architecture_route_paths_registered():
         in plural
     )
     assert "/projects/{project_id}/product-mappings/{mapping_id}" in plural
+    assert "/projects/{project_id}/architectures/{architecture_id}/review" in plural
     assert "/projects/{project_id}/risks" in plural
     assert "/projects/{project_id}/assumptions" in plural
     assert "/projects/{project_id}/architecture" in singular
@@ -325,3 +327,33 @@ def test_get_architecture_maps_not_found():
 
     assert response.status_code == 404
     assert response.json()["success"] is False
+
+
+def test_review_architecture_returns_200():
+    user = _user("editor")
+    project_id = uuid4()
+    architecture_id = uuid4()
+    now = datetime.now(timezone.utc)
+    out = ArchitectureReviewOut(
+        id=architecture_id,
+        project_id=project_id,
+        status="under_review",
+        reviewed_at=now,
+        reviewed_by=user.id,
+        review_note="ok",
+        uncovered_critical_count=0,
+    )
+    client = TestClient(_app(user))
+
+    with patch(
+        "app.api.routes.v1_architectures.ArchitectureReviewService",
+    ) as service_cls:
+        service_cls.return_value.review.return_value = out
+        response = client.post(
+            f"/api/v1/projects/{project_id}/architectures/{architecture_id}/review",
+            json={"note": "ok"},
+        )
+
+    assert response.status_code == 200
+    assert response.json()["data"]["status"] == "under_review"
+    service_cls.return_value.review.assert_called_once()

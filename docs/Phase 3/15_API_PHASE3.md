@@ -71,8 +71,18 @@ forbidden.
 
 DTO contracts in `backend/app/schemas/vendor_bom.py`.
 
-### Architecture review / approve
-- `POST /projects/{project_id}/architectures/{id}/review`
+## Architecture review (Sprint 3.3 Task 9)
+
+Human review of an AI candidate (ATLAS-037). Editor+. Does **not** approve.
+
+- `POST /projects/{project_id}/architectures/{architecture_id}/review`
+
+Optional body: `{ "note": "..." }`. Sets status `under_review` and
+`reviewed_at` / `reviewed_by` / `review_note`. Response includes soft
+`uncovered_critical_count` (informational; hard Complete gate is approve Task 10).
+Blocked once status is `approved` or `complete`.
+
+### Architecture approve (Task 10)
 - `POST /projects/{project_id}/architectures/{id}/approve`
 
 ## BOM validation (Sprint 3.3 Task 8)

@@ -70,6 +70,46 @@ class ArchitectureOptionRepository:
             ),
         ).first()
 
+    def list_traceability_for_architecture(
+        self,
+        architecture_id: UUID,
+    ) -> list[RequirementTraceability]:
+        statement = (
+            select(RequirementTraceability)
+            .where(RequirementTraceability.architecture_id == architecture_id)
+            .order_by(
+                RequirementTraceability.requirement_id.asc(),
+                RequirementTraceability.created_at.asc(),
+            )
+        )
+        return list(self.db.scalars(statement).all())
+
+    def mark_under_review(
+        self,
+        architecture_id: UUID,
+        *,
+        reviewed_by: UUID,
+        review_note: str | None,
+        commit: bool = True,
+    ) -> ArchitectureOption:
+        """Stamp human review (ATLAS-037). Does not approve."""
+        row = self.get_by_id(architecture_id)
+        if row is None:
+            raise ValueError("Architecture option not found")
+        now = datetime.now(timezone.utc)
+        note = (str(review_note).strip() if review_note else "") or None
+        row.status = "under_review"
+        row.reviewed_at = now
+        row.reviewed_by = reviewed_by
+        row.review_note = note
+        row.updated_at = now
+        if commit:
+            self.db.commit()
+            self.db.refresh(row)
+        else:
+            self.db.flush()
+        return row
+
     def list_for_project(self, project_id: UUID) -> list[ArchitectureOption]:
         statement = (
             select(ArchitectureOption)

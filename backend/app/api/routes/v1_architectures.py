@@ -1,9 +1,8 @@
 """Phase 3 plural architecture APIs under /api/v1 (ATLAS-031).
 
 Sprint 3.2: generate/list/get + risks/assumptions.
-Sprint 3.3 Task 6: explicit product mapping routes.
-Review/approve stay later in 3.3. Singular MVP paths are aliased in
-``v1_architecture.py``.
+Sprint 3.3: product mapping + human review (approve in Task 10).
+Singular MVP paths are aliased in ``v1_architecture.py``.
 """
 
 from uuid import UUID
@@ -15,11 +14,13 @@ from app.core.responses import success_response
 from app.schemas.vendor_bom import (
     ArchitectureProductMapIn,
     ArchitectureProductMappingUpdateIn,
+    ArchitectureReviewIn,
 )
 from app.services.architecture_generation_service import ArchitectureGenerationService
 from app.services.architecture_product_mapping_service import (
     ArchitectureProductMappingService,
 )
+from app.services.architecture_review_service import ArchitectureReviewService
 
 router = APIRouter(prefix="/projects", tags=["v1-architectures"])
 
@@ -113,6 +114,24 @@ def update_product_mapping(
         current_user.id,
         mapping_id,
         body,
+    )
+    return success_response(data=result.model_dump(mode="json"))
+
+
+@router.post("/{project_id}/architectures/{architecture_id}/review")
+def review_architecture(
+    project_id: UUID,
+    architecture_id: UUID,
+    current_user: EditorUser,
+    db: DbSession,
+    body: ArchitectureReviewIn | None = None,
+) -> dict:
+    """Human review of an AI candidate (ATLAS-037). Does not approve."""
+    result = ArchitectureReviewService(db).review(
+        project_id,
+        architecture_id,
+        current_user.id,
+        body or ArchitectureReviewIn(),
     )
     return success_response(data=result.model_dump(mode="json"))
 

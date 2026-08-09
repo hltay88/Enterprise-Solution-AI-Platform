@@ -421,6 +421,8 @@ class ArchitectureGenerationService:
             version_label=row.version_label,
             rkm_version_label=row.rkm_version_label,
             domain_analysis_id=row.domain_analysis_id,
+            reviewed_at=getattr(row, "reviewed_at", None),
+            approved_at=getattr(row, "approved_at", None),
             created_at=row.created_at,
         )
 
@@ -536,6 +538,12 @@ class ArchitectureGenerationService:
             ],
             advantages=_str_list(payload.get("advantages")),
             disadvantages=_str_list(payload.get("disadvantages")),
+            reviewed_at=row.reviewed_at,
+            reviewed_by=row.reviewed_by,
+            review_note=row.review_note,
+            approved_at=row.approved_at,
+            approved_by=row.approved_by,
+            approval_note=row.approval_note,
             created_at=row.created_at,
             updated_at=row.updated_at,
             payload=payload,
