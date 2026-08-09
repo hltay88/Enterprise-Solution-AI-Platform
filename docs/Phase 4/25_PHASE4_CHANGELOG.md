@@ -18,6 +18,15 @@ Added:
 - UI: Generate presentation + Export PPTX in Deliverables panel
 - `scripts/verify_sprint_4_2.py`
 
+### Sprint 4.3 — SOW + Solution Design + PDF (implemented)
+Added:
+- SOW + Solution Design templates, planners, generation services
+- `AIProvider.generate_sow_content` / `generate_solution_design_content`
+- Soft cross-document consistency (`GET .../deliverables/consistency`)
+- Generalized DOCX renderer; PDF via LibreOffice DOCX→PDF (`format=pdf`)
+- UI: Generate SOW / solution design; Export DOCX + Export PDF
+- `scripts/verify_sprint_4_3.py`
+- ATLAS-049 PDF conversion path
+
 Planned later:
-- SOW / Solution Design / PDF (4.3)
 - Package + BOM commercial packaging (4.4)

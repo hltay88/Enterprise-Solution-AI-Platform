@@ -8,6 +8,7 @@ Reuse the common foundation for Presentation Generator.
 
 Sprint 4.3:
 Reuse source snapshot and traceability for SOW and Solution Design.
+PDF exports convert DOCX via LibreOffice. Cross-document consistency is soft (findings only).
 
 Sprint 4.4:
 Assemble approved outputs into a package and add final BOM/export validation.

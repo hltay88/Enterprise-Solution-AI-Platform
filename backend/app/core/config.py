@@ -70,6 +70,7 @@ class Settings(BaseSettings):
         return cleaned if cleaned in allowed else "auto"
 
     storage_path: str = "/app/storage/uploads"
+    libreoffice_path: str = "soffice"
     # Sprint 1 sync upload default; Phase 2 /api/v1 enforces ATLAS-027 (50 MB) separately.
     max_upload_mb: int = 50
     max_batch_upload_mb: int = 200

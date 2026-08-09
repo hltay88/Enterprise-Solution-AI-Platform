@@ -18,11 +18,11 @@
 13. Validation — **done**
 
 ## Sprint 4.3 — SOW + Solution Design
-14. SOW schema
-15. SOW generation
-16. Solution design generation
-17. Cross-document consistency
-18. DOCX/PDF export
+14. SOW schema — **done**
+15. SOW generation — **done**
+16. Solution design generation — **done**
+17. Cross-document consistency — **done** (soft)
+18. DOCX/PDF export — **done**
 
 ## Sprint 4.4 — Package + BOM
 19. BOM output

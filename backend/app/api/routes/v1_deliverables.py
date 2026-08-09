@@ -1,4 +1,4 @@
-"""Phase 4 deliverables API (ATLAS-042)."""
+"""Phase 4 deliverables API (ATLAS-042; Sprint 4.3 SOW/SD)."""
 
 from uuid import UUID
 
@@ -14,11 +14,18 @@ from app.schemas.deliverable import (
     SectionPatchIn,
     SnapshotCreateIn,
 )
+from app.services.cross_document_consistency_service import (
+    CrossDocumentConsistencyService,
+)
 from app.services.deliverable_review_service import DeliverableReviewService
 from app.services.export_service import ExportService
 from app.services.presentation_generation_service import PresentationGenerationService
 from app.services.proposal_generation_service import ProposalGenerationService
+from app.services.solution_design_generation_service import (
+    SolutionDesignGenerationService,
+)
 from app.services.source_snapshot_service import SourceSnapshotService
+from app.services.sow_generation_service import SowGenerationService
 
 router = APIRouter(prefix="/projects", tags=["v1-deliverables"])
 
@@ -45,6 +52,16 @@ def get_snapshot(
     return success_response(data=result.model_dump(mode="json"))
 
 
+@router.get("/{project_id}/deliverables/consistency")
+def check_consistency(
+    project_id: UUID,
+    current_user: CurrentUser,
+    db: DbSession,
+) -> dict:
+    result = CrossDocumentConsistencyService(db).check(project_id, current_user.id)
+    return success_response(data=result.model_dump(mode="json"))
+
+
 @router.post("/{project_id}/deliverables/generate")
 async def generate_deliverable(
     project_id: UUID,
@@ -55,6 +72,14 @@ async def generate_deliverable(
     body = body or DeliverableGenerateIn()
     if body.document_type == "presentation":
         result = await PresentationGenerationService(db).generate(
+            project_id, current_user.id, body
+        )
+    elif body.document_type == "sow":
+        result = await SowGenerationService(db).generate(
+            project_id, current_user.id, body
+        )
+    elif body.document_type == "solution_design":
+        result = await SolutionDesignGenerationService(db).generate(
             project_id, current_user.id, body
         )
     else:

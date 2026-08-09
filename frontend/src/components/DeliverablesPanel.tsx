@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { apiGet, apiPatch, apiPost, ApiClientError } from "@/lib/api";
 import type {
   ArchitectureOptionSummary,
+  ConsistencyReport,
   DeliverableSection,
   DeliverableValidation,
   ExportJob,
@@ -15,6 +16,14 @@ type DeliverablesPanelProps = {
   projectId: string;
   refreshToken?: number;
 };
+
+function isPresentation(doc: GeneratedDocument | null) {
+  return doc?.document_type === "presentation";
+}
+
+function supportsDocxPdf(doc: GeneratedDocument | null) {
+  return !!doc && ["proposal", "sow", "solution_design"].includes(doc.document_type);
+}
 
 export function DeliverablesPanel({
   projectId,
@@ -27,6 +36,9 @@ export function DeliverablesPanel({
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [sections, setSections] = useState<DeliverableSection[]>([]);
   const [validation, setValidation] = useState<DeliverableValidation | null>(
+    null,
+  );
+  const [consistency, setConsistency] = useState<ConsistencyReport | null>(
     null,
   );
   const [exportJob, setExportJob] = useState<ExportJob | null>(null);
@@ -102,13 +114,27 @@ export function DeliverablesPanel({
     }
   }
 
+  async function generate(documentType: string, label: string) {
+    await run(`generate-${documentType}`, async () => {
+      const doc = await apiPost<GeneratedDocument>(
+        `/api/v1/projects/${projectId}/deliverables/generate`,
+        { document_type: documentType },
+        true,
+      );
+      setNote(`Generated ${label} draft: ${doc.title}`);
+      setSelectedId(doc.id);
+      await load();
+      await loadSections(doc.id);
+    });
+  }
+
   return (
     <section className="form-panel">
-      <h2>Deliverables — Proposal & Presentation</h2>
+      <h2>Deliverables — Proposal, Presentation, SOW &amp; Design</h2>
       <p className="muted">
-        Generate customer proposal (DOCX) or presentation (PPTX) from a Complete
-        architecture via an immutable source snapshot (Sprint 4.1–4.2 /
-        ATLAS-042…048).
+        Generate customer deliverables from a Complete architecture via an
+        immutable source snapshot (Sprint 4.1–4.3 / ATLAS-042…049). PDF export
+        requires LibreOffice (`soffice`).
       </p>
 
       {loading ? <p>Loading…</p> : null}
@@ -120,19 +146,7 @@ export function DeliverablesPanel({
           type="button"
           className="btn-primary"
           disabled={!!busy || completeArch.length === 0}
-          onClick={() =>
-            void run("generate-proposal", async () => {
-              const doc = await apiPost<GeneratedDocument>(
-                `/api/v1/projects/${projectId}/deliverables/generate`,
-                { document_type: "proposal" },
-                true,
-              );
-              setNote(`Generated proposal draft: ${doc.title}`);
-              setSelectedId(doc.id);
-              await load();
-              await loadSections(doc.id);
-            })
-          }
+          onClick={() => void generate("proposal", "proposal")}
         >
           {busy === "generate-proposal" ? "Generating…" : "Generate proposal"}
         </button>
@@ -140,23 +154,29 @@ export function DeliverablesPanel({
           type="button"
           className="btn-primary"
           disabled={!!busy || completeArch.length === 0}
-          onClick={() =>
-            void run("generate-presentation", async () => {
-              const doc = await apiPost<GeneratedDocument>(
-                `/api/v1/projects/${projectId}/deliverables/generate`,
-                { document_type: "presentation" },
-                true,
-              );
-              setNote(`Generated presentation draft: ${doc.title}`);
-              setSelectedId(doc.id);
-              await load();
-              await loadSections(doc.id);
-            })
-          }
+          onClick={() => void generate("presentation", "presentation")}
         >
           {busy === "generate-presentation"
             ? "Generating…"
             : "Generate presentation"}
+        </button>
+        <button
+          type="button"
+          className="btn-primary"
+          disabled={!!busy || completeArch.length === 0}
+          onClick={() => void generate("sow", "SOW")}
+        >
+          {busy === "generate-sow" ? "Generating…" : "Generate SOW"}
+        </button>
+        <button
+          type="button"
+          className="btn-primary"
+          disabled={!!busy || completeArch.length === 0}
+          onClick={() => void generate("solution_design", "solution design")}
+        >
+          {busy === "generate-solution_design"
+            ? "Generating…"
+            : "Generate solution design"}
         </button>
         <button
           type="button"
@@ -175,6 +195,27 @@ export function DeliverablesPanel({
           }
         >
           Validate
+        </button>
+        <button
+          type="button"
+          className="btn-secondary"
+          disabled={!!busy}
+          onClick={() =>
+            void run("consistency", async () => {
+              const result = await apiGet<ConsistencyReport>(
+                `/api/v1/projects/${projectId}/deliverables/consistency`,
+                true,
+              );
+              setConsistency(result);
+              setNote(
+                result.findings.length
+                  ? `${result.findings.length} consistency finding(s) (soft)`
+                  : "No consistency findings",
+              );
+            })
+          }
+        >
+          Check consistency
         </button>
         <button
           type="button"
@@ -212,32 +253,78 @@ export function DeliverablesPanel({
         >
           Approve
         </button>
-        <button
-          type="button"
-          className="btn-secondary"
-          disabled={!!busy || !selectedId}
-          onClick={() =>
-            void run("export", async () => {
-              const format =
-                selected?.document_type === "presentation" ? "pptx" : "docx";
-              const job = await apiPost<ExportJob>(
-                `/api/v1/projects/${projectId}/deliverables/${selectedId}/export`,
-                { format },
-                true,
-              );
-              setExportJob(job);
-              setNote(
-                job.status === "completed"
-                  ? `${format.toUpperCase()} ready (checksum ${job.checksum_sha256?.slice(0, 12)}…)`
-                  : `Export ${job.status}`,
-              );
-            })
-          }
-        >
-          {selected?.document_type === "presentation"
-            ? "Export PPTX"
-            : "Export DOCX"}
-        </button>
+        {isPresentation(selected) ? (
+          <button
+            type="button"
+            className="btn-secondary"
+            disabled={!!busy || !selectedId}
+            onClick={() =>
+              void run("export-pptx", async () => {
+                const job = await apiPost<ExportJob>(
+                  `/api/v1/projects/${projectId}/deliverables/${selectedId}/export`,
+                  { format: "pptx" },
+                  true,
+                );
+                setExportJob(job);
+                setNote(
+                  job.status === "completed"
+                    ? `PPTX ready (checksum ${job.checksum_sha256?.slice(0, 12)}…)`
+                    : `Export ${job.status}`,
+                );
+              })
+            }
+          >
+            Export PPTX
+          </button>
+        ) : null}
+        {supportsDocxPdf(selected) ? (
+          <>
+            <button
+              type="button"
+              className="btn-secondary"
+              disabled={!!busy || !selectedId}
+              onClick={() =>
+                void run("export-docx", async () => {
+                  const job = await apiPost<ExportJob>(
+                    `/api/v1/projects/${projectId}/deliverables/${selectedId}/export`,
+                    { format: "docx" },
+                    true,
+                  );
+                  setExportJob(job);
+                  setNote(
+                    job.status === "completed"
+                      ? `DOCX ready (checksum ${job.checksum_sha256?.slice(0, 12)}…)`
+                      : `Export ${job.status}`,
+                  );
+                })
+              }
+            >
+              Export DOCX
+            </button>
+            <button
+              type="button"
+              className="btn-secondary"
+              disabled={!!busy || !selectedId}
+              onClick={() =>
+                void run("export-pdf", async () => {
+                  const job = await apiPost<ExportJob>(
+                    `/api/v1/projects/${projectId}/deliverables/${selectedId}/export`,
+                    { format: "pdf" },
+                    true,
+                  );
+                  setExportJob(job);
+                  setNote(
+                    job.status === "completed"
+                      ? `PDF ready (checksum ${job.checksum_sha256?.slice(0, 12)}…)`
+                      : `Export ${job.status}${job.error ? `: ${job.error}` : ""}`,
+                  );
+                })
+              }
+            >
+              Export PDF
+            </button>
+          </>
+        ) : null}
       </div>
 
       {completeArch.length === 0 ? (
@@ -287,6 +374,24 @@ export function DeliverablesPanel({
             {validation.issues.map((issue, index) => (
               <li key={`${issue.code}-${index}`}>
                 [{issue.severity}] {issue.message}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
+      {consistency ? (
+        <div style={{ marginTop: 8 }}>
+          <h3>Cross-document consistency (soft)</h3>
+          <p>
+            {consistency.findings.length
+              ? `${consistency.findings.length} finding(s) — approval not blocked`
+              : "No findings"}
+          </p>
+          <ul>
+            {consistency.findings.map((finding, index) => (
+              <li key={`${finding.code}-${index}`}>
+                [{finding.severity}] {finding.message}
               </li>
             ))}
           </ul>

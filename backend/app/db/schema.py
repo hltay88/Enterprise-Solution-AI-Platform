@@ -1208,6 +1208,62 @@ WHERE t.document_type = 'presentation' AND t.code = 'default_presentation'
         AND tv.version_major = 1 AND tv.version_minor = 0 AND tv.version_patch = 0
   )
         """,
+        """
+INSERT INTO document_templates (id, document_type, code, name, active)
+SELECT gen_random_uuid(), 'sow', 'default_sow', 'Default SOW', TRUE
+WHERE NOT EXISTS (
+    SELECT 1 FROM document_templates
+    WHERE document_type = 'sow' AND code = 'default_sow'
+)
+        """,
+        """
+INSERT INTO template_versions (
+    template_id, version_label, version_major, version_minor, version_patch,
+    sections_json, styles_json, rendering_rules_json, status
+)
+SELECT
+    t.id,
+    '1.0.0', 1, 0, 0,
+    '[{\"section_type\":\"purpose\",\"title\":\"Purpose\"},{\"section_type\":\"scope\",\"title\":\"Scope\"},{\"section_type\":\"solution_overview\",\"title\":\"Solution Overview\"},{\"section_type\":\"deliverables\",\"title\":\"Deliverables\"},{\"section_type\":\"implementation_activities\",\"title\":\"Implementation Activities\"},{\"section_type\":\"testing\",\"title\":\"Testing\"},{\"section_type\":\"acceptance_criteria\",\"title\":\"Acceptance Criteria\"},{\"section_type\":\"customer_responsibilities\",\"title\":\"Customer Responsibilities\"},{\"section_type\":\"provider_responsibilities\",\"title\":\"Provider Responsibilities\"},{\"section_type\":\"assumptions\",\"title\":\"Assumptions\"},{\"section_type\":\"exclusions\",\"title\":\"Exclusions\"},{\"section_type\":\"schedule\",\"title\":\"Schedule\"},{\"section_type\":\"support_warranty\",\"title\":\"Support / Warranty\"},{\"section_type\":\"change_control\",\"title\":\"Change Control\"}]'::jsonb,
+    '{\"format\":\"docx\"}'::jsonb,
+    '{\"include_draft_watermark\": true}'::jsonb,
+    'active'
+FROM document_templates t
+WHERE t.document_type = 'sow' AND t.code = 'default_sow'
+  AND NOT EXISTS (
+      SELECT 1 FROM template_versions tv
+      WHERE tv.template_id = t.id
+        AND tv.version_major = 1 AND tv.version_minor = 0 AND tv.version_patch = 0
+  )
+        """,
+        """
+INSERT INTO document_templates (id, document_type, code, name, active)
+SELECT gen_random_uuid(), 'solution_design', 'default_solution_design', 'Default Solution Design', TRUE
+WHERE NOT EXISTS (
+    SELECT 1 FROM document_templates
+    WHERE document_type = 'solution_design' AND code = 'default_solution_design'
+)
+        """,
+        """
+INSERT INTO template_versions (
+    template_id, version_label, version_major, version_minor, version_patch,
+    sections_json, styles_json, rendering_rules_json, status
+)
+SELECT
+    t.id,
+    '1.0.0', 1, 0, 0,
+    '[{\"section_type\":\"design_objectives\",\"title\":\"Design Objectives\"},{\"section_type\":\"scope\",\"title\":\"Scope\"},{\"section_type\":\"requirements_traceability\",\"title\":\"Requirements Traceability\"},{\"section_type\":\"high_level_architecture\",\"title\":\"High-level Architecture\"},{\"section_type\":\"logical_design\",\"title\":\"Logical Design\"},{\"section_type\":\"physical_component_design\",\"title\":\"Physical / Component Design\"},{\"section_type\":\"capacity\",\"title\":\"Capacity\"},{\"section_type\":\"security\",\"title\":\"Security\"},{\"section_type\":\"availability\",\"title\":\"Availability\"},{\"section_type\":\"integration\",\"title\":\"Integration\"},{\"section_type\":\"operations\",\"title\":\"Operations\"},{\"section_type\":\"monitoring\",\"title\":\"Monitoring\"},{\"section_type\":\"assumptions\",\"title\":\"Assumptions\"},{\"section_type\":\"risks\",\"title\":\"Risks\"},{\"section_type\":\"design_decisions\",\"title\":\"Design Decisions\"},{\"section_type\":\"appendices\",\"title\":\"Appendices\"}]'::jsonb,
+    '{\"format\":\"docx\"}'::jsonb,
+    '{\"include_draft_watermark\": true}'::jsonb,
+    'active'
+FROM document_templates t
+WHERE t.document_type = 'solution_design' AND t.code = 'default_solution_design'
+  AND NOT EXISTS (
+      SELECT 1 FROM template_versions tv
+      WHERE tv.template_id = t.id
+        AND tv.version_major = 1 AND tv.version_minor = 0 AND tv.version_patch = 0
+  )
+        """,
     ]
     with engine.begin() as connection:
         for statement in statements:

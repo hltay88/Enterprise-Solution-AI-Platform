@@ -22,7 +22,19 @@ from app.models.deliverable import (
     SourceSnapshot,
     TemplateVersion,
 )
-from app.schemas.deliverable import PRESENTATION_SECTION_TYPES, PROPOSAL_SECTION_TYPES
+from app.schemas.deliverable import (
+    PRESENTATION_SECTION_TYPES,
+    PROPOSAL_SECTION_TYPES,
+    SOLUTION_DESIGN_SECTION_TYPES,
+    SOW_SECTION_TYPES,
+)
+
+_DEFAULT_TEMPLATE_CODES: dict[str, str] = {
+    "proposal": "default_proposal",
+    "presentation": "default_presentation",
+    "sow": "default_sow",
+    "solution_design": "default_solution_design",
+}
 
 
 class DeliverableRepository:
@@ -35,11 +47,7 @@ class DeliverableRepository:
         self, document_type: str, code: str | None = None
     ) -> DocumentTemplate | None:
         if code is None:
-            code = (
-                "default_presentation"
-                if document_type == "presentation"
-                else "default_proposal"
-            )
+            code = _DEFAULT_TEMPLATE_CODES.get(document_type, "default_proposal")
         return self.db.scalars(
             select(DocumentTemplate).where(
                 DocumentTemplate.document_type == document_type,
@@ -82,6 +90,26 @@ class DeliverableRepository:
             name="Default Presentation",
             section_types=PRESENTATION_SECTION_TYPES,
             styles_json={"format": "pptx"},
+        )
+
+    def ensure_sow_template_seed(self) -> tuple[DocumentTemplate, TemplateVersion]:
+        return self._ensure_template_seed(
+            document_type="sow",
+            code="default_sow",
+            name="Default SOW",
+            section_types=SOW_SECTION_TYPES,
+            styles_json={"format": "docx"},
+        )
+
+    def ensure_solution_design_template_seed(
+        self,
+    ) -> tuple[DocumentTemplate, TemplateVersion]:
+        return self._ensure_template_seed(
+            document_type="solution_design",
+            code="default_solution_design",
+            name="Default Solution Design",
+            section_types=SOLUTION_DESIGN_SECTION_TYPES,
+            styles_json={"format": "docx"},
         )
 
     def _ensure_template_seed(

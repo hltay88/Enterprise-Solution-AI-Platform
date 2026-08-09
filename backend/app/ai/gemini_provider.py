@@ -310,6 +310,73 @@ class GeminiProvider(AIProvider):
         payload["prompt_version"] = prompt_version
         return payload
 
+    async def generate_sow_content(
+        self,
+        snapshot: dict[str, Any],
+        content_plan: dict[str, Any],
+        *,
+        prompt_version: str = "sow_v1",
+    ) -> dict[str, Any]:
+        system_prompt = load_prompt("sow_generate.txt")
+        user_prompt = (
+            "Generate a structured Statement of Work from this immutable source "
+            "snapshot and content plan. Never invent legal obligations, warranties, "
+            "SLAs, penalties, dates, or acceptance commitments. Mark gaps as "
+            "review_required=true.\n\n"
+            "SOURCE SNAPSHOT JSON:\n"
+            + json.dumps(snapshot, ensure_ascii=True)[:100000]
+            + "\n\nCONTENT PLAN JSON:\n"
+            + json.dumps(content_plan, ensure_ascii=True)[:20000]
+        )
+        response = await self._generate(
+            action="generate SOW content",
+            system_prompt=system_prompt,
+            user_prompt=user_prompt,
+            temperature=0.2,
+        )
+        payload = parse_json_object(
+            response.text or "",
+            empty_message="AI provider returned an empty SOW response",
+            invalid_message="AI provider returned invalid JSON for SOW content",
+        )
+        payload["provider"] = "gemini"
+        payload["model"] = self.model
+        payload["prompt_version"] = prompt_version
+        return payload
+
+    async def generate_solution_design_content(
+        self,
+        snapshot: dict[str, Any],
+        content_plan: dict[str, Any],
+        *,
+        prompt_version: str = "solution_design_v1",
+    ) -> dict[str, Any]:
+        system_prompt = load_prompt("solution_design_generate.txt")
+        user_prompt = (
+            "Generate a structured solution design document from this immutable "
+            "source snapshot and content plan. Stay consistent with the approved "
+            "architecture. Never invent prices, warranties, SLAs, or dates.\n\n"
+            "SOURCE SNAPSHOT JSON:\n"
+            + json.dumps(snapshot, ensure_ascii=True)[:100000]
+            + "\n\nCONTENT PLAN JSON:\n"
+            + json.dumps(content_plan, ensure_ascii=True)[:20000]
+        )
+        response = await self._generate(
+            action="generate solution design content",
+            system_prompt=system_prompt,
+            user_prompt=user_prompt,
+            temperature=0.2,
+        )
+        payload = parse_json_object(
+            response.text or "",
+            empty_message="AI provider returned an empty solution design response",
+            invalid_message="AI provider returned invalid JSON for solution design content",
+        )
+        payload["provider"] = "gemini"
+        payload["model"] = self.model
+        payload["prompt_version"] = prompt_version
+        return payload
+
     async def _generate(
         self,
         *,

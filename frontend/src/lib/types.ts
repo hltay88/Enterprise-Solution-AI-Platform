@@ -840,3 +840,14 @@ export type DeliverableValidation = {
   ok: boolean;
   issues: Array<{ code: string; message: string; section_type?: string | null; severity: string }>;
 };
+
+export type ConsistencyReport = {
+  ok: boolean;
+  findings: Array<{
+    severity: string;
+    message: string;
+    document_ids: string[];
+    review_required: boolean;
+    code: string;
+  }>;
+};

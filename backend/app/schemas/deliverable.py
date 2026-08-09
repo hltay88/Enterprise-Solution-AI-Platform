@@ -1,4 +1,4 @@
-"""Phase 4 Sprint 4.1 — deliverable / proposal schemas (ATLAS-042…048)."""
+"""Phase 4 deliverable schemas (ATLAS-042…048; Sprint 4.3 SOW/SD)."""
 
 from __future__ import annotations
 
@@ -7,6 +7,9 @@ from typing import Any, Literal
 from uuid import UUID
 
 from pydantic import BaseModel, Field
+
+DocumentType = Literal["proposal", "presentation", "sow", "solution_design"]
+ExportFormat = Literal["docx", "pptx", "pdf"]
 
 
 class SnapshotCreateIn(BaseModel):
@@ -31,7 +34,7 @@ class SourceSnapshotOut(BaseModel):
 
 
 class DeliverableGenerateIn(BaseModel):
-    document_type: Literal["proposal", "presentation"] = "proposal"
+    document_type: DocumentType = "proposal"
     snapshot_id: UUID | None = None
     architecture_id: UUID | None = None
 
@@ -87,6 +90,40 @@ class PresentationSlideIn(BaseModel):
 class PresentationContentPayload(BaseModel):
     title: str = "Solution Presentation"
     slides: list[PresentationSlideIn]
+    provider: str | None = None
+    model: str | None = None
+    prompt_version: str | None = None
+
+
+class SowSectionIn(BaseModel):
+    section_type: str
+    title: str
+    sequence: int = 0
+    confidence: float = 0.0
+    assumptions: list[str] = Field(default_factory=list)
+    content_items: list[ContentItemIn] = Field(default_factory=list)
+
+
+class SowContentPayload(BaseModel):
+    title: str = "Statement of Work"
+    sections: list[SowSectionIn]
+    provider: str | None = None
+    model: str | None = None
+    prompt_version: str | None = None
+
+
+class SolutionDesignSectionIn(BaseModel):
+    section_type: str
+    title: str
+    sequence: int = 0
+    confidence: float = 0.0
+    assumptions: list[str] = Field(default_factory=list)
+    content_items: list[ContentItemIn] = Field(default_factory=list)
+
+
+class SolutionDesignContentPayload(BaseModel):
+    title: str = "Solution Design"
+    sections: list[SolutionDesignSectionIn]
     provider: str | None = None
     model: str | None = None
     prompt_version: str | None = None
@@ -158,7 +195,7 @@ class ApproveIn(BaseModel):
 
 
 class ExportIn(BaseModel):
-    format: Literal["docx", "pptx"] = "docx"
+    format: ExportFormat = "docx"
 
 
 class ExportJobOut(BaseModel):
@@ -187,6 +224,19 @@ class ValidationIssue(BaseModel):
 class ValidationOut(BaseModel):
     ok: bool
     issues: list[ValidationIssue] = Field(default_factory=list)
+
+
+class ConsistencyFinding(BaseModel):
+    severity: str = "warning"
+    message: str
+    document_ids: list[UUID] = Field(default_factory=list)
+    review_required: bool = True
+    code: str = "consistency"
+
+
+class ConsistencyOut(BaseModel):
+    ok: bool = True
+    findings: list[ConsistencyFinding] = Field(default_factory=list)
 
 
 PROPOSAL_SECTION_TYPES: list[tuple[str, str]] = [
@@ -224,3 +274,46 @@ PRESENTATION_SECTION_TYPES: list[tuple[str, str]] = [
     ("risks_assumptions", "Risks / Assumptions"),
     ("next_steps", "Next Steps"),
 ]
+
+SOW_SECTION_TYPES: list[tuple[str, str]] = [
+    ("purpose", "Purpose"),
+    ("scope", "Scope"),
+    ("solution_overview", "Solution Overview"),
+    ("deliverables", "Deliverables"),
+    ("implementation_activities", "Implementation Activities"),
+    ("testing", "Testing"),
+    ("acceptance_criteria", "Acceptance Criteria"),
+    ("customer_responsibilities", "Customer Responsibilities"),
+    ("provider_responsibilities", "Provider Responsibilities"),
+    ("assumptions", "Assumptions"),
+    ("exclusions", "Exclusions"),
+    ("schedule", "Schedule"),
+    ("support_warranty", "Support / Warranty"),
+    ("change_control", "Change Control"),
+]
+
+SOLUTION_DESIGN_SECTION_TYPES: list[tuple[str, str]] = [
+    ("design_objectives", "Design Objectives"),
+    ("scope", "Scope"),
+    ("requirements_traceability", "Requirements Traceability"),
+    ("high_level_architecture", "High-level Architecture"),
+    ("logical_design", "Logical Design"),
+    ("physical_component_design", "Physical / Component Design"),
+    ("capacity", "Capacity"),
+    ("security", "Security"),
+    ("availability", "Availability"),
+    ("integration", "Integration"),
+    ("operations", "Operations"),
+    ("monitoring", "Monitoring"),
+    ("assumptions", "Assumptions"),
+    ("risks", "Risks"),
+    ("design_decisions", "Design Decisions"),
+    ("appendices", "Appendices"),
+]
+
+SECTION_TYPES_BY_DOCUMENT: dict[str, list[tuple[str, str]]] = {
+    "proposal": PROPOSAL_SECTION_TYPES,
+    "presentation": PRESENTATION_SECTION_TYPES,
+    "sow": SOW_SECTION_TYPES,
+    "solution_design": SOLUTION_DESIGN_SECTION_TYPES,
+}

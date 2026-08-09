@@ -1,4 +1,4 @@
-"""Validate generated deliverable content (ATLAS-047)."""
+"""Validate generated deliverable content (ATLAS-047; Sprint 4.3 SOW/SD)."""
 
 from __future__ import annotations
 
@@ -10,8 +10,7 @@ from sqlalchemy.orm import Session
 from app.core.exceptions import NotFoundError
 from app.repositories.deliverable_repository import DeliverableRepository
 from app.schemas.deliverable import (
-    PRESENTATION_SECTION_TYPES,
-    PROPOSAL_SECTION_TYPES,
+    SECTION_TYPES_BY_DOCUMENT,
     ValidationIssue,
     ValidationOut,
 )
@@ -24,6 +23,32 @@ _DATE_COMMIT_RE = re.compile(
     r"\b(shall be completed by|go-live on|warranty of \d+|SLA of)\b",
     re.I,
 )
+_SOW_CONTRACT_RE = re.compile(
+    r"\b(penalty|penalties|liquidated damages|service level agreement|\bSLA\b|"
+    r"warranty period|shall warrant|guaranteed uptime|fixed price due|"
+    r"must accept by|acceptance shall)\b",
+    re.I,
+)
+
+_TECHNICAL_SECTIONS = {
+    "architecture",
+    "solution_components",
+    "proposed_solution",
+    "requirements",
+    "proposed_architecture",
+    "key_components",
+    "technical_highlights",
+    "solution_overview",
+    "high_level_architecture",
+    "logical_design",
+    "physical_component_design",
+    "requirements_traceability",
+    "design_decisions",
+    "capacity",
+    "security",
+    "availability",
+    "integration",
+}
 
 
 class DeliverableValidationService:
@@ -54,6 +79,7 @@ class DeliverableValidationService:
             sections,
             bom_validated=bom_validated,
             document_type=document.document_type,
+            snapshot_payload=(snapshot.payload_json or {}) if snapshot else {},
         )
 
     def validate_sections(
@@ -63,13 +89,14 @@ class DeliverableValidationService:
         bom_validated: bool,
         document_type: str = "proposal",
         load_content: bool = True,
+        snapshot_payload: dict | None = None,
     ) -> ValidationOut:
         issues: list[ValidationIssue] = []
         present = {s.section_type for s in sections}
-        if document_type == "presentation":
-            required = {code for code, _ in PRESENTATION_SECTION_TYPES}
-        else:
-            required = {code for code, _ in PROPOSAL_SECTION_TYPES}
+        section_types = SECTION_TYPES_BY_DOCUMENT.get(
+            document_type, SECTION_TYPES_BY_DOCUMENT["proposal"]
+        )
+        required = {code for code, _ in section_types}
 
         for missing in sorted(required - present):
             issues.append(
@@ -148,19 +175,26 @@ class DeliverableValidationService:
                             severity="warning",
                         )
                     )
-                technical_sections = {
-                    "architecture",
-                    "solution_components",
-                    "proposed_solution",
-                    "requirements",
-                    "proposed_architecture",
-                    "key_components",
-                    "technical_highlights",
-                    "solution_overview",
-                }
+                if (
+                    document_type == "sow"
+                    and _SOW_CONTRACT_RE.search(combined)
+                    and item.review_required is False
+                ):
+                    issues.append(
+                        ValidationIssue(
+                            code="sow_contractual_invention",
+                            message=(
+                                "Possible contractual/penalty/SLA language without "
+                                "REVIEW REQUIRED (ATLAS-047)"
+                            ),
+                            section_type=section.section_type,
+                            severity="warning",
+                        )
+                    )
+
                 content_type = getattr(item, "content_type", "paragraph")
                 if (
-                    section.section_type in technical_sections
+                    section.section_type in _TECHNICAL_SECTIONS
                     and content_type != "speaker_notes"
                 ):
                     refs = self.repo.list_source_refs(item.id)

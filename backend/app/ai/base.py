@@ -75,3 +75,23 @@ class AIProvider(ABC):
         prompt_version: str = "presentation_v1",
     ) -> dict[str, Any]:
         """Return structured presentation slides from an immutable source snapshot."""
+
+    @abstractmethod
+    async def generate_sow_content(
+        self,
+        snapshot: dict[str, Any],
+        content_plan: dict[str, Any],
+        *,
+        prompt_version: str = "sow_v1",
+    ) -> dict[str, Any]:
+        """Return structured SOW content from an immutable source snapshot."""
+
+    @abstractmethod
+    async def generate_solution_design_content(
+        self,
+        snapshot: dict[str, Any],
+        content_plan: dict[str, Any],
+        *,
+        prompt_version: str = "solution_design_v1",
+    ) -> dict[str, Any]:
+        """Return structured solution design content from an immutable source snapshot."""

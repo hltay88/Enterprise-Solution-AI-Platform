@@ -328,6 +328,80 @@ class FallbackAIProvider(AIProvider):
 
         raise AppError("INTERNAL_ERROR", "No AI provider available", status_code=502)
 
+    async def generate_sow_content(
+        self,
+        snapshot: dict[str, Any],
+        content_plan: dict[str, Any],
+        *,
+        prompt_version: str = "sow_v1",
+    ) -> dict[str, Any]:
+        errors: list[str] = []
+        for index, provider in enumerate(self.providers):
+            name = provider.__class__.__name__
+            try:
+                result = await provider.generate_sow_content(
+                    snapshot,
+                    content_plan,
+                    prompt_version=prompt_version,
+                )
+                payload = dict(result)
+                payload.setdefault("provider", name.replace("Provider", "").lower())
+                if index > 0 and isinstance(provider, LocalAIProvider):
+                    payload["fallback_reason"] = (
+                        "; ".join(errors) or "cloud provider unavailable"
+                    )
+                    payload["provider"] = "local-fallback"
+                return payload
+            except AppError as exc:
+                is_last = index == len(self.providers) - 1
+                if exc.code not in _FALLBACK_CODES or is_last:
+                    raise
+                errors.append(f"{name}: {exc.message}")
+                logger.warning(
+                    "%s SOW generation unavailable (%s); trying next",
+                    name,
+                    exc.code,
+                )
+
+        raise AppError("INTERNAL_ERROR", "No AI provider available", status_code=502)
+
+    async def generate_solution_design_content(
+        self,
+        snapshot: dict[str, Any],
+        content_plan: dict[str, Any],
+        *,
+        prompt_version: str = "solution_design_v1",
+    ) -> dict[str, Any]:
+        errors: list[str] = []
+        for index, provider in enumerate(self.providers):
+            name = provider.__class__.__name__
+            try:
+                result = await provider.generate_solution_design_content(
+                    snapshot,
+                    content_plan,
+                    prompt_version=prompt_version,
+                )
+                payload = dict(result)
+                payload.setdefault("provider", name.replace("Provider", "").lower())
+                if index > 0 and isinstance(provider, LocalAIProvider):
+                    payload["fallback_reason"] = (
+                        "; ".join(errors) or "cloud provider unavailable"
+                    )
+                    payload["provider"] = "local-fallback"
+                return payload
+            except AppError as exc:
+                is_last = index == len(self.providers) - 1
+                if exc.code not in _FALLBACK_CODES or is_last:
+                    raise
+                errors.append(f"{name}: {exc.message}")
+                logger.warning(
+                    "%s solution design generation unavailable (%s); trying next",
+                    name,
+                    exc.code,
+                )
+
+        raise AppError("INTERNAL_ERROR", "No AI provider available", status_code=502)
+
 
 def _mark_local(result: dict[str, Any], reason: str) -> dict[str, Any]:
     payload = dict(result)

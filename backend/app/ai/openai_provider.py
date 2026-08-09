@@ -463,6 +463,109 @@ class OpenAIProvider(AIProvider):
         payload["prompt_version"] = prompt_version
         return payload
 
+    async def generate_sow_content(
+        self,
+        snapshot: dict[str, Any],
+        content_plan: dict[str, Any],
+        *,
+        prompt_version: str = "sow_v1",
+    ) -> dict[str, Any]:
+        system_prompt = _load_prompt("sow_generate.txt")
+        user_content = (
+            "Generate a structured Statement of Work from this immutable source "
+            "snapshot and content plan. Never invent legal obligations, warranties, "
+            "SLAs, penalties, dates, or acceptance commitments. Mark gaps as "
+            "review_required=true.\n\n"
+            "SOURCE SNAPSHOT JSON:\n"
+            + json.dumps(snapshot, ensure_ascii=True)[:100000]
+            + "\n\nCONTENT PLAN JSON:\n"
+            + json.dumps(content_plan, ensure_ascii=True)[:20000]
+        )
+        try:
+            response = await self.client.chat.completions.create(
+                model=self.model,
+                temperature=0.2,
+                response_format={"type": "json_object"},
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_content},
+                ],
+            )
+        except Exception as exc:
+            _raise_provider_error("generate SOW content", exc)
+
+        content = response.choices[0].message.content
+        if not content:
+            raise AppError(
+                "INTERNAL_ERROR",
+                "AI provider returned an empty SOW response",
+                status_code=502,
+            )
+        try:
+            payload = json.loads(content)
+        except json.JSONDecodeError as exc:
+            raise AppError(
+                "INTERNAL_ERROR",
+                "AI provider returned invalid JSON for SOW content",
+                status_code=502,
+            ) from exc
+
+        payload["provider"] = "openai"
+        payload["model"] = self.model
+        payload["prompt_version"] = prompt_version
+        return payload
+
+    async def generate_solution_design_content(
+        self,
+        snapshot: dict[str, Any],
+        content_plan: dict[str, Any],
+        *,
+        prompt_version: str = "solution_design_v1",
+    ) -> dict[str, Any]:
+        system_prompt = _load_prompt("solution_design_generate.txt")
+        user_content = (
+            "Generate a structured solution design document from this immutable "
+            "source snapshot and content plan. Stay consistent with the approved "
+            "architecture. Never invent prices, warranties, SLAs, or dates.\n\n"
+            "SOURCE SNAPSHOT JSON:\n"
+            + json.dumps(snapshot, ensure_ascii=True)[:100000]
+            + "\n\nCONTENT PLAN JSON:\n"
+            + json.dumps(content_plan, ensure_ascii=True)[:20000]
+        )
+        try:
+            response = await self.client.chat.completions.create(
+                model=self.model,
+                temperature=0.2,
+                response_format={"type": "json_object"},
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_content},
+                ],
+            )
+        except Exception as exc:
+            _raise_provider_error("generate solution design content", exc)
+
+        content = response.choices[0].message.content
+        if not content:
+            raise AppError(
+                "INTERNAL_ERROR",
+                "AI provider returned an empty solution design response",
+                status_code=502,
+            )
+        try:
+            payload = json.loads(content)
+        except json.JSONDecodeError as exc:
+            raise AppError(
+                "INTERNAL_ERROR",
+                "AI provider returned invalid JSON for solution design content",
+                status_code=502,
+            ) from exc
+
+        payload["provider"] = "openai"
+        payload["model"] = self.model
+        payload["prompt_version"] = prompt_version
+        return payload
+
 
 def _raise_provider_error(action: str, exc: Exception) -> NoReturn:
     """Map OpenAI SDK errors to actionable API messages (never include secrets)."""

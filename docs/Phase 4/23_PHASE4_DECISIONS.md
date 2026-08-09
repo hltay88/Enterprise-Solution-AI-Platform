@@ -13,9 +13,18 @@ Sprint **4.0** (2026-08-10) locked the integration choices below before Sprint 4
 |------|----------|
 | **L1 Input gate** | Require Published RKM + architecture `status=complete`. Validated BOM optional for Proposal (explicit assumption / REVIEW REQUIRED if absent; no invented prices). Validated BOM required later for package/commercial sections (Sprint 4.4). |
 | **L2 Decision IDs** | ATLAS-042+ (retire ADR-025…031). |
-| **L3 Render stack (4.1)** | DOCX via `python-docx` write path. PPTX → 4.2. PDF → 4.3. XLSX → 4.4. |
+| **L3 Render stack (4.1)** | DOCX via `python-docx` write path. PPTX → 4.2. PDF → 4.3 (LibreOffice). XLSX → 4.4. |
 | **L4 RBAC (4.1)** | Author/Reviewer edits → `editor`. Document approve → `approver`. Full six-role matrix deferred. |
 | **L5 API / naming** | Phase 4 deliverables under `/api/v1/projects/{id}/deliverables/...`. Do not overwrite Phase 2 `/documents` ingest. DB root entity: `generated_documents`. |
+
+---
+
+## ATLAS-049 — PDF via LibreOffice DOCX conversion
+
+**Status:** Accepted (Sprint 4.3)  
+**Date:** 2026-08-10  
+
+**Decision:** PDF exports for proposal / SOW / solution_design render DOCX first, then convert with LibreOffice (`soffice --headless --convert-to pdf`). Path configurable via `LIBREOFFICE_PATH`. Missing LibreOffice fails the export job visibly (no silent fallback).
 
 ---
 

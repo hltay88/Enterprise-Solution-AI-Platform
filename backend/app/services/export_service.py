@@ -15,8 +15,11 @@ from app.repositories.deliverable_repository import DeliverableRepository
 from app.repositories.project_repository import ProjectRepository
 from app.schemas.deliverable import ExportIn, ExportJobOut
 from app.services.audit_service import AuditService
-from app.services.rendering.docx_renderer import render_proposal_docx
+from app.services.rendering.docx_renderer import render_document_docx
+from app.services.rendering.pdf_renderer import convert_docx_bytes_to_pdf
 from app.services.rendering.pptx_renderer import render_presentation_pptx
+
+_DOCX_TYPES = {"proposal", "sow", "solution_design"}
 
 
 class ExportService:
@@ -44,12 +47,7 @@ class ExportService:
 
         doc_type = str(document.document_type or "proposal")
         export_format = body.format
-        if doc_type == "proposal" and export_format != "docx":
-            raise ValidationAppError("Proposals export as format=docx only")
-        if doc_type == "presentation" and export_format != "pptx":
-            raise ValidationAppError("Presentations export as format=pptx only")
-        if export_format not in {"docx", "pptx"}:
-            raise ValidationAppError(f"Unsupported export format '{export_format}'")
+        self._validate_format(doc_type, export_format)
 
         job = self.repo.create_export_job(
             project_id=project_id,
@@ -91,13 +89,20 @@ class ExportService:
                 extension = "pptx"
                 label = "presentation PPTX"
             else:
-                data = render_proposal_docx(
+                docx_bytes = render_document_docx(
                     title=document.title,
                     status=document.status,
                     sections=sections,
+                    document_label=doc_type.replace("_", " ").title(),
                 )
-                extension = "docx"
-                label = "proposal DOCX"
+                if export_format == "pdf":
+                    data = convert_docx_bytes_to_pdf(docx_bytes)
+                    extension = "pdf"
+                    label = f"{doc_type} PDF"
+                else:
+                    data = docx_bytes
+                    extension = "docx"
+                    label = f"{doc_type} DOCX"
 
             checksum = hashlib.sha256(data).hexdigest()
             settings = get_settings()
@@ -127,7 +132,20 @@ class ExportService:
                     "document_type": doc_type,
                 },
             )
-        except ValidationAppError:
+        except ValidationAppError as exc:
+            job.status = "failed"
+            job.error = str(exc)[:1000]
+            job.completed_at = datetime.now(timezone.utc)
+            self.db.commit()
+            AuditService(self.db).record(
+                project_id=project_id,
+                user_id=user_id,
+                action="deliverable.export_failed",
+                summary="Export failed",
+                resource_type="export_job",
+                resource_id=job.id,
+                metadata={"error": job.error},
+            )
             raise
         except Exception as exc:  # noqa: BLE001
             job.status = "failed"
@@ -149,6 +167,19 @@ class ExportService:
             job,
             download_name=f"{document.title or doc_type}.{export_format}",
         )
+
+    def _validate_format(self, doc_type: str, export_format: str) -> None:
+        if doc_type == "presentation":
+            if export_format != "pptx":
+                raise ValidationAppError("Presentations export as format=pptx only")
+            return
+        if doc_type in _DOCX_TYPES:
+            if export_format not in {"docx", "pdf"}:
+                raise ValidationAppError(
+                    f"{doc_type} exports as format=docx or format=pdf only"
+                )
+            return
+        raise ValidationAppError(f"Unsupported document type '{doc_type}' for export")
 
     def get(
         self, project_id: UUID, export_id: UUID, user_id: UUID
