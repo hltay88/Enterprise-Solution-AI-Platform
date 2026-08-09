@@ -42,6 +42,12 @@ from app.services.architecture_risks import (
     enrich_architecture_risks_assumptions,
     preprocess_risks_assumptions_in_extraction,
 )
+from app.services.architecture_scoring import (
+    default_score_weights,
+    enrich_architecture_scores,
+    preprocess_scores_in_extraction,
+    score_summary_for_candidate,
+)
 from app.services.audit_service import AuditService
 from app.services.domain_traceability import extract_rkm_requirements
 from app.services.phase3_domain_catalog import catalog_version
@@ -151,10 +157,15 @@ class ArchitectureGenerationService:
             )
 
         try:
-            # Task 7/8: sanitize capacity + risks/assumptions before validation.
+            # Task 7/8/9: sanitize capacity, risks/assumptions, scores before validation.
             requirements = extract_rkm_requirements(rkm_payload)
+            score_weights = default_score_weights()
             preprocessed = preprocess_capacity_in_extraction(extraction)
             preprocessed = preprocess_risks_assumptions_in_extraction(preprocessed)
+            preprocessed = preprocess_scores_in_extraction(
+                preprocessed,
+                weights=score_weights,
+            )
             normalized = normalize_architecture_candidates(preprocessed)
             validated = validate_architecture_ai_extraction(normalized)
             validated = enrich_architecture_capacity(
@@ -167,6 +178,11 @@ class ArchitectureGenerationService:
                 validated,
                 domain_codes=domain_codes,
                 rkm_payload=rkm_payload,
+                requirements=requirements,
+            )
+            validated = enrich_architecture_scores(
+                validated,
+                weights=score_weights,
                 requirements=requirements,
             )
         except (ValidationError, ValueError, AppError) as exc:
@@ -186,14 +202,8 @@ class ArchitectureGenerationService:
         tree_items: list[dict[str, Any]] = []
         for candidate in validated.architectures:
             item = candidate.model_dump(mode="json")
-            scores = list(candidate.scores)
-            overall = _weighted_overall_score(
-                [
-                    {"weight": score.weight, "score": score.score}
-                    for score in scores
-                ],
-            )
-            item["overall_score"] = overall
+            scoring = score_summary_for_candidate(candidate, weights=score_weights)
+            item["overall_score"] = scoring["overall_score"]
             item["status"] = "draft"
             item["payload_json"] = {
                 "summary": candidate.summary,
@@ -206,6 +216,7 @@ class ArchitectureGenerationService:
                 "disadvantages": list(candidate.disadvantages),
                 "extraction_summary": validated.summary,
                 "extraction_reasoning_summary": validated.reasoning_summary,
+                "scoring": scoring,
             }
             tree_items.append(item)
 
@@ -424,24 +435,6 @@ class ArchitectureGenerationService:
             updated_at=row.updated_at,
             payload=payload,
         )
-
-
-def _weighted_overall_score(scores: list[dict[str, Any]]) -> float | None:
-    total_weight = 0.0
-    weighted = 0.0
-    for item in scores:
-        try:
-            weight = float(item.get("weight") or 0)
-            score = float(item.get("score") or 0)
-        except (TypeError, ValueError):
-            continue
-        if weight <= 0:
-            continue
-        total_weight += weight
-        weighted += weight * score
-    if total_weight <= 0:
-        return None
-    return round(weighted / total_weight, 2)
 
 
 def _build_domain_context(analysis: Any, domain_rows: list[Any]) -> str:

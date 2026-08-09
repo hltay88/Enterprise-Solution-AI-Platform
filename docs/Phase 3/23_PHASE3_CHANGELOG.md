@@ -1,5 +1,12 @@
 # Phase 3 Changelog
 
+## 0.3.2-task9 (architecture scoring engine)
+
+Sprint 3.2 Task 9: `architecture_scoring.py` applies default weights from
+`11_SOLUTION_SCORING.md`, requires explanations, fills missing dimensions with
+explicit heuristic scores, and records overall_score + weight profile on
+candidates. Wired into `ArchitectureGenerationService`. Decision support only.
+
 ## 0.3.2-task8 (risks and assumptions builder)
 
 Sprint 3.2 Task 8: `architecture_risks.py` normalizes legacy risk/assumption

@@ -14,8 +14,8 @@ from app.core.exceptions import NotFoundError, ValidationAppError
 from app.services.architecture_generation_service import (
     PROMPT_VERSION,
     ArchitectureGenerationService,
-    _weighted_overall_score,
 )
+from app.services.architecture_scoring import compute_overall_score
 
 
 def _service() -> ArchitectureGenerationService:
@@ -209,7 +209,10 @@ def test_generate_persists_and_audits_on_success():
     assert kwargs["prompt_version"] == PROMPT_VERSION
     assert kwargs["knowledge_pack_version"] == "1.1.0"
     assert kwargs["architectures"][0]["candidate_key"] == "standard"
-    assert kwargs["architectures"][0]["overall_score"] == 4.0
+    assert kwargs["architectures"][0]["overall_score"] is not None
+    assert 0 <= kwargs["architectures"][0]["overall_score"] <= 5
+    assert len(kwargs["architectures"][0]["scores"]) == 9
+    assert "scoring" in kwargs["architectures"][0]["payload_json"]
     provider.recommend_architectures.assert_awaited_once()
     call_kwargs = provider.recommend_architectures.await_args.kwargs
     assert "wifi" in call_kwargs["domain_context"]
@@ -291,9 +294,9 @@ def test_get_latest_not_found():
 
 
 def test_weighted_overall_score():
-    assert _weighted_overall_score([]) is None
+    assert compute_overall_score([]) is None
     assert (
-        _weighted_overall_score(
+        compute_overall_score(
             [
                 {"weight": 0.3, "score": 4},
                 {"weight": 0.7, "score": 2},
