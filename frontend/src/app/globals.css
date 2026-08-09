@@ -594,6 +594,38 @@ body {
   align-items: baseline;
 }
 
+.architecture-candidate-list {
+  list-style: none;
+  padding-left: 0;
+}
+
+.architecture-candidate-btn {
+  width: 100%;
+  text-align: left;
+  border: 1px solid var(--color-line);
+  background: rgba(255, 255, 255, 0.55);
+  padding: 0.75rem 0.9rem;
+  cursor: pointer;
+}
+
+.architecture-candidate-btn:hover:not(:disabled) {
+  border-color: var(--color-ink, #222);
+}
+
+.architecture-candidate-btn.is-active {
+  border-color: var(--color-ink, #222);
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.architecture-candidate-btn:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.architecture-candidate-btn p {
+  margin: 0.35rem 0 0;
+}
+
 .rkm-evidence {
   display: flex;
   flex-wrap: wrap;

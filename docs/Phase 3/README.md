@@ -48,9 +48,6 @@ Handover context from Phase 2: [../Phase 2/PHASE3_HANDOVER.md](../Phase%202/PHAS
 
 ## Implementation status (codebase)
 
-**Shipped — architecture MVP (ATLAS-034):** generate / fetch architecture recommendation from a
-Published RKM (`POST/GET /api/v1/projects/{id}/architecture…`, `architecture_models`, Architecture panel).
-
 **Shipped — Sprint 3.1 domains + domain-stage traceability (ATLAS-031/032):**
 - Catalog + packs: `knowledge/phase3/`, `phase3_domain_catalog.py`, `phase3_knowledge_packs.py`
 - Schema: `07_phase3_domains.sql` / `ensure_schema` / `domain_analysis` ORM
@@ -58,9 +55,15 @@ Published RKM (`POST/GET /api/v1/projects/{id}/architecture…`, `architecture_m
 - API: `POST/GET …/domains…`, `GET …/traceability` (see [15_API_PHASE3.md](./15_API_PHASE3.md))
 - UI: `SolutionDomainPanel` on the project page (before Architecture)
 
-**Not yet built (Sprint 3.2+):** plural `/architectures` lifecycle, pattern library, capacity,
-scoring, risks/assumptions, vendor catalogue, BOM validation, architecture review/approve
-(see [15_API_PHASE3.md](./15_API_PHASE3.md), [22_PHASE3_TASK_BACKLOG.md](./22_PHASE3_TASK_BACKLOG.md)).
+**Shipped — Sprint 3.2 architecture engine (Tasks 1–12, in progress through 14):**
+- Pattern catalog, normalized `architecture_options` (+ components/risks/scores/capacity)
+- `ArchitectureGenerationService` (Published RKM + domain gate, capacity/risks/scoring/traceability)
+- API: `POST/GET …/architectures…`, `GET …/risks`, `GET …/assumptions` (+ singular MVP aliases)
+- UI: `ArchitecturePanel` candidate picker/detail (no approve yet)
+
+**Not yet built:** Sprint 3.2 verify script + docs polish (Tasks 13–14); Sprint 3.3 vendor/BOM/
+architecture review-approve (see [15_API_PHASE3.md](./15_API_PHASE3.md),
+[22_PHASE3_TASK_BACKLOG.md](./22_PHASE3_TASK_BACKLOG.md)).
 
 API namespace remains `/api/v1/projects/{id}/…` — no `/solutions/` surface (ATLAS-031).
 

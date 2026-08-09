@@ -36,6 +36,7 @@ export type AuditLogEntry = {
   created_at: string;
 };
 
+/** @deprecated Sprint 3.2+ uses ArchitectureOption / ArchitectureGenerateResult */
 export type ArchitectureRecommendation = {
   id: string;
   project_id: string;
@@ -74,6 +75,138 @@ export type ArchitectureRecommendation = {
   prompt_version: string | null;
   created_at: string;
   updated_at: string;
+};
+
+export type ArchitectureOptionSummary = {
+  id: string;
+  project_id: string;
+  generation_id: string;
+  candidate_key: string;
+  title: string;
+  summary: string;
+  status: string;
+  confidence: number;
+  overall_score: number | null;
+  pattern_codes: string[];
+  version_label: string;
+  rkm_version_label: string | null;
+  domain_analysis_id: string | null;
+  created_at: string;
+};
+
+export type ArchitectureComponent = {
+  id: string;
+  name: string;
+  purpose: string;
+  component_kind: string;
+  sort_order: number;
+  maps_to_requirements: string[];
+};
+
+export type ArchitectureDecision = {
+  id: string;
+  decision: string;
+  rationale: string;
+  impact: string;
+};
+
+export type ArchitectureAssumption = {
+  id: string;
+  architecture_id?: string | null;
+  statement: string;
+  reason: string;
+  affected_component_ids: string[];
+  validation_required: boolean;
+  status: string;
+};
+
+export type ArchitectureRisk = {
+  id: string;
+  architecture_id?: string | null;
+  description: string;
+  category: string;
+  cause: string;
+  impact: string;
+  probability: string;
+  severity: string;
+  mitigation: string;
+  owner: string | null;
+  related_requirement_ids: string[];
+};
+
+export type ArchitectureScore = {
+  id: string;
+  dimension: string;
+  weight: number;
+  score: number;
+  explanation: string;
+};
+
+export type CapacityNote = {
+  id: string;
+  label: string;
+  input_value: string | null;
+  unit: string | null;
+  method: string | null;
+  assumption: string | null;
+  result: string | null;
+  confidence: number;
+  related_requirement_ids: string[];
+  open_question: string | null;
+};
+
+export type ArchitectureOption = {
+  id: string;
+  project_id: string;
+  rkm_id: string | null;
+  rkm_version_label: string | null;
+  domain_analysis_id: string | null;
+  generation_id: string;
+  candidate_key: string;
+  title: string;
+  summary: string;
+  reasoning_summary: string;
+  status: string;
+  confidence: number;
+  overall_score: number | null;
+  pattern_codes: string[];
+  version_label: string;
+  model: string | null;
+  prompt_version: string | null;
+  knowledge_pack_version: string | null;
+  high_level_architecture: string[];
+  logical_architecture: string[];
+  physical_architecture: string[];
+  technology_stack: Array<{
+    layer?: string;
+    category?: string;
+    rationale?: string;
+    [key: string]: unknown;
+  }>;
+  components: ArchitectureComponent[];
+  relationships: Array<{
+    id: string;
+    from_component_id: string;
+    to_component_id: string;
+    relationship_kind: string;
+    description: string;
+  }>;
+  decisions: ArchitectureDecision[];
+  assumptions: ArchitectureAssumption[];
+  risks: ArchitectureRisk[];
+  scores: ArchitectureScore[];
+  capacity_notes: CapacityNote[];
+  advantages: string[];
+  disadvantages: string[];
+  created_at: string;
+  updated_at: string;
+  payload?: Record<string, unknown>;
+};
+
+export type ArchitectureGenerateResult = {
+  generation_id: string;
+  version_label: string;
+  architectures: ArchitectureOption[];
 };
 
 export type DomainDependency = {

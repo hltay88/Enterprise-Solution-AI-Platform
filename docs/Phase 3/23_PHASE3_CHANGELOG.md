@@ -1,5 +1,12 @@
 # Phase 3 Changelog
 
+## 0.3.2-task12 (architecture candidates UI)
+
+Sprint 3.2 Task 12: `ArchitecturePanel` uses plural `/architectures` APIs to
+generate, list, and select candidates with components, scores, risks,
+assumptions, and capacity notes. Empty state requires Published RKM + domains.
+No approve UI (3.3).
+
 ## 0.3.2-task11 (architectures API + MVP aliases)
 
 Sprint 3.2 Task 11: plural `/architectures` generate/list/get plus `/risks` and
