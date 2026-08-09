@@ -24,12 +24,13 @@
 | `solution_risks` | 3.2 | **Live** | |
 | `solution_scores` | 3.2 | **Live** | |
 | `capacity_notes` | 3.2 | **Live** | Structured sizing; open_question when inputs missing |
-| `vendor_catalogues` | 3.3 | Planned | |
-| `vendor_products` | 3.3 | Planned | |
-| `product_capabilities` | 3.3 | Planned | |
-| `bom_imports` | 3.3 | Planned | Immutable imports |
-| `bom_items` | 3.3 | Planned | |
-| `bom_validation_results` | 3.3 | Planned | Separate from import |
+| `vendor_catalogues` | 3.3 | **Live** | Versioned import batches (ATLAS-038) |
+| `vendor_products` | 3.3 | **Live** | Source + date + stale flag |
+| `product_capabilities` | 3.3 | **Live** | Capability codes for mapping |
+| `architecture_product_mappings` | 3.3 | **Live** | Component → product (explicit map) |
+| `bom_imports` | 3.3 | **Live** | Immutable imports (ATLAS-039) |
+| `bom_items` | 3.3 | **Live** | |
+| `bom_validation_results` | 3.3 | **Live** | Separate from import |
 
 ## Sprint 3.1 schema (implemented)
 
@@ -54,6 +55,20 @@ Repository: `backend/app/repositories/architecture_option_repository.py`
   store `knowledge/phase3/VERSION` for auditability.
 - System of record for candidates is `architecture_options` (+ children). Do not expand
   `architecture_models.payload_json` as the long-term model (ATLAS-034).
+
+## Sprint 3.3 schema (implemented — Task 1)
+
+Init: `docker/postgres/init/09_phase3_vendors_bom.sql`  
+Additive mirror: `backend/app/db/schema.py` (`ensure_schema`)  
+ORM: `backend/app/models/vendor_bom.py` (+ review/approve columns on `architecture_options`,
+`requirement_traceability.product_id`)
+
+### Notes
+
+- Catalogue is **global** (not project-scoped); mappings/BOM are project-scoped.
+- Never invent SKU specs in services (ATLAS-035/038) — schema stores source + `is_stale`.
+- BOM import rows are immutable; validation writes `bom_validation_results`.
+- Architecture Complete gate uses `reviewed_*` / `approved_*` columns (services in later tasks).
 
 ## Transitional MVP
 

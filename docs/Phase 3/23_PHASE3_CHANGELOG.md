@@ -1,5 +1,13 @@
 # Phase 3 Changelog
 
+## 0.3.3-task01 (vendor / BOM / mapping schema)
+
+Sprint 3.3 Task 1: `09_phase3_vendors_bom.sql` + `ensure_schema` + ORM for
+`vendor_catalogues`, `vendor_products`, `product_capabilities`,
+`architecture_product_mappings`, `bom_imports` / `bom_items` /
+`bom_validation_results`. Adds architecture review/approve columns and
+`requirement_traceability.product_id`. No import/mapping/approve APIs yet.
+
 ## 0.3.2-task14 (sprint verification)
 
 Sprint 3.2 Task 14: `scripts/verify_sprint_3_2.py` runs pytest + API smoke

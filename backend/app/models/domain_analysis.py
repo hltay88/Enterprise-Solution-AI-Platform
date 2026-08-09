@@ -244,6 +244,12 @@ class RequirementTraceability(Base):
         nullable=True,
         index=True,
     )
+    product_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("vendor_products.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
     evidence: Mapped[str | None] = mapped_column(Text)
     status: Mapped[str] = mapped_column(Text, nullable=False, default="not_covered")
     created_at: Mapped[datetime] = mapped_column(

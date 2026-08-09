@@ -5,7 +5,8 @@
 **Input rule (ATLAS-023):** Consume only **Published** RKMs — never raw customer documents.  
 **Sprint 3.0 locks:** [21_PHASE3_DECISIONS.md](./21_PHASE3_DECISIONS.md) (ATLAS-031…034) — complete.  
 **Sprint 3.1:** Solution Domain Identification — implemented (catalog → analyze API → UI).  
-**Sprint 3.2:** Architecture engine — complete (Tasks 1–14).
+**Sprint 3.2:** Architecture engine — complete (Tasks 1–14).  
+**Sprint 3.3:** Vendor / BOM / approve — in progress (Task 1 schema live).
 
 ## Read order
 

@@ -42,13 +42,23 @@ Shipped surface: pattern catalog, `architecture_options` tree, generation servic
 
 Verify: `python3 scripts/verify_sprint_3_2.py` (backend up; rebuild Docker after backend changes).
 
-### Sprint 3.3
-10. Vendor catalogue
-11. Vendor/product mapping
-12. BOM import
-13. BOM validation
-14. Architecture review and approval
-15. Phase 3 acceptance
+### Sprint 3.3 — in progress
+1. ~~Vendor/BOM/mapping schema + ORM~~ (Task 1)
+2. Pydantic schemas
+3. Catalogue import + search API (seed + import)
+4. Sample catalogue pack
+5. Product mapping service (explicit action)
+6. Mapping APIs
+7. BOM import
+8. BOM validation
+9. Architecture review
+10. Architecture approve (hard Complete gate on uncovered criticals)
+11. Frontend panels
+12. Docs polish
+13. `scripts/verify_sprint_3_3.py` + acceptance
+
+Defaults: seed + import catalogue; explicit Map products; hard Complete gate;
+singular `/architecture` aliases kept deprecated through 3.3.
 
 ## Engineering rule
 Implement one bounded task at a time.

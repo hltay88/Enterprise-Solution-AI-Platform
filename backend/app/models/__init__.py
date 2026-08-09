@@ -32,6 +32,15 @@ from app.models.requirement_evidence import RequirementEvidence, RequirementEvid
 from app.models.requirement_item import RequirementItem
 from app.models.requirement_model import RequirementModel
 from app.models.user import User
+from app.models.vendor_bom import (
+    ArchitectureProductMapping,
+    BomImport,
+    BomItem,
+    BomValidationResult,
+    ProductCapability,
+    VendorCatalogue,
+    VendorProduct,
+)
 
 __all__ = [
     "User",
@@ -63,4 +72,11 @@ __all__ = [
     "DomainDependency",
     "DomainOpenQuestion",
     "RequirementTraceability",
+    "VendorCatalogue",
+    "VendorProduct",
+    "ProductCapability",
+    "ArchitectureProductMapping",
+    "BomImport",
+    "BomItem",
+    "BomValidationResult",
 ]
