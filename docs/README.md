@@ -15,3 +15,4 @@ Canonical docs are organized by phase. Prefer these paths; do not create paralle
 - Product vision: [Phase 1/README.md](./Phase%201/README.md) · [Phase 1/PROJECT.md](./Phase%201/PROJECT.md)
 - Phase 2 read order: [Phase 2/README.md](./Phase%202/README.md)
 - Phase 3 read order: [Phase 3/README.md](./Phase%203/README.md)
+  (Sprint 3.1 domain identification shipped — see Phase 3 changelog)

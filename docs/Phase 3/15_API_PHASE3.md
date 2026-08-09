@@ -18,6 +18,9 @@ Base: `/api/v1`
 - `GET /projects/{project_id}/domains/{analysis_id}`
 - `GET /projects/{project_id}/traceability` (`?analysis_id=` optional)
 
+Auth: JWT as Phase 2. Analyze requires Editor+; reads require authenticated project owner.
+Envelope: ATLAS-014 `success_response`. No `/solutions/` routes.
+
 ## Target surface (remaining Sprint 3.2+)
 
 ### Architecture (Sprint 3.2 migration from MVP singular paths)

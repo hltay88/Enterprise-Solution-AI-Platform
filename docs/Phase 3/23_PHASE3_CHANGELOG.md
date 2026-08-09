@@ -1,5 +1,17 @@
 # Phase 3 Changelog
 
+## 0.3.1-task13 (docs polish)
+
+Sprint 3.1 Task 13: aligned Phase 3 docs with shipped domain/traceability work —
+API/DB status, backlog P0 domain items checked, README/UI/implementation guide updated.
+No `/solutions/` API surface (ATLAS-031).
+
+## 0.3.1 (Sprint 3.1 — Solution Domain Identification)
+
+Shipped end-to-end: frozen catalog + packs, normalized domain tables, AI identify,
+`DomainIdentificationService`, `/domains` + `/traceability` APIs, `SolutionDomainPanel`.
+Task 14 optional verify script remains for regression packaging.
+
 ## 0.3.1-task12 (solution domain UI)
 
 Sprint 3.1 Task 12: `SolutionDomainPanel` on the project page (before Architecture)
@@ -78,9 +90,11 @@ Doc pack `01`–`23` added under `docs/Phase 3/`.
 - Architecture panel in the project UI
 - Vendor-neutral technology categories (no product SKUs)
 
-**Still planned (see backlog / acceptance):** domain identification, pattern library,
-capacity, scoring, risks/assumptions, vendor catalogue, BOM import/validation,
-architecture review/approve under the locked `/projects/{id}/…` surface in `15_API_PHASE3.md`.
+**Still planned after Sprint 3.1 (see backlog / acceptance):** pattern library, capacity,
+scoring, risks/assumptions, vendor catalogue, BOM import/validation, architecture
+review/approve, and normalized `/architectures` under the locked `/projects/{id}/…`
+surface in `15_API_PHASE3.md`. Domain identification + domain-stage traceability shipped
+in `0.3.1` above.
 
 ## Revision policy
 Do not silently alter the Phase 3 baseline.

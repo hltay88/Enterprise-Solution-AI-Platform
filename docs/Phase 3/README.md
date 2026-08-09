@@ -3,7 +3,8 @@
 **Folder:** `docs/Phase 3/` (canonical for Phase 3)  
 **Codename:** Solution Recommendation Engine (Atlas Foundation 0.3)  
 **Input rule (ATLAS-023):** Consume only **Published** RKMs — never raw customer documents.  
-**Sprint 3.0 locks:** [21_PHASE3_DECISIONS.md](./21_PHASE3_DECISIONS.md) (ATLAS-031…034) — complete; Sprint 3.1 may start.
+**Sprint 3.0 locks:** [21_PHASE3_DECISIONS.md](./21_PHASE3_DECISIONS.md) (ATLAS-031…034) — complete.  
+**Sprint 3.1:** Solution Domain Identification — implemented (catalog → analyze API → UI).
 
 ## Read order
 
@@ -47,9 +48,18 @@ Handover context from Phase 2: [../Phase 2/PHASE3_HANDOVER.md](../Phase%202/PHAS
 
 ## Implementation status (codebase)
 
-**Shipped (thin MVP):** generate / fetch architecture recommendation from a Published RKM
-(`POST/GET /api/v1/projects/{id}/architecture…`, `architecture_models` table, Architecture panel).
+**Shipped — architecture MVP (ATLAS-034):** generate / fetch architecture recommendation from a
+Published RKM (`POST/GET /api/v1/projects/{id}/architecture…`, `architecture_models`, Architecture panel).
 
-**Not yet built:** domain analysis, traceability APIs, plural `/architectures` lifecycle,
-vendor catalogue, BOM validation, architecture review/approve, scoring UI
-(see locked surface in [15_API_PHASE3.md](./15_API_PHASE3.md)).
+**Shipped — Sprint 3.1 domains + domain-stage traceability (ATLAS-031/032):**
+- Catalog + packs: `knowledge/phase3/`, `phase3_domain_catalog.py`, `phase3_knowledge_packs.py`
+- Schema: `07_phase3_domains.sql` / `ensure_schema` / `domain_analysis` ORM
+- Service: `DomainIdentificationService` (+ confidence, enrichment, traceability helpers)
+- API: `POST/GET …/domains…`, `GET …/traceability` (see [15_API_PHASE3.md](./15_API_PHASE3.md))
+- UI: `SolutionDomainPanel` on the project page (before Architecture)
+
+**Not yet built (Sprint 3.2+):** plural `/architectures` lifecycle, pattern library, capacity,
+scoring, risks/assumptions, vendor catalogue, BOM validation, architecture review/approve
+(see [15_API_PHASE3.md](./15_API_PHASE3.md), [22_PHASE3_TASK_BACKLOG.md](./22_PHASE3_TASK_BACKLOG.md)).
+
+API namespace remains `/api/v1/projects/{id}/…` — no `/solutions/` surface (ATLAS-031).

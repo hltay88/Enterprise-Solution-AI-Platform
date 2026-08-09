@@ -76,4 +76,9 @@ The engine must explain why each domain exists.
 
 ## Pack version
 `knowledge/phase3/VERSION` must match `catalog_version` in `catalog.json`.
-Persist that version on domain analyses when identification is implemented (auditability).
+Persisted on `domain_analyses.knowledge_pack_version` during analyze (Sprint 3.1).
+
+## Implementation status
+Sprint **3.1** ships end-to-end domain identification (catalog → AI → persist → API →
+`SolutionDomainPanel`). See [15_API_PHASE3.md](./15_API_PHASE3.md) and
+[23_PHASE3_CHANGELOG.md](./23_PHASE3_CHANGELOG.md).

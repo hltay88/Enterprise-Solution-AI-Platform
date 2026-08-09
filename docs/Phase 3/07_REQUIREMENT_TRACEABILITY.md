@@ -28,3 +28,10 @@ RKM Requirement
 
 ## Gate
 A recommended architecture cannot be marked Complete if Critical requirements are uncovered.
+
+## Implementation status
+
+**Sprint 3.1 (live):** requirement → solution domain rows in `requirement_traceability`,
+built during domain analyze and exposed via `GET /api/v1/projects/{id}/traceability`
+(and nested on the domain analysis payload / UI). Architecture / component / decision
+links remain nullable until Sprint 3.2+.

@@ -13,11 +13,14 @@ Frozen in [`21_PHASE3_DECISIONS.md`](./21_PHASE3_DECISIONS.md):
 
 No feature code in Sprint 3.0.
 
-### Sprint 3.1
-1. Solution domain model
-2. Domain identification
-3. Knowledge pack integration
-4. Requirement traceability
+### Sprint 3.1 — complete (code + docs; optional verify script = Task 14)
+1. ~~Solution domain model~~
+2. ~~Domain identification~~
+3. ~~Knowledge pack integration~~
+4. ~~Requirement traceability~~ (domain stage)
+
+Shipped surface: catalog/packs, normalized tables, AI identify, analyze service,
+`/domains` + `/traceability` APIs, `SolutionDomainPanel`. See [23_PHASE3_CHANGELOG.md](./23_PHASE3_CHANGELOG.md).
 
 ### Sprint 3.2
 5. Architecture pattern library

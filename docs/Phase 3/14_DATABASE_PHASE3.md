@@ -8,33 +8,34 @@
 
 ## Core entities (target)
 
-| Entity | Sprint | Notes |
-|--------|--------|--------|
-| `domain_analyses` | 3.1 | Versioned domain identification run (schema Task 2) |
-| `solution_domains` | 3.1 | Domains for an analysis |
-| `domain_requirement_links` | 3.1 | Domain ↔ RKM requirement_id |
-| `domain_dependencies` | 3.1 | Domain → domain_code dependencies |
-| `domain_open_questions` | 3.1 | Missing info affecting selection |
-| `requirement_traceability` | 3.1 | RKM → domain (+ nullable later stages) |
-| `architecture_options` | 3.2 | Replaces long-term use of MVP blob |
-| `architecture_components` | 3.2 | |
-| `architecture_relationships` | 3.2 | |
-| `design_decisions` | 3.2 | |
-| `architecture_assumptions` | 3.2 | |
-| `solution_risks` | 3.2 | |
-| `solution_scores` | 3.2 | |
-| `vendor_catalogues` | 3.3 | |
-| `vendor_products` | 3.3 | |
-| `product_capabilities` | 3.3 | |
-| `bom_imports` | 3.3 | Immutable imports |
-| `bom_items` | 3.3 | |
-| `bom_validation_results` | 3.3 | Separate from import |
+| Entity | Sprint | Status | Notes |
+|--------|--------|--------|--------|
+| `domain_analyses` | 3.1 | **Live** | Versioned domain identification run |
+| `solution_domains` | 3.1 | **Live** | Domains for an analysis |
+| `domain_requirement_links` | 3.1 | **Live** | Domain ↔ RKM requirement_id |
+| `domain_dependencies` | 3.1 | **Live** | Domain → domain_code dependencies |
+| `domain_open_questions` | 3.1 | **Live** | Missing info affecting selection |
+| `requirement_traceability` | 3.1 | **Live** | RKM → domain (+ nullable later stages) |
+| `architecture_options` | 3.2 | Planned | Replaces long-term use of MVP blob |
+| `architecture_components` | 3.2 | Planned | |
+| `architecture_relationships` | 3.2 | Planned | |
+| `design_decisions` | 3.2 | Planned | |
+| `architecture_assumptions` | 3.2 | Planned | |
+| `solution_risks` | 3.2 | Planned | |
+| `solution_scores` | 3.2 | Planned | |
+| `vendor_catalogues` | 3.3 | Planned | |
+| `vendor_products` | 3.3 | Planned | |
+| `product_capabilities` | 3.3 | Planned | |
+| `bom_imports` | 3.3 | Planned | Immutable imports |
+| `bom_items` | 3.3 | Planned | |
+| `bom_validation_results` | 3.3 | Planned | Separate from import |
 
-## Sprint 3.1 schema
+## Sprint 3.1 schema (implemented)
 
 Init: `docker/postgres/init/07_phase3_domains.sql`  
 Additive mirror: `backend/app/db/schema.py` (`ensure_schema`)  
-ORM: `backend/app/models/domain_analysis.py`
+ORM: `backend/app/models/domain_analysis.py`  
+Repository: `backend/app/repositories/domain_repository.py`
 
 ### Notes
 
