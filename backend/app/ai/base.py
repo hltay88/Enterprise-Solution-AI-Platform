@@ -36,3 +36,12 @@ class AIProvider(ABC):
         knowledge_pack_context: str = "",
     ) -> dict[str, Any]:
         """Return vendor-neutral architecture recommendation from a Published RKM."""
+
+    @abstractmethod
+    async def identify_solution_domains(
+        self,
+        published_rkm: dict[str, Any],
+        *,
+        knowledge_pack_context: str = "",
+    ) -> dict[str, Any]:
+        """Return Solution Domain Model extraction from a Published RKM."""

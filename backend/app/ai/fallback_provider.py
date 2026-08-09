@@ -160,6 +160,52 @@ class FallbackAIProvider(AIProvider):
 
         raise AppError("INTERNAL_ERROR", "No AI provider available", status_code=502)
 
+    async def identify_solution_domains(
+        self,
+        published_rkm: dict[str, Any],
+        *,
+        knowledge_pack_context: str = "",
+    ) -> dict[str, Any]:
+        errors: list[str] = []
+        for index, provider in enumerate(self.providers):
+            name = provider.__class__.__name__
+            try:
+                result = await provider.identify_solution_domains(
+                    published_rkm,
+                    knowledge_pack_context=knowledge_pack_context,
+                )
+                payload = dict(result)
+                payload.setdefault("provider", name.replace("Provider", "").lower())
+                if index > 0 and isinstance(provider, LocalAIProvider):
+                    payload["fallback_reason"] = (
+                        "; ".join(errors) or "cloud provider unavailable"
+                    )
+                    summary = str(payload.get("reasoning_summary") or "").strip()
+                    note = (
+                        "Generated with local fallback because cloud AI providers were "
+                        f"unavailable ({payload['fallback_reason']})."
+                    )
+                    payload["reasoning_summary"] = f"{summary} {note}".strip()
+                    payload["provider"] = "local-fallback"
+                elif index > 0:
+                    logger.warning(
+                        "Using fallback provider %s for domain identification",
+                        name,
+                    )
+                return payload
+            except AppError as exc:
+                is_last = index == len(self.providers) - 1
+                if exc.code not in _FALLBACK_CODES or is_last:
+                    raise
+                errors.append(f"{name}: {exc.message}")
+                logger.warning(
+                    "%s domain identification unavailable (%s); trying next",
+                    name,
+                    exc.code,
+                )
+
+        raise AppError("INTERNAL_ERROR", "No AI provider available", status_code=502)
+
 
 def _mark_local(result: dict[str, Any], reason: str) -> dict[str, Any]:
     payload = dict(result)

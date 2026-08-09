@@ -109,6 +109,17 @@ class LocalAIProvider(AIProvider):
     ) -> dict[str, Any]:
         return _local_architecture(published_rkm, knowledge_pack_context=knowledge_pack_context)
 
+    async def identify_solution_domains(
+        self,
+        published_rkm: dict[str, Any],
+        *,
+        knowledge_pack_context: str = "",
+    ) -> dict[str, Any]:
+        return _local_domain_identification(
+            published_rkm,
+            knowledge_pack_context=knowledge_pack_context,
+        )
+
     async def generate_clarifications(
         self,
         analysis: dict[str, Any],
@@ -530,3 +541,211 @@ def _local_architecture(
         "provider": "local",
         "model": "local-architecture-heuristics",
     }
+
+
+def _local_domain_identification(
+    published_rkm: dict[str, Any],
+    *,
+    knowledge_pack_context: str = "",
+) -> dict[str, Any]:
+    """Catalog-bound domain identification heuristic from Published RKM fields."""
+    from app.services.phase3_domain_catalog import load_domain_catalog
+    from app.services.phase3_knowledge_packs import detect_phase3_domains
+
+    requirements = _rkm_requirement_refs(published_rkm)
+    blob = " ".join(
+        part
+        for req in requirements
+        for part in (req["id"], req["title"], req["description"])
+    )
+    blob = f"{blob} {knowledge_pack_context}".strip()
+    detected = detect_phase3_domains(blob)
+    catalog = load_domain_catalog()
+
+    # Always consider typical deps of detected domains as dependency candidates.
+    codes: list[str] = []
+    seen: set[str] = set()
+    for code in detected:
+        if code not in seen:
+            seen.add(code)
+            codes.append(code)
+        entry = catalog.get(code)
+        if entry is None:
+            continue
+        for dep in entry.typical_dependencies:
+            if dep not in seen:
+                seen.add(dep)
+                codes.append(dep)
+
+    if not codes:
+        # Fail soft with an open question rather than inventing domains.
+        return {
+            "summary": "No solution domains could be identified from the Published RKM.",
+            "domains": [],
+            "open_questions": [
+                {
+                    "question": (
+                        "Which solution domains are in scope "
+                        "(for example Wi-Fi, Campus LAN, Identity, Cybersecurity)?"
+                    ),
+                    "affects_selection": True,
+                    "related_requirement_ids": [req["id"] for req in requirements[:5]],
+                },
+            ],
+            "reasoning_summary": (
+                "Local domain heuristics found no catalog domain signals in the Published RKM."
+            ),
+            "provider": "local",
+            "model": "local-domain-heuristics",
+        }
+
+    domains_out: list[dict[str, Any]] = []
+    open_questions: list[dict[str, Any]] = []
+    for code in codes:
+        entry = catalog.get(code)
+        if entry is None:
+            continue
+        supporting = _matching_requirements(requirements, entry)
+        is_primary = code in detected
+        if is_primary and supporting:
+            selection_source = "requirement"
+            confidence = min(0.9, 0.55 + 0.05 * len(supporting))
+        elif is_primary:
+            selection_source = "requirement"
+            # Use first requirement ids as weak evidence when keyword hit is global.
+            supporting = [req["id"] for req in requirements[:3]]
+            confidence = 0.45 if supporting else 0.35
+            if not supporting:
+                # Cannot emit requirement source without IDs — treat as dependency note.
+                selection_source = "dependency"
+                confidence = 0.4
+        else:
+            selection_source = "dependency"
+            confidence = 0.5
+
+        dependencies = [
+            {
+                "depends_on_domain_code": dep,
+                "dependency_kind": "recommended",
+                "reason": f"Typical dependency of {entry.name}",
+            }
+            for dep in entry.typical_dependencies
+            if dep in seen
+        ]
+
+        reason = (
+            f"Published RKM indicates {entry.name} scope."
+            if is_primary
+            else f"{entry.name} is a documented design dependency of identified domains."
+        )
+        if selection_source == "requirement" and not supporting:
+            continue
+        if selection_source == "dependency" and not dependencies and not reason:
+            continue
+
+        domain_questions: list[dict[str, Any]] = []
+        if code == "wifi" and not any("survey" in req["description"].lower() for req in requirements):
+            domain_questions.append(
+                {
+                    "question": "Is a predictive wireless survey / heatmap required before design?",
+                    "affects_selection": True,
+                    "related_requirement_ids": supporting[:3],
+                },
+            )
+        if code in {"identity", "ztna_vpn"} and not any(
+            token in blob.lower() for token in ("mfa", "multi-factor", "802.1x")
+        ):
+            domain_questions.append(
+                {
+                    "question": "Is MFA / 802.1X mandatory for the identified access domains?",
+                    "affects_selection": True,
+                    "related_requirement_ids": supporting[:3],
+                },
+            )
+
+        domains_out.append(
+            {
+                "domain_code": code,
+                "name": entry.name,
+                "reason": reason,
+                "supporting_requirements": supporting,
+                "confidence": confidence,
+                "mandatory_or_optional": "mandatory" if is_primary else "optional",
+                "selection_source": selection_source,
+                "dependencies": dependencies,
+                "open_questions": domain_questions,
+            },
+        )
+        open_questions.extend(
+            {**question, "domain_code": code} for question in domain_questions
+        )
+
+    names = [str(item.get("name") or item.get("domain_code")) for item in domains_out]
+    return {
+        "summary": (
+            "Solution domains identified from the Published RKM: " + ", ".join(names)
+            if names
+            else "No solution domains identified."
+        ),
+        "domains": domains_out,
+        "open_questions": open_questions,
+        "reasoning_summary": (
+            "Generated with local domain heuristics from Published RKM"
+            + (" and Phase 3 knowledge pack context." if knowledge_pack_context.strip() else ".")
+        ),
+        "provider": "local",
+        "model": "local-domain-heuristics",
+    }
+
+
+def _rkm_requirement_refs(published_rkm: dict[str, Any]) -> list[dict[str, str]]:
+    refs: list[dict[str, str]] = []
+    seen: set[str] = set()
+    for section in (
+        "business_objectives",
+        "functional_requirements",
+        "non_functional_requirements",
+        "constraints",
+        "dependencies",
+        "risks",
+        "assumptions",
+    ):
+        for index, item in enumerate(published_rkm.get(section) or []):
+            if not isinstance(item, dict):
+                continue
+            title = str(item.get("title") or "").strip()
+            description = str(item.get("description") or "").strip()
+            req_id = str(
+                item.get("id") or item.get("requirement_id") or "",
+            ).strip()
+            if not req_id:
+                req_id = f"{section}:{index + 1}" if not title else title[:80]
+            if req_id in seen:
+                continue
+            seen.add(req_id)
+            refs.append(
+                {
+                    "id": req_id,
+                    "title": title,
+                    "description": description,
+                },
+            )
+    return refs
+
+
+def _matching_requirements(
+    requirements: list[dict[str, str]],
+    entry: Any,
+) -> list[str]:
+    needles = {
+        entry.code.replace("_", " "),
+        entry.code,
+        entry.name.lower(),
+        *[alias.lower() for alias in entry.aliases],
+    }
+    matched: list[str] = []
+    for req in requirements:
+        hay = f"{req['title']} {req['description']}".lower()
+        if any(needle and needle in hay for needle in needles):
+            matched.append(req["id"])
+    return matched

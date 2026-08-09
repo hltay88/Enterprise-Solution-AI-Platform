@@ -22,6 +22,7 @@ from app.ai.common import (
     clarification_user_prompt,
     extract_questions,
     normalize_architecture,
+    normalize_domain_identification,
     normalize_rkm_extraction,
 )
 from app.core.config import settings
@@ -247,6 +248,58 @@ class OpenAIProvider(AIProvider):
             ) from exc
 
         result = normalize_architecture(payload)
+        result["provider"] = "openai"
+        result["model"] = self.model
+        return result
+
+    async def identify_solution_domains(
+        self,
+        published_rkm: dict[str, Any],
+        *,
+        knowledge_pack_context: str = "",
+    ) -> dict[str, Any]:
+        system_prompt = _load_prompt("domain_identification.txt")
+        pack = knowledge_pack_context.strip()
+        user_content = (
+            "Identify solution domains from this Published Requirement Knowledge "
+            "Model JSON. Use only catalog domain codes from the knowledge pack "
+            "context.\n\n"
+            + json.dumps(published_rkm, ensure_ascii=True)[:120000]
+        )
+        if pack:
+            user_content += (
+                "\n\nPhase 3 domain knowledge pack / catalog context:\n" + pack[:8000]
+            )
+        try:
+            response = await self.client.chat.completions.create(
+                model=self.model,
+                temperature=0.2,
+                response_format={"type": "json_object"},
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_content},
+                ],
+            )
+        except Exception as exc:
+            _raise_provider_error("identify solution domains", exc)
+
+        content = response.choices[0].message.content
+        if not content:
+            raise AppError(
+                "INTERNAL_ERROR",
+                "AI provider returned an empty domain identification response",
+                status_code=502,
+            )
+        try:
+            payload = json.loads(content)
+        except json.JSONDecodeError as exc:
+            raise AppError(
+                "INTERNAL_ERROR",
+                "AI provider returned invalid JSON for domain identification",
+                status_code=502,
+            ) from exc
+
+        result = normalize_domain_identification(payload)
         result["provider"] = "openai"
         result["model"] = self.model
         return result

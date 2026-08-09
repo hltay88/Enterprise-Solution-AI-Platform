@@ -225,3 +225,20 @@ def normalize_architecture(payload: dict[str, Any]) -> dict[str, Any]:
         "provider": payload.get("provider"),
         "model": payload.get("model"),
     }
+
+
+def normalize_domain_identification(payload: dict[str, Any]) -> dict[str, Any]:
+    """Validate and normalize domain identification JSON via Phase 3 schemas."""
+    from pydantic import ValidationError
+
+    from app.schemas.domain import validate_domain_ai_extraction
+
+    try:
+        model = validate_domain_ai_extraction(payload)
+    except (ValidationError, ValueError) as exc:
+        raise AppError(
+            "INTERNAL_ERROR",
+            f"AI provider returned invalid domain identification payload: {exc}",
+            status_code=502,
+        ) from exc
+    return model.model_dump(mode="json")

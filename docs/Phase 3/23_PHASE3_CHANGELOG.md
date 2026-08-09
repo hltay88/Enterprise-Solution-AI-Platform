@@ -1,5 +1,10 @@
 # Phase 3 Changelog
 
+## 0.3.1-task6 (AI domain identification)
+
+Sprint 3.1 Task 6: `identify_solution_domains` on AIProvider (local/gemini/openai/fallback),
+prompt `domain_identification.txt`, and `normalize_domain_identification`. No HTTP service yet.
+
 ## 0.3.1-task5 (phase 3 knowledge packs)
 
 Sprint 3.1 Task 5: `phase3_knowledge_packs.py` — catalog-driven domain pack context,

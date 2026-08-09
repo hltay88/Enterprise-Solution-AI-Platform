@@ -18,6 +18,7 @@ from app.ai.common import (
     load_prompt,
     normalize_analysis,
     normalize_architecture,
+    normalize_domain_identification,
     normalize_rkm_extraction,
     parse_json_object,
     sanitize_secret,
@@ -168,6 +169,40 @@ class GeminiProvider(AIProvider):
             invalid_message="AI provider returned invalid JSON for architecture",
         )
         result = normalize_architecture(payload)
+        result["provider"] = "gemini"
+        result["model"] = self.model
+        return result
+
+    async def identify_solution_domains(
+        self,
+        published_rkm: dict[str, Any],
+        *,
+        knowledge_pack_context: str = "",
+    ) -> dict[str, Any]:
+        system_prompt = load_prompt("domain_identification.txt")
+        pack = knowledge_pack_context.strip()
+        user_prompt = (
+            "Identify solution domains from this Published Requirement Knowledge "
+            "Model JSON. Use only catalog domain codes from the knowledge pack "
+            "context.\n\n"
+            + json.dumps(published_rkm, ensure_ascii=True)[:120000]
+        )
+        if pack:
+            user_prompt += (
+                "\n\nPhase 3 domain knowledge pack / catalog context:\n" + pack[:8000]
+            )
+        response = await self._generate(
+            action="identify solution domains",
+            system_prompt=system_prompt,
+            user_prompt=user_prompt,
+            temperature=0.2,
+        )
+        payload = parse_json_object(
+            response.text or "",
+            empty_message="AI provider returned an empty domain identification response",
+            invalid_message="AI provider returned invalid JSON for domain identification",
+        )
+        result = normalize_domain_identification(payload)
         result["provider"] = "gemini"
         result["model"] = self.model
         return result
