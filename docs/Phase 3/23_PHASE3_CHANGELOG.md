@@ -1,5 +1,10 @@
 # Phase 3 Changelog
 
+## 0.3.1-task11 (domain API routes)
+
+Sprint 3.1 Task 11: `v1_domains.py` exposes analyze/get/versions/traceability under
+`/api/v1/projects/{id}/…` (ATLAS-031). Editor+ for analyze; ownership via service.
+
 ## 0.3.1-task10 (domain confidence)
 
 Sprint 3.1 Task 10: `domain_confidence.py` normalizes confidence to 0–1 and applies

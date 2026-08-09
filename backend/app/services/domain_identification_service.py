@@ -92,6 +92,44 @@ class DomainIdentificationService:
             for row in rows
         ]
 
+    def get_traceability(
+        self,
+        project_id: UUID,
+        user_id: UUID,
+        analysis_id: UUID | None = None,
+    ) -> list[TraceabilityOut]:
+        """Return domain-stage traceability for latest or a specific analysis."""
+        self._require_project(project_id, user_id)
+        if analysis_id is not None:
+            row = self.domains.get_for_project(analysis_id, project_id)
+            if row is None:
+                raise NotFoundError("Solution domain analysis not found")
+        else:
+            row = self.domains.get_latest(project_id)
+            if row is None:
+                raise NotFoundError("No solution domain analysis found for this project")
+
+        domain_rows = self.domains.list_domains(row.id)
+        code_by_id = {item.id: item.domain_code for item in domain_rows}
+        return [
+            TraceabilityOut(
+                id=item.id,
+                project_id=item.project_id,
+                analysis_id=item.analysis_id,
+                requirement_id=item.requirement_id,
+                domain_id=item.domain_id,
+                domain_code=code_by_id.get(item.domain_id) if item.domain_id else None,
+                architecture_id=item.architecture_id,
+                component_id=item.component_id,
+                decision_id=item.decision_id,
+                evidence=item.evidence,
+                status=item.status,  # type: ignore[arg-type]
+                created_at=item.created_at,
+                updated_at=item.updated_at,
+            )
+            for item in self.domains.list_traceability(analysis_id=row.id)
+        ]
+
     async def analyze(self, project_id: UUID, user_id: UUID) -> DomainAnalysisOut:
         self._require_project(project_id, user_id)
         published = self.rkms.get_published(project_id)

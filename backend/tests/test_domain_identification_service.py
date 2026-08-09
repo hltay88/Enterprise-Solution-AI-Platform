@@ -10,7 +10,7 @@ from uuid import uuid4
 
 import pytest
 
-from app.core.exceptions import ValidationAppError
+from app.core.exceptions import NotFoundError, ValidationAppError
 from app.services.domain_identification_service import (
     PROMPT_VERSION,
     DomainIdentificationService,
@@ -217,3 +217,52 @@ def test_analyze_does_not_persist_invalid_ai_payload():
             asyncio.run(service.analyze(uuid4(), uuid4()))
 
     service.domains.create_analysis_tree.assert_not_called()
+
+
+def test_get_traceability_uses_latest_when_analysis_id_omitted():
+    service = _service()
+    project_id = uuid4()
+    analysis_id = uuid4()
+    domain_id = uuid4()
+    service.projects = SimpleNamespace(
+        get_for_user=lambda pid, uid: SimpleNamespace(id=pid),
+    )
+    service.domains = MagicMock()
+    service.domains.get_latest.return_value = SimpleNamespace(id=analysis_id)
+    service.domains.list_domains.return_value = [
+        SimpleNamespace(id=domain_id, domain_code="wifi"),
+    ]
+    service.domains.list_traceability.return_value = [
+        SimpleNamespace(
+            id=uuid4(),
+            project_id=project_id,
+            analysis_id=analysis_id,
+            requirement_id="REQ-1",
+            domain_id=domain_id,
+            architecture_id=None,
+            component_id=None,
+            decision_id=None,
+            evidence="linked",
+            status="covered",
+            created_at=datetime.now(timezone.utc),
+            updated_at=datetime.now(timezone.utc),
+        ),
+    ]
+
+    rows = service.get_traceability(project_id, uuid4())
+    assert len(rows) == 1
+    assert rows[0].domain_code == "wifi"
+    assert rows[0].requirement_id == "REQ-1"
+    service.domains.list_traceability.assert_called_once_with(analysis_id=analysis_id)
+
+
+def test_get_traceability_404_when_no_analysis():
+    service = _service()
+    service.projects = SimpleNamespace(
+        get_for_user=lambda project_id, user_id: SimpleNamespace(id=project_id),
+    )
+    service.domains = MagicMock()
+    service.domains.get_latest.return_value = None
+
+    with pytest.raises(NotFoundError, match="No solution domain analysis"):
+        service.get_traceability(uuid4(), uuid4())
