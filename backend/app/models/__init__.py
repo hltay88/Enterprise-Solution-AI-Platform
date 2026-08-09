@@ -1,6 +1,16 @@
 """ORM models mapped to Sprint 1 / Phase 2 Postgres schema."""
 
 from app.models.architecture_model import ArchitectureModel
+from app.models.architecture_option import (
+    ArchitectureAssumption,
+    ArchitectureComponent,
+    ArchitectureOption,
+    ArchitectureRelationship,
+    CapacityNote,
+    DesignDecision,
+    SolutionRisk,
+    SolutionScore,
+)
 from app.models.audit_log import AuditLog
 from app.models.clarification_question import ClarificationQuestion
 from app.models.document_chunk import DocumentChunk
@@ -39,6 +49,14 @@ __all__ = [
     "RequirementEvidenceLink",
     "AuditLog",
     "ArchitectureModel",
+    "ArchitectureOption",
+    "ArchitectureComponent",
+    "ArchitectureRelationship",
+    "DesignDecision",
+    "ArchitectureAssumption",
+    "SolutionRisk",
+    "SolutionScore",
+    "CapacityNote",
     "DomainAnalysis",
     "SolutionDomain",
     "DomainRequirementLink",

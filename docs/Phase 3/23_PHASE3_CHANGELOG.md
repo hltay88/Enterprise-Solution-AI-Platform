@@ -1,5 +1,11 @@
 # Phase 3 Changelog
 
+## 0.3.2-task2 (normalized architecture schema)
+
+Sprint 3.2 Task 2: `architecture_options` + components/relationships/decisions,
+assumptions, risks, scores, and `capacity_notes` via `08_phase3_architectures.sql`
++ `ensure_schema` + ORM. Traceability FKs wired. No generate service/API yet.
+
 ## 0.3.2-task1 (architecture pattern catalog freeze)
 
 Sprint 3.2 Task 1: frozen pattern codes in `knowledge/phase3/patterns/catalog.json`,

@@ -71,6 +71,13 @@ def test_traceability_keeps_later_stage_columns_nullable():
     assert table.c.decision_id.nullable is True
     assert table.c.domain_id.nullable is True
     assert str(table.c.requirement_id.type) in {"TEXT", "Text"}
+    # Sprint 3.2 wires FKs to architecture_options / components / decisions.
+    fk_tables = {
+        fk.column.table.name
+        for col in (table.c.architecture_id, table.c.component_id, table.c.decision_id)
+        for fk in col.foreign_keys
+    }
+    assert "architecture_options" in fk_tables
 
 
 def test_requirement_link_uses_text_requirement_id():

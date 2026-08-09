@@ -16,13 +16,14 @@
 | `domain_dependencies` | 3.1 | **Live** | Domain → domain_code dependencies |
 | `domain_open_questions` | 3.1 | **Live** | Missing info affecting selection |
 | `requirement_traceability` | 3.1 | **Live** | RKM → domain (+ nullable later stages) |
-| `architecture_options` | 3.2 | Planned | Replaces long-term use of MVP blob |
-| `architecture_components` | 3.2 | Planned | |
-| `architecture_relationships` | 3.2 | Planned | |
-| `design_decisions` | 3.2 | Planned | |
-| `architecture_assumptions` | 3.2 | Planned | |
-| `solution_risks` | 3.2 | Planned | |
-| `solution_scores` | 3.2 | Planned | |
+| `architecture_options` | 3.2 | **Live** | Replaces long-term use of MVP blob |
+| `architecture_components` | 3.2 | **Live** | |
+| `architecture_relationships` | 3.2 | **Live** | |
+| `design_decisions` | 3.2 | **Live** | |
+| `architecture_assumptions` | 3.2 | **Live** | |
+| `solution_risks` | 3.2 | **Live** | |
+| `solution_scores` | 3.2 | **Live** | |
+| `capacity_notes` | 3.2 | **Live** | Structured sizing; open_question when inputs missing |
 | `vendor_catalogues` | 3.3 | Planned | |
 | `vendor_products` | 3.3 | Planned | |
 | `product_capabilities` | 3.3 | Planned | |
@@ -37,11 +38,20 @@ Additive mirror: `backend/app/db/schema.py` (`ensure_schema`)
 ORM: `backend/app/models/domain_analysis.py`  
 Repository: `backend/app/repositories/domain_repository.py`
 
+## Sprint 3.2 schema (implemented — Task 2)
+
+Init: `docker/postgres/init/08_phase3_architectures.sql`  
+Additive mirror: `backend/app/db/schema.py` (`ensure_schema`)  
+ORM: `backend/app/models/architecture_option.py`
+
 ### Notes
 
 - `requirement_id` columns are **TEXT** (RKM payload identifiers), not FK to `requirements.id`.
-- `requirement_traceability.architecture_id` / `component_id` / `decision_id` are nullable UUIDs without FK until Sprint 3.2+ entities exist.
-- `domain_analyses.knowledge_pack_version` stores `knowledge/phase3/VERSION` for auditability.
+- `requirement_traceability.architecture_id` / `component_id` / `decision_id` now FK to
+  `architecture_options` / `architecture_components` / `design_decisions` (ON DELETE SET NULL).
+- `domain_analyses.knowledge_pack_version` and `architecture_options.knowledge_pack_version`
+  store `knowledge/phase3/VERSION` for auditability.
+- `architecture_models` remains as transitional MVP store until generate cutover (ATLAS-034).
 
 ## Transitional MVP
 

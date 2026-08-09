@@ -226,10 +226,24 @@ class RequirementTraceability(Base):
         nullable=True,
         index=True,
     )
-    # Reserved for Sprint 3.2+; no FK yet (architecture_options not created).
-    architecture_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), nullable=True)
-    component_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), nullable=True)
-    decision_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), nullable=True)
+    architecture_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("architecture_options.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+    component_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("architecture_components.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+    decision_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("design_decisions.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
     evidence: Mapped[str | None] = mapped_column(Text)
     status: Mapped[str] = mapped_column(Text, nullable=False, default="not_covered")
     created_at: Mapped[datetime] = mapped_column(
