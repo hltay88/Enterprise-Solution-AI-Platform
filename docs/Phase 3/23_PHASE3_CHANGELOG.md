@@ -1,5 +1,10 @@
 # Phase 3 Changelog
 
+## 0.3.1-task4 (domain repository)
+
+Sprint 3.1 Task 4: `DomainRepository` with `create_analysis_tree`, version helpers,
+and read APIs for domains/links/dependencies/questions/traceability. No HTTP/AI yet.
+
 ## 0.3.1-task3 (domain schemas)
 
 Sprint 3.1 Task 3: Pydantic API + AI validation contracts in
