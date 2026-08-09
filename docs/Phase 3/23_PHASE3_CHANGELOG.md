@@ -1,9 +1,14 @@
 # Phase 3 Changelog
 
+## 0.3.1-task8 (requirement→domain traceability)
+
+Sprint 3.1 Task 8: `domain_traceability.py` builds covered/partial/optional/not_covered
+rows during analyze; uncovered critical/high counted in audit metadata.
+
 ## 0.3.1-task7 (domain identification service)
 
 Sprint 3.1 Task 7: `DomainIdentificationService` orchestrates Published RKM → packs → AI →
-validate → persist (`domain.analyze` audit). Traceability matrix deferred to Task 8. No HTTP yet.
+validate → persist (`domain.analyze` audit). Traceability matrix added in Task 8. No HTTP yet.
 
 ## 0.3.1-task6 (AI domain identification)
 

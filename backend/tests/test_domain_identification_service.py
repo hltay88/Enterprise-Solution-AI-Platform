@@ -157,9 +157,14 @@ def test_analyze_persists_and_audits_on_success():
     assert kwargs["prompt_version"] == PROMPT_VERSION
     assert kwargs["knowledge_pack_version"] == "1.0.0"
     assert kwargs["domains"][0]["domain_code"] == "wifi"
-    assert kwargs["traceability"] == []
+    assert kwargs["traceability"]
+    assert any(
+        row["requirement_id"] == "REQ-WIFI-1" and row["status"] == "covered"
+        for row in kwargs["traceability"]
+    )
     audit.record.assert_called_once()
     assert audit.record.call_args.kwargs["action"] == "domain.analyze"
+    assert "traceability_count" in audit.record.call_args.kwargs["metadata"]
 
 
 def test_analyze_does_not_persist_invalid_ai_payload():

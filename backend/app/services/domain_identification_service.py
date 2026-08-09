@@ -30,6 +30,11 @@ from app.schemas.domain import (
     validate_domain_ai_extraction,
 )
 from app.services.audit_service import AuditService
+from app.services.domain_traceability import (
+    build_requirement_domain_traceability,
+    count_uncovered_critical,
+    extract_rkm_requirements,
+)
 from app.services.phase3_knowledge_packs import build_domain_pack_context, pack_version
 
 logger = logging.getLogger(__name__)
@@ -149,6 +154,17 @@ class DomainIdentificationService:
             for question in validated.open_questions
         ]
 
+        rkm_requirements = extract_rkm_requirements(rkm_payload)
+        traceability_rows = build_requirement_domain_traceability(
+            rkm_requirements,
+            list(validated.domains),
+        )
+        uncovered_critical = count_uncovered_critical(traceability_rows, rkm_requirements)
+        payload["traceability_summary"] = {
+            "row_count": len(traceability_rows),
+            "uncovered_critical_or_high": uncovered_critical,
+        }
+
         try:
             row = self.domains.create_analysis_tree(
                 project_id=project_id,
@@ -166,7 +182,7 @@ class DomainIdentificationService:
                 payload_json=payload,
                 domains=domain_rows,
                 analysis_open_questions=analysis_questions,
-                traceability=[],  # Task 8 builds requirement→domain coverage matrix
+                traceability=traceability_rows,
             )
         except ValueError as exc:
             raise ValidationAppError(str(exc)) from exc
@@ -188,6 +204,8 @@ class DomainIdentificationService:
                 "prompt_version": PROMPT_VERSION,
                 "knowledge_pack_version": knowledge_pack_version,
                 "domain_count": len(domain_rows),
+                "traceability_count": len(traceability_rows),
+                "uncovered_critical_or_high": uncovered_critical,
             },
         )
         return self._to_out(row)
