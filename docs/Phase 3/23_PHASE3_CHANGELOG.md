@@ -1,5 +1,10 @@
 # Phase 3 Changelog
 
+## 0.3.1-task12 (solution domain UI)
+
+Sprint 3.1 Task 12: `SolutionDomainPanel` on the project page (before Architecture)
+shows domains, confidence, deps, open questions, and traceability; Analyze action.
+
 ## 0.3.1-task11 (domain API routes)
 
 Sprint 3.1 Task 11: `v1_domains.py` exposes analyze/get/versions/traceability under

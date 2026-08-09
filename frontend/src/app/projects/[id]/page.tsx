@@ -15,6 +15,7 @@ import { ProjectForm } from "@/components/ProjectForm";
 import { RequireAuth } from "@/components/RequireAuth";
 import { RkmGovernancePanel } from "@/components/RkmGovernancePanel";
 import { RkmPanel } from "@/components/RkmPanel";
+import { SolutionDomainPanel } from "@/components/SolutionDomainPanel";
 import { apiDelete, apiGet, apiPut, ApiClientError } from "@/lib/api";
 import type { ProjectInput, ProjectSummary } from "@/lib/types";
 
@@ -140,6 +141,10 @@ function ProjectDetailContent({ userName }: { userName: string }) {
                 setRkmRefreshToken((value) => value + 1);
                 setRkmHighlightVersion(versionLabel || null);
               }}
+            />
+            <SolutionDomainPanel
+              projectId={projectId}
+              refreshToken={rkmRefreshToken}
             />
             <ArchitecturePanel
               projectId={projectId}

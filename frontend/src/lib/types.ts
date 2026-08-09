@@ -76,6 +76,77 @@ export type ArchitectureRecommendation = {
   updated_at: string;
 };
 
+export type DomainDependency = {
+  id: string | null;
+  depends_on_domain_code: string;
+  dependency_kind: "required" | "recommended";
+  reason: string;
+};
+
+export type DomainOpenQuestion = {
+  id: string | null;
+  domain_id: string | null;
+  domain_code: string | null;
+  question: string;
+  affects_selection: boolean;
+  related_requirement_ids: string[];
+};
+
+export type SolutionDomain = {
+  id: string;
+  domain_code: string;
+  name: string;
+  reason: string;
+  confidence: number;
+  mandatory_or_optional: "mandatory" | "optional";
+  selection_source: "requirement" | "dependency" | "optional_alternative";
+  sort_order: number;
+  supporting_requirements: string[];
+  dependencies: DomainDependency[];
+  open_questions: DomainOpenQuestion[];
+};
+
+export type DomainTraceabilityRow = {
+  id: string;
+  project_id: string;
+  analysis_id: string;
+  requirement_id: string;
+  domain_id: string | null;
+  domain_code: string | null;
+  architecture_id: string | null;
+  component_id: string | null;
+  decision_id: string | null;
+  evidence: string | null;
+  status:
+    | "covered"
+    | "partially_covered"
+    | "not_covered"
+    | "conflict"
+    | "optional";
+  created_at: string | null;
+  updated_at: string | null;
+};
+
+export type DomainAnalysis = {
+  id: string;
+  project_id: string;
+  rkm_id: string | null;
+  rkm_version_label: string | null;
+  status: string;
+  version_label: string;
+  summary: string;
+  reasoning_summary: string;
+  model: string | null;
+  prompt_version: string | null;
+  knowledge_pack_version: string | null;
+  domains: SolutionDomain[];
+  open_questions: DomainOpenQuestion[];
+  traceability: DomainTraceabilityRow[];
+  created_at: string;
+  updated_at: string;
+  payload?: Record<string, unknown>;
+};
+
 export type LoginData = {
   access_token: string;
   token_type: string;
