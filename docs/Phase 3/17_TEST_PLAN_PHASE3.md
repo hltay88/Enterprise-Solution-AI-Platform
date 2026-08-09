@@ -37,4 +37,4 @@ Maintain a fixed golden set and run it after prompt/model changes.
 
 ## Sprint verify scripts
 - Sprint 3.1: `python3 scripts/verify_sprint_3_1.py` (`--unit-only` / `--smoke-only`)
-- Sprint 3.2: `scripts/verify_sprint_3_2.py` (Task 14)
+- Sprint 3.2: `python3 scripts/verify_sprint_3_2.py` (`--unit-only` / `--smoke-only`)

@@ -24,7 +24,7 @@ Shipped surface: catalog/packs, normalized tables, AI identify, analyze service,
 
 Verify: `python3 scripts/verify_sprint_3_1.py` (backend up; rebuild Docker after backend changes).
 
-### Sprint 3.2 — Tasks 1–13 complete (Task 14 verify pending)
+### Sprint 3.2 — complete
 5. ~~Architecture pattern library~~
 6. ~~Candidate architecture generation~~ (normalized `/architectures` + singular aliases)
 7. ~~Capacity planning~~ (`capacity_notes` helper; no fabricate)
@@ -34,11 +34,13 @@ Verify: `python3 scripts/verify_sprint_3_1.py` (backend up; rebuild Docker after
 11. ~~Plural APIs + MVP aliases~~
 12. ~~Architecture candidates UI~~
 13. ~~Docs / backlog / changelog polish~~
-14. `scripts/verify_sprint_3_2.py` + regression — **next**
+14. ~~`scripts/verify_sprint_3_2.py` + regression~~
 
 Shipped surface: pattern catalog, `architecture_options` tree, generation service
 (Published RKM + domain gate), capacity/risks/scores/traceability, plural APIs,
 `ArchitecturePanel`. Approve remains Sprint 3.3.
+
+Verify: `python3 scripts/verify_sprint_3_2.py` (backend up; rebuild Docker after backend changes).
 
 ### Sprint 3.3
 10. Vendor catalogue

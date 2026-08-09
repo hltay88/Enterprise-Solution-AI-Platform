@@ -1,5 +1,18 @@
 # Phase 3 Changelog
 
+## 0.3.2-task14 (sprint verification)
+
+Sprint 3.2 Task 14: `scripts/verify_sprint_3_2.py` runs pytest + API smoke
+(publish RKM → domain gate fail → domains/analyze → `/architectures` generate/list/get
+→ risks/assumptions → architecture-stage traceability → singular alias + audit).
+
+## 0.3.2 (Sprint 3.2 — Architecture Engine)
+
+Shipped end-to-end: pattern catalog, normalized `architecture_options` tree,
+`ArchitectureGenerationService` (Published RKM + domain gate, capacity/risks/scoring/
+traceability), plural `/architectures` APIs (+ singular aliases), `ArchitecturePanel`,
+plus `scripts/verify_sprint_3_2.py` for unit + smoke regression.
+
 ## 0.3.2-task13 (docs polish)
 
 Sprint 3.2 Task 13: aligned Phase 3 docs with shipped architecture engine —
