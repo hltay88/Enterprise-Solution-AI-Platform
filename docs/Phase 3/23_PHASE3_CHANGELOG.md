@@ -1,5 +1,10 @@
 # Phase 3 Changelog
 
+## 0.3.1-task7 (domain identification service)
+
+Sprint 3.1 Task 7: `DomainIdentificationService` orchestrates Published RKM → packs → AI →
+validate → persist (`domain.analyze` audit). Traceability matrix deferred to Task 8. No HTTP yet.
+
 ## 0.3.1-task6 (AI domain identification)
 
 Sprint 3.1 Task 6: `identify_solution_domains` on AIProvider (local/gemini/openai/fallback),
