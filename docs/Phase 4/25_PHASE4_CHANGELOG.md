@@ -1,6 +1,10 @@
 # Phase 4 Changelog
 
-## 0.4.0 (in progress)
+## Atlas Foundation 0.4 (frozen 2026-08-10)
+
+Phase 4 exit criteria covered for deliverable generators, package assembly, and
+export stack (DOCX/PDF/PPTX/XLSX). Smoke fixes for validated-BOM snapshot
+selection and ATLAS-047 pricing-disclaimer false positives included.
 
 ### Sprint 4.0 — Design locks (2026-08-10)
 - Accepted ATLAS-042…048.
@@ -8,7 +12,7 @@
 ### Sprint 4.1 — Proposal foundation
 - Source snapshots, proposal generation/review/approve, DOCX export, deliverables API/UI.
 
-### Sprint 4.2 — Presentation Generator (implemented)
+### Sprint 4.2 — Presentation Generator
 Added:
 - Presentation template seed (14-slide storyline)
 - `AIProvider.generate_presentation_content` (+ local provider)
@@ -18,7 +22,7 @@ Added:
 - UI: Generate presentation + Export PPTX in Deliverables panel
 - `scripts/verify_sprint_4_2.py`
 
-### Sprint 4.3 — SOW + Solution Design + PDF (implemented)
+### Sprint 4.3 — SOW + Solution Design + PDF
 Added:
 - SOW + Solution Design templates, planners, generation services
 - `AIProvider.generate_sow_content` / `generate_solution_design_content`
@@ -28,7 +32,7 @@ Added:
 - `scripts/verify_sprint_4_3.py`
 - ATLAS-049 PDF conversion path
 
-### Sprint 4.4 — Package + BOM (implemented)
+### Sprint 4.4 — Package + BOM
 Added:
 - Deterministic BOM deliverable (`document_type=bom`) + XLSX via openpyxl
 - `document_packages` / members; assemble hard gate (validated BOM + 4 approved docs)
@@ -36,6 +40,3 @@ Added:
 - UI: Generate BOM, Package panel
 - `scripts/verify_sprint_4_4.py`
 - ATLAS-050 package gate + ZIP final export
-
-## Atlas Foundation 0.4
-Phase 4 exit criteria covered for implemented deliverable generators, package assembly, and export stack (DOCX/PDF/PPTX/XLSX).
