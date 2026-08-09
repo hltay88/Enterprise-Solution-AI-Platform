@@ -1,5 +1,12 @@
 # Phase 3 Changelog
 
+## 0.3.2-task3 (architecture candidate schemas)
+
+Sprint 3.2 Task 3: Pydantic AI + API contracts in
+`backend/app/schemas/architecture_option.py` (multi-candidate extraction,
+catalog-bound patterns, capacity no-fabricate, score dimensions). No generate
+service/API yet. MVP `schemas/architecture.py` unchanged.
+
 ## 0.3.2-task2 (normalized architecture schema)
 
 Sprint 3.2 Task 2: `architecture_options` + components/relationships/decisions,
