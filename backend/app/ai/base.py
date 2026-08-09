@@ -38,6 +38,16 @@ class AIProvider(ABC):
         """Return vendor-neutral architecture recommendation from a Published RKM."""
 
     @abstractmethod
+    async def recommend_architectures(
+        self,
+        published_rkm: dict[str, Any],
+        *,
+        domain_context: str = "",
+        pattern_context: str = "",
+    ) -> dict[str, Any]:
+        """Return one or more architecture candidates from Published RKM + domains."""
+
+    @abstractmethod
     async def identify_solution_domains(
         self,
         published_rkm: dict[str, Any],

@@ -22,6 +22,7 @@ from app.ai.common import (
     clarification_user_prompt,
     extract_questions,
     normalize_architecture,
+    normalize_architecture_candidates,
     normalize_domain_identification,
     normalize_rkm_extraction,
 )
@@ -248,6 +249,62 @@ class OpenAIProvider(AIProvider):
             ) from exc
 
         result = normalize_architecture(payload)
+        result["provider"] = "openai"
+        result["model"] = self.model
+        return result
+
+    async def recommend_architectures(
+        self,
+        published_rkm: dict[str, Any],
+        *,
+        domain_context: str = "",
+        pattern_context: str = "",
+    ) -> dict[str, Any]:
+        system_prompt = _load_prompt("architecture_candidates.txt")
+        user_content = (
+            "Propose 1–3 vendor-neutral architecture candidates from this "
+            "Published Requirement Knowledge Model JSON. Use only pattern codes "
+            "from the pattern context and respect domain analysis context.\n\n"
+            + json.dumps(published_rkm, ensure_ascii=True)[:120000]
+        )
+        domains = domain_context.strip()
+        patterns = pattern_context.strip()
+        if domains:
+            user_content += "\n\nDomain analysis context:\n" + domains[:8000]
+        if patterns:
+            user_content += (
+                "\n\nPhase 3 pattern catalog / pack context:\n" + patterns[:8000]
+            )
+        try:
+            response = await self.client.chat.completions.create(
+                model=self.model,
+                temperature=0.2,
+                response_format={"type": "json_object"},
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_content},
+                ],
+            )
+        except Exception as exc:
+            _raise_provider_error("recommend architecture candidates", exc)
+
+        content = response.choices[0].message.content
+        if not content:
+            raise AppError(
+                "INTERNAL_ERROR",
+                "AI provider returned an empty architecture candidates response",
+                status_code=502,
+            )
+        try:
+            payload = json.loads(content)
+        except json.JSONDecodeError as exc:
+            raise AppError(
+                "INTERNAL_ERROR",
+                "AI provider returned invalid JSON for architecture candidates",
+                status_code=502,
+            ) from exc
+
+        result = normalize_architecture_candidates(payload)
         result["provider"] = "openai"
         result["model"] = self.model
         return result

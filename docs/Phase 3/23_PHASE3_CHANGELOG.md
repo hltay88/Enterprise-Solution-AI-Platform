@@ -1,5 +1,12 @@
 # Phase 3 Changelog
 
+## 0.3.2-task5 (architecture candidates AI)
+
+Sprint 3.2 Task 5: `recommend_architectures` on AI providers, prompt
+`architecture_candidates.txt`, `normalize_architecture_candidates`, and local
+multi-candidate heuristics. MVP singular `recommend_architecture` unchanged.
+No generate service/HTTP yet.
+
 ## 0.3.2-task4 (architecture option repository)
 
 Sprint 3.2 Task 4: `ArchitectureOptionRepository` with `create_generation_tree`,

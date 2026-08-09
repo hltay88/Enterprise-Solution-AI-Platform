@@ -109,6 +109,25 @@ class LocalAIProvider(AIProvider):
     ) -> dict[str, Any]:
         return _local_architecture(published_rkm, knowledge_pack_context=knowledge_pack_context)
 
+    async def recommend_architectures(
+        self,
+        published_rkm: dict[str, Any],
+        *,
+        domain_context: str = "",
+        pattern_context: str = "",
+    ) -> dict[str, Any]:
+        from app.ai.common import normalize_architecture_candidates
+
+        raw = _local_architecture_candidates(
+            published_rkm,
+            domain_context=domain_context,
+            pattern_context=pattern_context,
+        )
+        result = normalize_architecture_candidates(raw)
+        result["provider"] = "local"
+        result["model"] = "local-architecture-candidates"
+        return result
+
     async def identify_solution_domains(
         self,
         published_rkm: dict[str, Any],
@@ -540,6 +559,392 @@ def _local_architecture(
         ),
         "provider": "local",
         "model": "local-architecture-heuristics",
+    }
+
+
+def _local_architecture_candidates(
+    published_rkm: dict[str, Any],
+    *,
+    domain_context: str = "",
+    pattern_context: str = "",
+) -> dict[str, Any]:
+    """Multi-candidate architecture heuristic (Sprint 3.2 Task 5)."""
+    from app.schemas.architecture_option import DEFAULT_SCORE_WEIGHTS
+    from app.services.phase3_knowledge_packs import detect_phase3_domains
+    from app.services.phase3_pattern_catalog import patterns_for_domains
+
+    requirements = _rkm_requirement_refs(published_rkm)
+    req_ids = [req["id"] for req in requirements[:6]]
+    blob = " ".join(
+        part
+        for req in requirements
+        for part in (req["id"], req["title"], req["description"])
+    )
+    blob = f"{blob} {domain_context} {pattern_context}".strip()
+    haystack = blob.lower()
+
+    domain_codes = detect_phase3_domains(blob)
+    pattern_entries = patterns_for_domains(domain_codes) if domain_codes else []
+    pattern_codes = [item.code for item in pattern_entries[:4]]
+
+    wants_wifi = any(
+        token in haystack for token in ("wifi", "wi-fi", "wlan", "wireless", "access point")
+    ) or "wifi" in domain_codes
+    wants_campus = any(
+        token in haystack for token in ("campus", "switching", "lan", "idf")
+    ) or "campus_lan" in domain_codes
+    wants_security = any(
+        token in haystack for token in ("802.1x", "nac", "firewall", "zero trust", "security")
+    ) or bool({"identity", "cybersecurity", "security_edge"} & set(domain_codes))
+    wants_ha = any(
+        token in haystack for token in ("high availability", "ha ", "redundant", "resilien")
+    )
+
+    if wants_wifi and "wireless_enterprise" not in pattern_codes:
+        pattern_codes.insert(0, "wireless_enterprise")
+    if wants_campus and "two_tier_campus" not in pattern_codes:
+        pattern_codes.append("two_tier_campus")
+    if wants_security and "zero_trust" not in pattern_codes and "secure_internet_edge" not in pattern_codes:
+        pattern_codes.append("zero_trust")
+    if not pattern_codes:
+        pattern_codes = ["two_tier_campus"]
+
+    # Deduplicate while preserving order.
+    seen_patterns: set[str] = set()
+    ordered_patterns: list[str] = []
+    for code in pattern_codes:
+        if code not in seen_patterns:
+            seen_patterns.add(code)
+            ordered_patterns.append(code)
+    pattern_codes = ordered_patterns[:4]
+
+    maps = req_ids or ["published-rkm"]
+
+    def _component(
+        name: str,
+        purpose: str,
+        temp_id: str,
+        *,
+        kind: str = "logical",
+    ) -> dict[str, Any]:
+        return {
+            "name": name,
+            "purpose": purpose,
+            "component_kind": kind,
+            "maps_to_requirements": maps[:3],
+            "temp_id": temp_id,
+        }
+
+    standard_components = [
+        _component(
+            "Access underlay",
+            "Wired access for endpoints and wireless APs",
+            "c_access",
+            kind="physical",
+        ),
+        _component(
+            "Aggregation / services",
+            "Campus aggregation and shared services attachment",
+            "c_agg",
+        ),
+        _component(
+            "Identity & policy",
+            "Authentication and access policy enforcement",
+            "c_id",
+            kind="technology",
+        ),
+    ]
+    if wants_wifi:
+        standard_components.insert(
+            1,
+            _component(
+                "Enterprise WLAN",
+                "Vendor-neutral Wi-Fi 6/6E coverage and RF management",
+                "c_wlan",
+                kind="technology",
+            ),
+        )
+
+    relationships = [
+        {
+            "from_component": "c_access",
+            "to_component": "c_agg",
+            "relationship_kind": "connects_to",
+            "description": "Access uplinks to aggregation",
+        },
+        {
+            "from_component": "c_id",
+            "to_component": "c_access",
+            "relationship_kind": "depends_on",
+            "description": "Policy applies at access edge",
+        },
+    ]
+    if wants_wifi:
+        relationships.append(
+            {
+                "from_component": "c_wlan",
+                "to_component": "c_access",
+                "relationship_kind": "depends_on",
+                "description": "APs require wired underlay",
+            },
+        )
+
+    score_dims = [
+        ("requirement_coverage", 4.0, "Aligned to published functional outcomes"),
+        ("technical_fit", 3.5, "Uses catalog patterns matching detected domains"),
+        ("security", 3.0 if wants_security else 2.5, "Identity/policy plane included"),
+        (
+            "availability_resilience",
+            2.5,
+            "Standard candidate; HA deferred to alternate option",
+        ),
+    ]
+    scores = [
+        {
+            "dimension": dim,
+            "weight": DEFAULT_SCORE_WEIGHTS[dim],
+            "score": score,
+            "explanation": explanation,
+        }
+        for dim, score, explanation in score_dims
+    ]
+
+    capacity_notes: list[dict[str, Any]] = []
+    if wants_wifi:
+        capacity_notes.append(
+            {
+                "label": "AP count",
+                "confidence": 0.2,
+                "related_requirement_ids": maps[:2],
+                "open_question": (
+                    "What floor plans, wall materials, and concurrent client density "
+                    "should drive AP count?"
+                ),
+            },
+        )
+    else:
+        capacity_notes.append(
+            {
+                "label": "Access port density",
+                "confidence": 0.2,
+                "related_requirement_ids": maps[:2],
+                "open_question": (
+                    "How many wired ports / IDFs and what uplink capacity are required?"
+                ),
+            },
+        )
+
+    domain_label = ", ".join(domain_codes) if domain_codes else "enterprise infrastructure"
+    standard = {
+        "candidate_key": "standard",
+        "title": f"Standard {domain_label} architecture",
+        "summary": (
+            "Vendor-neutral layered architecture derived from the Published RKM "
+            "and latest domain signals."
+        ),
+        "reasoning_summary": (
+            "Local heuristics selected catalog patterns from RKM + domain/pattern context."
+        ),
+        "pattern_codes": pattern_codes,
+        "confidence": 0.72 if domain_codes else 0.45,
+        "high_level_architecture": [
+            f"Deliver layered design for {domain_label}.",
+            "Keep product selection out of scope (ATLAS-035).",
+        ],
+        "logical_architecture": [
+            "Access, aggregation/services, and identity/policy planes",
+            "Centralized management/observability attachment point",
+        ],
+        "physical_architecture": [
+            "Per-floor or per-IDF access as site scope requires",
+            "Uplinks sized after capacity inputs are confirmed",
+        ],
+        "technology_stack": [
+            {
+                "layer": "Access",
+                "category": (
+                    "Enterprise Wi-Fi 6/6E WLAN" if wants_wifi else "Multi-gig access switching"
+                ),
+                "rationale": "Matches published access requirements without OEM lock-in.",
+            },
+            {
+                "layer": "Security",
+                "category": "802.1X / NAC with directory integration",
+                "rationale": "Supports authenticated access and segmentation.",
+            },
+        ],
+        "components": standard_components,
+        "relationships": relationships,
+        "decisions": [
+            {
+                "decision": "Remain vendor-neutral for candidate architectures",
+                "rationale": "ATLAS-035 defers SKUs to later vendor/BOM work",
+                "impact": "Technology categories and patterns only",
+            },
+            {
+                "decision": f"Anchor design on patterns: {', '.join(pattern_codes)}",
+                "rationale": "Pattern catalog intersected with domain signals",
+                "impact": "Guides component placement and scoring",
+            },
+        ],
+        "assumptions": [
+            {
+                "statement": "Published RKM plus domain context is sufficient for high-level candidates",
+                "reason": "Architecture generate consumes Published RKM only",
+                "affected_components": ["c_access", "c_agg"],
+                "validation_required": True,
+                "status": "unvalidated",
+            },
+        ],
+        "risks": [
+            {
+                "description": (
+                    str(
+                        next(
+                            (
+                                item.get("title") or item.get("description")
+                                for item in (published_rkm.get("risks") or [])
+                                if isinstance(item, dict)
+                                and (item.get("title") or item.get("description"))
+                            ),
+                            "Incomplete site inputs may change access density and topology",
+                        ),
+                    )
+                ),
+                "category": "capacity",
+                "probability": "medium",
+                "severity": "medium",
+                "mitigation": "Capture survey / floor-plan inputs before BOM",
+                "related_requirement_ids": maps[:2],
+            },
+        ],
+        "scores": scores,
+        "capacity_notes": capacity_notes,
+        "advantages": [
+            "Simple to review against Published RKM",
+            "Uses frozen Phase 3 pattern codes",
+        ],
+        "disadvantages": [
+            "Limited HA / redundancy compared with alternate candidate",
+        ],
+    }
+
+    architectures = [standard]
+    if wants_ha or wants_wifi or wants_campus:
+        ha_components = [
+            *standard_components,
+            _component(
+                "Redundant control / services path",
+                "Secondary path for controller/services and critical uplinks",
+                "c_ha",
+                kind="physical",
+            ),
+        ]
+        ha_scores = [
+            {
+                "dimension": dim,
+                "weight": DEFAULT_SCORE_WEIGHTS[dim],
+                "score": (
+                    4.0
+                    if dim == "availability_resilience"
+                    else 3.5
+                    if dim == "requirement_coverage"
+                    else 3.0
+                ),
+                "explanation": (
+                    "Adds redundancy for critical control/services"
+                    if dim == "availability_resilience"
+                    else "Same functional coverage with higher resilience cost"
+                ),
+            }
+            for dim, _, _ in score_dims
+        ]
+        architectures.append(
+            {
+                "candidate_key": "high_availability",
+                "title": f"HA {domain_label} architecture",
+                "summary": (
+                    "Same pattern base as standard with redundant control/services "
+                    "and dual uplinks where HA is indicated."
+                ),
+                "reasoning_summary": (
+                    "Local heuristics added an HA variant when resilience signals "
+                    "or campus/wireless scope suggest review of redundancy."
+                ),
+                "pattern_codes": pattern_codes,
+                "confidence": 0.68 if domain_codes else 0.4,
+                "high_level_architecture": [
+                    "Retain layered design with redundant critical paths.",
+                    "Prefer dual uplinks and resilient identity/policy attachment.",
+                ],
+                "logical_architecture": standard["logical_architecture"],
+                "physical_architecture": [
+                    "Dual uplinks from access to aggregation where HA is required",
+                    "Redundant controller/services placement pending site topology",
+                ],
+                "technology_stack": standard["technology_stack"],
+                "components": ha_components,
+                "relationships": [
+                    *relationships,
+                    {
+                        "from_component": "c_ha",
+                        "to_component": "c_agg",
+                        "relationship_kind": "connects_to",
+                        "description": "Secondary services path",
+                    },
+                ],
+                "decisions": [
+                    {
+                        "decision": "Offer HA candidate separately from standard",
+                        "rationale": "Lets reviewers compare resilience vs complexity",
+                        "impact": "Scoring favors availability_resilience",
+                    },
+                    {
+                        "decision": "Remain vendor-neutral",
+                        "rationale": "ATLAS-035",
+                        "impact": "No OEM SKUs",
+                    },
+                ],
+                "assumptions": [
+                    {
+                        "statement": "Customer will accept higher complexity for HA",
+                        "reason": "Resilience language present or campus wireless scope",
+                        "affected_components": ["c_ha", "c_agg"],
+                        "validation_required": True,
+                        "status": "unvalidated",
+                    },
+                ],
+                "risks": [
+                    {
+                        "description": "HA design may over-build if resilience targets are soft",
+                        "category": "commercial",
+                        "probability": "medium",
+                        "severity": "low",
+                        "mitigation": "Confirm RTO/RPO and dual-path requirements",
+                        "related_requirement_ids": maps[:2],
+                    },
+                ],
+                "scores": ha_scores,
+                "capacity_notes": capacity_notes,
+                "advantages": ["Better resilience for critical access services"],
+                "disadvantages": ["Higher complexity and operational cost"],
+            },
+        )
+
+    return {
+        "summary": (
+            f"Local architecture candidates for {domain_label} "
+            f"using patterns {', '.join(pattern_codes)}."
+        ),
+        "reasoning_summary": (
+            "Generated with local multi-candidate heuristics from Published RKM, "
+            "domain context, and Phase 3 pattern catalog."
+            + (" Domain context supplied." if domain_context.strip() else "")
+            + (" Pattern context supplied." if pattern_context.strip() else "")
+        ),
+        "architectures": architectures,
+        "provider": "local",
+        "model": "local-architecture-candidates",
     }
 
 

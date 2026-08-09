@@ -242,3 +242,20 @@ def normalize_domain_identification(payload: dict[str, Any]) -> dict[str, Any]:
             status_code=502,
         ) from exc
     return model.model_dump(mode="json")
+
+
+def normalize_architecture_candidates(payload: dict[str, Any]) -> dict[str, Any]:
+    """Validate and normalize multi-candidate architecture JSON via Phase 3 schemas."""
+    from pydantic import ValidationError
+
+    from app.schemas.architecture_option import validate_architecture_ai_extraction
+
+    try:
+        model = validate_architecture_ai_extraction(payload)
+    except (ValidationError, ValueError) as exc:
+        raise AppError(
+            "INTERNAL_ERROR",
+            f"AI provider returned invalid architecture candidates payload: {exc}",
+            status_code=502,
+        ) from exc
+    return model.model_dump(mode="json")

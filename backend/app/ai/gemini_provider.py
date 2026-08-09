@@ -18,6 +18,7 @@ from app.ai.common import (
     load_prompt,
     normalize_analysis,
     normalize_architecture,
+    normalize_architecture_candidates,
     normalize_domain_identification,
     normalize_rkm_extraction,
     parse_json_object,
@@ -169,6 +170,42 @@ class GeminiProvider(AIProvider):
             invalid_message="AI provider returned invalid JSON for architecture",
         )
         result = normalize_architecture(payload)
+        result["provider"] = "gemini"
+        result["model"] = self.model
+        return result
+
+    async def recommend_architectures(
+        self,
+        published_rkm: dict[str, Any],
+        *,
+        domain_context: str = "",
+        pattern_context: str = "",
+    ) -> dict[str, Any]:
+        system_prompt = load_prompt("architecture_candidates.txt")
+        user_prompt = (
+            "Propose 1–3 vendor-neutral architecture candidates from this "
+            "Published Requirement Knowledge Model JSON. Use only pattern codes "
+            "from the pattern context and respect domain analysis context.\n\n"
+            + json.dumps(published_rkm, ensure_ascii=True)[:120000]
+        )
+        domains = domain_context.strip()
+        patterns = pattern_context.strip()
+        if domains:
+            user_prompt += "\n\nDomain analysis context:\n" + domains[:8000]
+        if patterns:
+            user_prompt += "\n\nPhase 3 pattern catalog / pack context:\n" + patterns[:8000]
+        response = await self._generate(
+            action="recommend architecture candidates",
+            system_prompt=system_prompt,
+            user_prompt=user_prompt,
+            temperature=0.2,
+        )
+        payload = parse_json_object(
+            response.text or "",
+            empty_message="AI provider returned an empty architecture candidates response",
+            invalid_message="AI provider returned invalid JSON for architecture candidates",
+        )
+        result = normalize_architecture_candidates(payload)
         result["provider"] = "gemini"
         result["model"] = self.model
         return result
