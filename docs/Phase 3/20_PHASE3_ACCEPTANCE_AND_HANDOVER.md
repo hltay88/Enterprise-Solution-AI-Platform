@@ -58,9 +58,9 @@ Document Generation Platform:
 After Sprint 3.3 acceptance (`verify_sprint_3_3.py` green), freeze Phase 3 baseline
 as Atlas Foundation 0.3. Future changes go through a new controlled revision.
 
-## Out of scope (remain Phase 4+)
+## Out of scope (remain Phase 4+ / later)
 
-- Architecture comparison UI (P2 backlog)
-- Advanced vendor analytics
+- Advanced vendor analytics (Phase 3 P2 remaining)
+- Full capacity calculator UI (notes on candidate are live)
 - Final commercial quotation / PO
 - Automatic vendor negotiation

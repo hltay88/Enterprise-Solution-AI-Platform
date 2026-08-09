@@ -626,6 +626,56 @@ body {
   margin: 0.35rem 0 0;
 }
 
+.architecture-compare-pick {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  cursor: pointer;
+}
+
+.architecture-compare-pick input {
+  margin-top: 0.25rem;
+}
+
+.architecture-compare-scroll {
+  overflow-x: auto;
+}
+
+.architecture-compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+  min-width: 36rem;
+}
+
+.architecture-compare-table th,
+.architecture-compare-table td {
+  border: 1px solid var(--color-line);
+  padding: 0.65rem 0.75rem;
+  vertical-align: top;
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.architecture-compare-table thead th {
+  background: rgba(255, 255, 255, 0.85);
+}
+
+.architecture-compare-table tbody th {
+  text-align: left;
+  font-weight: 600;
+  width: 11rem;
+  background: rgba(255, 255, 255, 0.75);
+}
+
+.architecture-compare-bullets {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+.architecture-compare-bullets li {
+  margin: 0.2rem 0;
+}
+
 .rkm-evidence {
   display: flex;
   flex-wrap: wrap;

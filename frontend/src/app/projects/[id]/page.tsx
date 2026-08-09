@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { AnalysisPanel } from "@/components/AnalysisPanel";
+import { ArchitectureComparePanel } from "@/components/ArchitectureComparePanel";
 import { ArchitecturePanel } from "@/components/ArchitecturePanel";
 import { BomValidationPanel } from "@/components/BomValidationPanel";
 import { AppHeader } from "@/components/AppHeader";
@@ -148,6 +149,10 @@ function ProjectDetailContent({ userName }: { userName: string }) {
               refreshToken={rkmRefreshToken}
             />
             <ArchitecturePanel
+              projectId={projectId}
+              refreshToken={rkmRefreshToken}
+            />
+            <ArchitectureComparePanel
               projectId={projectId}
               refreshToken={rkmRefreshToken}
             />

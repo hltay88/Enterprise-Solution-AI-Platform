@@ -36,11 +36,16 @@ On the project page, after RKM governance and **before** Architecture:
 - **BOM import & validation** (`BomValidationPanel`) — seed catalogue, import pipe-delimited
   evidence lines, validate, inspect human-flagged issues (ATLAS-039).
 
+## Implemented (post–3.3 P2)
+
+- **Architecture comparison** (`ArchitectureComparePanel`) — select up to 3 candidates from
+  the latest generation; compare scores, counts, advantages/disadvantages side-by-side.
+
 ## Main screens
 - Solution Overview
 - Domain Map — **partial (3.1 panel on project page)**
 - Architecture Designer — **candidates + map/review/approve (3.3)**
-- Architecture Comparison
+- Architecture Comparison — **live (`ArchitectureComparePanel`)**
 - Requirement Traceability — **partial (domain stage in Domain panel; arch links via API)**
 - Capacity Calculator — **partial (capacity notes on candidate)**
 - Risks & Assumptions — **partial (on candidate + `/risks` `/assumptions` APIs)**

@@ -6,7 +6,8 @@
 **Sprint 3.0 locks:** [21_PHASE3_DECISIONS.md](./21_PHASE3_DECISIONS.md) (ATLAS-031…034) — complete.  
 **Sprint 3.1:** Solution Domain Identification — implemented (catalog → analyze API → UI).  
 **Sprint 3.2:** Architecture engine — complete (Tasks 1–14).  
-**Sprint 3.3:** Vendor / BOM / approve — **complete** (Tasks 1–13).
+**Sprint 3.3:** Vendor / BOM / approve — **complete** (Tasks 1–13).  
+**Post–3.3 P2:** Architecture comparison UI — **live**; advanced vendor analytics still open.
 
 ## Read order
 

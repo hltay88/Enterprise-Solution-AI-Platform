@@ -1,5 +1,11 @@
 # Phase 3 Changelog
 
+## 0.3.3-p2-compare (architecture comparison UI)
+
+Post–Sprint 3.3 P2: `ArchitectureComparePanel` on the project page — select up to
+three candidates from the latest generation and compare scores, coverage signals,
+and trade-offs side-by-side (uses existing `/architectures` APIs).
+
 ## 0.3.3-task13 (acceptance verify script)
 
 Sprint 3.3 Task 13: `scripts/verify_sprint_3_3.py` — pytest + API smoke for

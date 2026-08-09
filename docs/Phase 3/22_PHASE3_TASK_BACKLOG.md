@@ -21,7 +21,7 @@
 - [x] BOM validation — Sprint 3.3 Task 8 (`bom_validation_results`; human flags)
 - [x] Sprint 3.3 docs polish — Task 12
 - [x] Sprint 3.3 acceptance verify — Task 13 (`scripts/verify_sprint_3_3.py`)
-- [ ] Architecture comparison UI
+- [x] Architecture comparison UI — `ArchitectureComparePanel` (side-by-side candidates)
 - [ ] Advanced vendor analytics
 
 ## Definition of Done
