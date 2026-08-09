@@ -28,3 +28,9 @@ Weights may be changed per project but must be recorded.
 Scores are decision support, not automatic approval.
 
 Every score must have an explanation.
+
+## Implementation status
+
+**Sprint 3.2 Task 9 (live):** `architecture_scoring.py` applies these default
+weights, requires explanations, and stores `overall_score` on candidates.
+Decision support only — not automatic approval.

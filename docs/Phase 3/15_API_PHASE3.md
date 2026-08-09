@@ -5,7 +5,7 @@ Base: `/api/v1`
 
 ## Implemented
 
-### Architecture candidates (Sprint 3.2 Task 11 — ATLAS-031 / ATLAS-034)
+### Architecture candidates (Sprint 3.2 — ATLAS-031 / ATLAS-034) — **Live**
 
 - `POST /projects/{project_id}/architectures/generate` (Editor+; Published RKM + latest domains)
 - `GET /projects/{project_id}/architectures`

@@ -52,11 +52,13 @@ Repository: `backend/app/repositories/architecture_option_repository.py`
   `architecture_options` / `architecture_components` / `design_decisions` (ON DELETE SET NULL).
 - `domain_analyses.knowledge_pack_version` and `architecture_options.knowledge_pack_version`
   store `knowledge/phase3/VERSION` for auditability.
-- `architecture_models` remains as transitional MVP store until generate cutover (ATLAS-034).
+- System of record for candidates is `architecture_options` (+ children). Do not expand
+  `architecture_models.payload_json` as the long-term model (ATLAS-034).
 
 ## Transitional MVP
 
-- `architecture_models` — thin generate/get store (`payload_json`). Kept until Sprint 3.2 refactor (ATLAS-034). New 3.1 tables must not depend on expanding this JSON as the system of record.
+- `architecture_models` — legacy thin generate/get store (`payload_json`). Retained for
+  compatibility; Sprint 3.2 generate/list/detail use normalized tables. Do not grow the blob.
 
 ## Rules
 

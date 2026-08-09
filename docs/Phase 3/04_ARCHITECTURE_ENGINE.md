@@ -40,3 +40,10 @@ Where meaningful, generate alternatives such as:
 
 ## Human control
 AI recommendations remain Draft until reviewed.
+
+## Implementation status
+
+**Sprint 3.2 (live):** `ArchitectureGenerationService` + plural `/architectures` APIs
+persist candidates on normalized tables with capacity notes, risks/assumptions,
+scores, and architecture-stage traceability. UI: `ArchitecturePanel` (reviewable
+candidates; no approve). Singular `/architecture` routes are deprecated aliases.

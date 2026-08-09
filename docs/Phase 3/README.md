@@ -4,7 +4,8 @@
 **Codename:** Solution Recommendation Engine (Atlas Foundation 0.3)  
 **Input rule (ATLAS-023):** Consume only **Published** RKMs — never raw customer documents.  
 **Sprint 3.0 locks:** [21_PHASE3_DECISIONS.md](./21_PHASE3_DECISIONS.md) (ATLAS-031…034) — complete.  
-**Sprint 3.1:** Solution Domain Identification — implemented (catalog → analyze API → UI).
+**Sprint 3.1:** Solution Domain Identification — implemented (catalog → analyze API → UI).  
+**Sprint 3.2:** Architecture engine — Tasks 1–13 shipped; Task 14 verify script next.
 
 ## Read order
 
@@ -55,13 +56,13 @@ Handover context from Phase 2: [../Phase 2/PHASE3_HANDOVER.md](../Phase%202/PHAS
 - API: `POST/GET …/domains…`, `GET …/traceability` (see [15_API_PHASE3.md](./15_API_PHASE3.md))
 - UI: `SolutionDomainPanel` on the project page (before Architecture)
 
-**Shipped — Sprint 3.2 architecture engine (Tasks 1–12, in progress through 14):**
+**Shipped — Sprint 3.2 architecture engine (Tasks 1–13; Task 14 verify pending):**
 - Pattern catalog, normalized `architecture_options` (+ components/risks/scores/capacity)
 - `ArchitectureGenerationService` (Published RKM + domain gate, capacity/risks/scoring/traceability)
 - API: `POST/GET …/architectures…`, `GET …/risks`, `GET …/assumptions` (+ singular MVP aliases)
 - UI: `ArchitecturePanel` candidate picker/detail (no approve yet)
 
-**Not yet built:** Sprint 3.2 verify script + docs polish (Tasks 13–14); Sprint 3.3 vendor/BOM/
+**Not yet built:** Sprint 3.2 verify script (Task 14); Sprint 3.3 vendor/BOM/
 architecture review-approve (see [15_API_PHASE3.md](./15_API_PHASE3.md),
 [22_PHASE3_TASK_BACKLOG.md](./22_PHASE3_TASK_BACKLOG.md)).
 
@@ -69,3 +70,4 @@ API namespace remains `/api/v1/projects/{id}/…` — no `/solutions/` surface (
 
 **Verify Sprint 3.1:** with Atlas running, `python3 scripts/verify_sprint_3_1.py`
 (`--unit-only` / `--smoke-only` supported). Rebuild Docker backend after code changes.
+Sprint 3.2 verify: Task 14 (`scripts/verify_sprint_3_2.py`).

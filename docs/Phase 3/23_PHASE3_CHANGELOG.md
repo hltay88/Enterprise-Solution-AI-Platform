@@ -1,5 +1,12 @@
 # Phase 3 Changelog
 
+## 0.3.2-task13 (docs polish)
+
+Sprint 3.2 Task 13: aligned Phase 3 docs with shipped architecture engine —
+backlog P0/P1 architecture items checked, implementation guide/README/API/DB/ADRs
+updated for plural `/architectures` + normalized tables. Approve gate stays 3.3.
+No `/solutions/` API surface (ATLAS-031). Task 14 verify script remains.
+
 ## 0.3.2-task12 (architecture candidates UI)
 
 Sprint 3.2 Task 12: `ArchitecturePanel` uses plural `/architectures` APIs to

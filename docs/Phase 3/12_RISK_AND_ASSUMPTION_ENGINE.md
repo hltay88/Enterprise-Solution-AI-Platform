@@ -36,3 +36,9 @@ Identify risks and assumptions introduced during solution design.
 
 ## Rule
 An assumption must never silently become a requirement.
+
+## Implementation status
+
+**Sprint 3.2 Task 8 (live):** `architecture_risks.py` normalizes and merges
+risks/assumptions on generate; exposed on candidate detail and
+`GET …/risks` / `GET …/assumptions`.

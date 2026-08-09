@@ -21,13 +21,14 @@ Sprint **3.0** (2026-08-09) locked the integration choices below before Sprint 3
 | Area | Prefix |
 |------|--------|
 | Domains | `/projects/{id}/domains` |
-| Architectures | `/projects/{id}/architectures` (MVP today: `/architecture`) |
+| Architectures | `/projects/{id}/architectures` (canonical; singular `/architecture` aliases through 3.2) |
 | Traceability | `/projects/{id}/traceability` |
 | Risks / assumptions | `/projects/{id}/risks`, `/projects/{id}/assumptions` |
 | BOM | `/projects/{id}/bom` |
 | Vendor catalogue | `/vendors/catalogue` (global, not project-scoped) |
 
-**MVP note:** Existing `GET/POST …/architecture` and `…/architecture/generate` remain until Sprint 3.2 migrates to plural `/architectures` (see ATLAS-034).
+**Sprint 3.2 note:** Plural `/architectures` is live. Singular `GET/POST …/architecture`
+and `…/architecture/generate` remain as **deprecated aliases** through 3.2 (ATLAS-034).
 
 ---
 
@@ -40,7 +41,7 @@ Sprint **3.0** (2026-08-09) locked the integration choices below before Sprint 3
 
 1. Use the existing `projects` table as the solution project. Do **not** create `solution_projects`.
 2. Persist Phase 3 domain objects in **normalized tables** (domains, architecture options/components, traceability, risks, assumptions, vendor/BOM entities as each sprint lands).
-3. Treat `architecture_models.payload_json` as a **transitional MVP store**. Do not grow it as the long-term model. Sprint 3.2 refactors architecture generation onto normalized tables (ATLAS-034).
+3. Treat `architecture_models.payload_json` as a **transitional MVP store**. Do not grow it as the long-term model. Sprint 3.2 system of record is normalized `architecture_options` (+ children) (ATLAS-034).
 
 **Rules unchanged:** Published RKM immutable; architecture versions pin `rkm_id` + `rkm_version_label`; catalogue/BOM rows keep source + timestamp.
 
@@ -68,14 +69,15 @@ Sprint **3.0** (2026-08-09) locked the integration choices below before Sprint 3
 
 ## ATLAS-034 — Thin architecture MVP retained until Sprint 3.2
 
-**Status:** Accepted (Sprint 3.0)  
+**Status:** Accepted (Sprint 3.0); **implemented in Sprint 3.2**  
 **Date:** 2026-08-09  
 
-**Decision:** Keep the shipped Published-RKM architecture generate/get MVP for demos and ATLAS-023 enforcement.
+**Decision:** Keep the shipped Published-RKM architecture generate/get MVP for demos and ATLAS-023 enforcement until 3.2 refactor.
 
-- Sprint **3.1** adds domains + traceability **alongside** the MVP; do not rewrite the MVP in 3.1.
-- Sprint **3.2** refactors candidate architecture generation onto normalized tables and migrates clients to `/architectures`.
-- Until that migration, new domain/traceability code must still consume **Published RKM only** and must not read customer documents.
+- Sprint **3.1** added domains + traceability **alongside** the MVP.
+- Sprint **3.2** refactored candidate generation onto normalized tables and migrated
+  clients to `/architectures`; singular routes remain deprecated aliases through 3.2.
+- Domain/architecture code consumes **Published RKM only** and must not read customer documents.
 
 ---
 

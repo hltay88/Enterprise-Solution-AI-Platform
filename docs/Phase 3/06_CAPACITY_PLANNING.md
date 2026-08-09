@@ -42,3 +42,8 @@ Required AP quantity may depend on:
 - RF design
 
 A simple coverage estimate must be labelled as preliminary.
+
+## Implementation status
+
+**Sprint 3.2 Task 7 (live):** `architecture_capacity.py` writes `capacity_notes`
+during generate; fabricated sizing becomes open questions. Full calculator UI later.
