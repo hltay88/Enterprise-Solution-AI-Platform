@@ -1,5 +1,10 @@
 # Phase 3 Changelog
 
+## 0.3.1-task10 (domain confidence)
+
+Sprint 3.1 Task 10: `domain_confidence.py` normalizes confidence to 0–1 and applies
+penalties for thin evidence and selection-affecting open questions.
+
 ## 0.3.1-task9 (dependencies & open questions)
 
 Sprint 3.1 Task 9: `domain_enrichment.py` validates catalog dependencies, flags missing

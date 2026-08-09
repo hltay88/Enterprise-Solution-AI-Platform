@@ -30,6 +30,7 @@ from app.schemas.domain import (
     validate_domain_ai_extraction,
 )
 from app.services.audit_service import AuditService
+from app.services.domain_confidence import apply_confidence_to_extraction
 from app.services.domain_enrichment import (
     enrich_domains_and_questions,
     preprocess_domain_extraction,
@@ -147,6 +148,7 @@ class DomainIdentificationService:
             traceability=draft_traceability,
             rkm_text=_rkm_text_blob(rkm_payload),
         )
+        validated = apply_confidence_to_extraction(validated)
         # Rebuild coverage after dependency sanitization / domain refinements.
         traceability_rows = build_requirement_domain_traceability(
             rkm_requirements,
