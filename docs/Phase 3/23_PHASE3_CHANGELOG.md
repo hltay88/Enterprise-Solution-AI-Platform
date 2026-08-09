@@ -1,5 +1,11 @@
 # Phase 3 Changelog
 
+## 0.3.1-task3 (domain schemas)
+
+Sprint 3.1 Task 3: Pydantic API + AI validation contracts in
+`backend/app/schemas/domain.py` (`validate_domain_ai_extraction`, catalog-bound codes,
+traceability statuses). No analyze service/API yet.
+
 ## 0.3.1-task2 (domain schema)
 
 Sprint 3.1 Task 2: `domain_analyses`, `solution_domains`, links/dependencies/open questions,
