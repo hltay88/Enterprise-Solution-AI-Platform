@@ -81,3 +81,26 @@ def test_create_import_tree_persists_import_and_items():
     assert item_adds[0].mapped_product_id == product_id
     assert item_adds[1].sku == "SW-48"
     db.commit.assert_called_once()
+
+
+def test_create_validation_result_appends_row():
+    db = MagicMock()
+    repo = BomRepository(db)
+    bom_id = uuid4()
+    project_id = uuid4()
+
+    row = repo.create_validation_result(
+        bom_import_id=bom_id,
+        project_id=project_id,
+        status="needs_review",
+        summary="review me",
+        issues=[{"code": "unknown_model", "severity": "warning", "message": "x"}],
+        validated_by=uuid4(),
+        commit=True,
+    )
+
+    assert row.bom_import_id == bom_id
+    assert row.status == "needs_review"
+    assert len(row.issues) == 1
+    db.add.assert_called_once()
+    db.commit.assert_called_once()

@@ -1,5 +1,11 @@
 # Phase 3 Changelog
 
+## 0.3.3-task08 (BOM validation)
+
+Sprint 3.3 Task 8: validate imported BOM evidence into `bom_validation_results`
+(missing/duplicate/unknown/compat/uncertain + human flags). APIs:
+`POST …/bom/{id}/validate`, `GET …/bom/{id}/validation` (ATLAS-039).
+
 ## 0.3.3-task07 (BOM import)
 
 Sprint 3.3 Task 7: immutable BOM evidence import (`bom_imports` + `bom_items`)

@@ -1,4 +1,4 @@
-"""Sprint 3.3 Task 7 — BOM import API routes."""
+"""Sprint 3.3 Tasks 7–8 — BOM import + validation API routes."""
 
 from __future__ import annotations
 
@@ -14,7 +14,7 @@ from app.api.deps import get_current_user, get_db, get_editor_user
 from app.api.routes import v1_bom
 from app.core.exceptions import AppError, NotFoundError
 from app.core.responses import error_response
-from app.schemas.vendor_bom import BomImportOut, BomItemOut
+from app.schemas.vendor_bom import BomImportOut, BomItemOut, BomValidationResultOut
 
 
 def _user(role: str = "editor"):
@@ -40,6 +40,8 @@ def test_bom_route_paths_registered():
     assert "/projects/{project_id}/bom/import" in paths
     assert "/projects/{project_id}/bom" in paths
     assert "/projects/{project_id}/bom/{bom_import_id}" in paths
+    assert "/projects/{project_id}/bom/{bom_import_id}/validate" in paths
+    assert "/projects/{project_id}/bom/{bom_import_id}/validation" in paths
 
 
 def test_import_bom_returns_201():
@@ -146,3 +148,54 @@ def test_get_bom_import_not_found():
         response = client.get(f"/api/v1/projects/{project_id}/bom/{uuid4()}")
 
     assert response.status_code == 404
+
+
+def test_validate_bom_returns_201():
+    user = _user("editor")
+    project_id = uuid4()
+    bom_id = uuid4()
+    now = datetime.now(timezone.utc)
+    out = BomValidationResultOut(
+        id=uuid4(),
+        bom_import_id=bom_id,
+        project_id=project_id,
+        status="needs_review",
+        summary="needs review",
+        issues=[],
+        created_at=now,
+    )
+    client = TestClient(_app(user))
+
+    with patch("app.api.routes.v1_bom.BomService") as service_cls:
+        service_cls.return_value.validate_bom.return_value = out
+        response = client.post(
+            f"/api/v1/projects/{project_id}/bom/{bom_id}/validate",
+            json={},
+        )
+
+    assert response.status_code == 201
+    assert response.json()["data"]["status"] == "needs_review"
+
+
+def test_get_bom_validation():
+    user = _user("viewer")
+    project_id = uuid4()
+    bom_id = uuid4()
+    now = datetime.now(timezone.utc)
+    out = BomValidationResultOut(
+        id=uuid4(),
+        bom_import_id=bom_id,
+        project_id=project_id,
+        status="failed",
+        summary="failed",
+        issues=[],
+        created_at=now,
+    )
+    client = TestClient(_app(user))
+
+    with patch("app.api.routes.v1_bom.BomService") as service_cls:
+        service_cls.return_value.get_validation.return_value = out
+        response = client.get(f"/api/v1/projects/{project_id}/bom/{bom_id}/validation")
+
+    assert response.status_code == 200
+    assert response.json()["data"]["status"] == "failed"

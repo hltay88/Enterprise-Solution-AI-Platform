@@ -75,6 +75,15 @@ DTO contracts in `backend/app/schemas/vendor_bom.py`.
 - `POST /projects/{project_id}/architectures/{id}/review`
 - `POST /projects/{project_id}/architectures/{id}/approve`
 
-### BOM validation (Task 8)
-- `POST /projects/{project_id}/bom/{id}/validate`
-- `GET /projects/{project_id}/bom/{id}/validation`
+## BOM validation (Sprint 3.3 Task 8)
+
+Append-only results (import stays immutable). Editor+ to validate; any member
+to read latest result.
+
+- `POST /projects/{project_id}/bom/{bom_import_id}/validate` (Editor+)
+- `GET /projects/{project_id}/bom/{bom_import_id}/validation`
+
+Optional body: `architecture_id`, `catalogue_id`. Status:
+`passed` | `needs_review` | `failed`. Issues include missing/duplicate/
+unknown_model/compatibility/uncertain_spec and companion flags; uncertain
+items set `requires_human_validation` (ATLAS-039).

@@ -66,6 +66,46 @@ class BomRepository:
         )
         return list(self.db.scalars(statement).all())
 
+    def get_latest_validation(self, bom_import_id: UUID) -> BomValidationResult | None:
+        statement = (
+            select(BomValidationResult)
+            .where(BomValidationResult.bom_import_id == bom_import_id)
+            .order_by(BomValidationResult.created_at.desc())
+            .limit(1)
+        )
+        return self.db.scalars(statement).first()
+
+    def create_validation_result(
+        self,
+        *,
+        bom_import_id: UUID,
+        project_id: UUID,
+        status: str,
+        summary: str,
+        issues: list[dict[str, Any]],
+        validated_by: UUID | None,
+        commit: bool = True,
+    ) -> BomValidationResult:
+        """Append a validation result (imports stay immutable)."""
+        status_text = str(status or "").strip() or "needs_review"
+        row = BomValidationResult(
+            id=uuid4(),
+            bom_import_id=bom_import_id,
+            project_id=project_id,
+            status=status_text,
+            summary=str(summary or "").strip(),
+            issues=list(issues or []),
+            validated_by=validated_by,
+            created_at=datetime.now(timezone.utc),
+        )
+        self.db.add(row)
+        if commit:
+            self.db.commit()
+            self.db.refresh(row)
+        else:
+            self.db.flush()
+        return row
+
     def create_import_tree(
         self,
         *,

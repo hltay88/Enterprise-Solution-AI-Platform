@@ -18,7 +18,7 @@
 
 ## P2
 - [x] BOM import — Sprint 3.3 Task 7 (immutable evidence; validation Task 8)
-- [ ] BOM validation
+- [x] BOM validation — Sprint 3.3 Task 8 (`bom_validation_results`; human flags)
 - [ ] Architecture comparison UI
 - [ ] Advanced vendor analytics
 
