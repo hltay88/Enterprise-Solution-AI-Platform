@@ -22,7 +22,7 @@ from app.models.deliverable import (
     SourceSnapshot,
     TemplateVersion,
 )
-from app.schemas.deliverable import PROPOSAL_SECTION_TYPES
+from app.schemas.deliverable import PRESENTATION_SECTION_TYPES, PROPOSAL_SECTION_TYPES
 
 
 class DeliverableRepository:
@@ -32,8 +32,14 @@ class DeliverableRepository:
     # --- templates ---------------------------------------------------------
 
     def get_active_template(
-        self, document_type: str, code: str = "default_proposal"
+        self, document_type: str, code: str | None = None
     ) -> DocumentTemplate | None:
+        if code is None:
+            code = (
+                "default_presentation"
+                if document_type == "presentation"
+                else "default_proposal"
+            )
         return self.db.scalars(
             select(DocumentTemplate).where(
                 DocumentTemplate.document_type == document_type,
@@ -59,12 +65,40 @@ class DeliverableRepository:
         ).first()
 
     def ensure_proposal_template_seed(self) -> tuple[DocumentTemplate, TemplateVersion]:
-        template = self.get_active_template("proposal")
+        return self._ensure_template_seed(
+            document_type="proposal",
+            code="default_proposal",
+            name="Default Proposal",
+            section_types=PROPOSAL_SECTION_TYPES,
+            styles_json={"format": "docx"},
+        )
+
+    def ensure_presentation_template_seed(
+        self,
+    ) -> tuple[DocumentTemplate, TemplateVersion]:
+        return self._ensure_template_seed(
+            document_type="presentation",
+            code="default_presentation",
+            name="Default Presentation",
+            section_types=PRESENTATION_SECTION_TYPES,
+            styles_json={"format": "pptx"},
+        )
+
+    def _ensure_template_seed(
+        self,
+        *,
+        document_type: str,
+        code: str,
+        name: str,
+        section_types: list[tuple[str, str]],
+        styles_json: dict[str, Any],
+    ) -> tuple[DocumentTemplate, TemplateVersion]:
+        template = self.get_active_template(document_type, code)
         if template is None:
             template = DocumentTemplate(
-                document_type="proposal",
-                code="default_proposal",
-                name="Default Proposal",
+                document_type=document_type,
+                code=code,
+                name=name,
                 active=True,
             )
             self.db.add(template)
@@ -72,8 +106,8 @@ class DeliverableRepository:
         version = self.get_active_template_version(template.id)
         if version is None:
             sections = [
-                {"section_type": code, "title": title}
-                for code, title in PROPOSAL_SECTION_TYPES
+                {"section_type": section_code, "title": title}
+                for section_code, title in section_types
             ]
             version = TemplateVersion(
                 template_id=template.id,
@@ -82,7 +116,7 @@ class DeliverableRepository:
                 version_minor=0,
                 version_patch=0,
                 sections_json=sections,
-                styles_json={"format": "docx"},
+                styles_json=styles_json,
                 rendering_rules_json={"include_draft_watermark": True},
                 status="active",
             )

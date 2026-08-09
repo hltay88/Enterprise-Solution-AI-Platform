@@ -262,3 +262,45 @@ WHERE t.document_type = 'proposal' AND t.code = 'default_proposal'
       WHERE tv.template_id = t.id
         AND tv.version_major = 1 AND tv.version_minor = 0 AND tv.version_patch = 0
   );
+
+-- Sprint 4.2 — presentation template seed (idempotent)
+INSERT INTO document_templates (id, document_type, code, name, active)
+SELECT gen_random_uuid(), 'presentation', 'default_presentation', 'Default Presentation', TRUE
+WHERE NOT EXISTS (
+    SELECT 1 FROM document_templates
+    WHERE document_type = 'presentation' AND code = 'default_presentation'
+);
+
+INSERT INTO template_versions (
+    template_id, version_label, version_major, version_minor, version_patch,
+    sections_json, styles_json, rendering_rules_json, status
+)
+SELECT
+    t.id,
+    '1.0.0', 1, 0, 0,
+    '[
+      {"section_type":"title","title":"Title"},
+      {"section_type":"executive_summary","title":"Executive Summary"},
+      {"section_type":"customer_situation","title":"Customer Situation"},
+      {"section_type":"challenges","title":"Challenges"},
+      {"section_type":"requirements","title":"Requirements"},
+      {"section_type":"proposed_architecture","title":"Proposed Architecture"},
+      {"section_type":"solution_overview","title":"Solution Overview"},
+      {"section_type":"key_components","title":"Key Components"},
+      {"section_type":"technical_highlights","title":"Technical Highlights"},
+      {"section_type":"benefits","title":"Benefits"},
+      {"section_type":"implementation","title":"Implementation"},
+      {"section_type":"timeline","title":"Timeline"},
+      {"section_type":"risks_assumptions","title":"Risks / Assumptions"},
+      {"section_type":"next_steps","title":"Next Steps"}
+    ]'::jsonb,
+    '{"format":"pptx"}'::jsonb,
+    '{"include_draft_watermark": true}'::jsonb,
+    'active'
+FROM document_templates t
+WHERE t.document_type = 'presentation' AND t.code = 'default_presentation'
+  AND NOT EXISTS (
+      SELECT 1 FROM template_versions tv
+      WHERE tv.template_id = t.id
+        AND tv.version_major = 1 AND tv.version_minor = 0 AND tv.version_patch = 0
+  );

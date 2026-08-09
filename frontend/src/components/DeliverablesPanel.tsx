@@ -104,10 +104,11 @@ export function DeliverablesPanel({
 
   return (
     <section className="form-panel">
-      <h2>Deliverables — Proposal</h2>
+      <h2>Deliverables — Proposal & Presentation</h2>
       <p className="muted">
-        Generate a customer proposal from a Complete architecture via an
-        immutable source snapshot (Sprint 4.1 / ATLAS-042…048).
+        Generate customer proposal (DOCX) or presentation (PPTX) from a Complete
+        architecture via an immutable source snapshot (Sprint 4.1–4.2 /
+        ATLAS-042…048).
       </p>
 
       {loading ? <p>Loading…</p> : null}
@@ -120,20 +121,42 @@ export function DeliverablesPanel({
           className="btn-primary"
           disabled={!!busy || completeArch.length === 0}
           onClick={() =>
-            void run("generate", async () => {
+            void run("generate-proposal", async () => {
               const doc = await apiPost<GeneratedDocument>(
                 `/api/v1/projects/${projectId}/deliverables/generate`,
                 { document_type: "proposal" },
                 true,
               );
-              setNote(`Generated draft: ${doc.title}`);
+              setNote(`Generated proposal draft: ${doc.title}`);
               setSelectedId(doc.id);
               await load();
               await loadSections(doc.id);
             })
           }
         >
-          {busy === "generate" ? "Generating…" : "Generate proposal"}
+          {busy === "generate-proposal" ? "Generating…" : "Generate proposal"}
+        </button>
+        <button
+          type="button"
+          className="btn-primary"
+          disabled={!!busy || completeArch.length === 0}
+          onClick={() =>
+            void run("generate-presentation", async () => {
+              const doc = await apiPost<GeneratedDocument>(
+                `/api/v1/projects/${projectId}/deliverables/generate`,
+                { document_type: "presentation" },
+                true,
+              );
+              setNote(`Generated presentation draft: ${doc.title}`);
+              setSelectedId(doc.id);
+              await load();
+              await loadSections(doc.id);
+            })
+          }
+        >
+          {busy === "generate-presentation"
+            ? "Generating…"
+            : "Generate presentation"}
         </button>
         <button
           type="button"
@@ -195,28 +218,32 @@ export function DeliverablesPanel({
           disabled={!!busy || !selectedId}
           onClick={() =>
             void run("export", async () => {
+              const format =
+                selected?.document_type === "presentation" ? "pptx" : "docx";
               const job = await apiPost<ExportJob>(
                 `/api/v1/projects/${projectId}/deliverables/${selectedId}/export`,
-                { format: "docx" },
+                { format },
                 true,
               );
               setExportJob(job);
               setNote(
                 job.status === "completed"
-                  ? `DOCX ready (checksum ${job.checksum_sha256?.slice(0, 12)}…)`
+                  ? `${format.toUpperCase()} ready (checksum ${job.checksum_sha256?.slice(0, 12)}…)`
                   : `Export ${job.status}`,
               );
             })
           }
         >
-          Export DOCX
+          {selected?.document_type === "presentation"
+            ? "Export PPTX"
+            : "Export DOCX"}
         </button>
       </div>
 
       {completeArch.length === 0 ? (
         <p className="muted">
           No Complete architecture yet. Finish Architecture → Approve Complete
-          before generating a proposal.
+          before generating deliverables.
         </p>
       ) : null}
 
@@ -230,7 +257,7 @@ export function DeliverablesPanel({
             >
               {docs.map((doc) => (
                 <option key={doc.id} value={doc.id}>
-                  {doc.title} — {doc.status}
+                  [{doc.document_type}] {doc.title} — {doc.status}
                   {doc.version_label ? ` v${doc.version_label}` : ""}
                 </option>
               ))}
@@ -241,7 +268,8 @@ export function DeliverablesPanel({
 
       {selected ? (
         <p className="muted" style={{ marginTop: 8 }}>
-          Status <strong>{selected.status}</strong>
+          Type <strong>{selected.document_type}</strong> · Status{" "}
+          <strong>{selected.status}</strong>
           {selected.bom_validated === false
             ? " · BOM not validated (pricing excluded)"
             : null}
@@ -267,53 +295,80 @@ export function DeliverablesPanel({
 
       {sections.length > 0 ? (
         <div style={{ marginTop: 12 }}>
-          <h3>Sections</h3>
-          {sections.map((section) => (
-            <details key={section.id} style={{ marginBottom: 8 }}>
-              <summary>
-                {section.title}{" "}
-                {section.content_items.some((i) => i.review_required)
-                  ? "· REVIEW REQUIRED"
-                  : ""}
-              </summary>
-              {section.content_items.map((item) => (
-                <div key={item.id} style={{ marginLeft: 12, marginTop: 6 }}>
-                  <p>
-                    {item.review_required ? (
-                      <strong>[REVIEW REQUIRED] </strong>
-                    ) : null}
-                    {item.text}
+          <h3>
+            {selected?.document_type === "presentation" ? "Slides" : "Sections"}
+          </h3>
+          {sections.map((section) => {
+            const body = section.content_items.find(
+              (i) => i.content_type !== "speaker_notes",
+            );
+            const notes = section.content_items.find(
+              (i) => i.content_type === "speaker_notes",
+            );
+            const slideMeta =
+              (body?.structured_data as { slide?: Record<string, string> } | undefined)
+                ?.slide || {};
+            return (
+              <details key={section.id} style={{ marginBottom: 8 }}>
+                <summary>
+                  {section.title}{" "}
+                  {section.content_items.some((i) => i.review_required)
+                    ? "· REVIEW REQUIRED"
+                    : ""}
+                </summary>
+                {slideMeta.key_message ? (
+                  <p style={{ marginLeft: 12 }}>
+                    <strong>Key message:</strong> {slideMeta.key_message}
                   </p>
-                  {selected &&
-                  (selected.status === "draft" ||
-                    selected.status === "changes_requested") ? (
-                    <button
-                      type="button"
-                      className="btn-secondary"
-                      disabled={!!busy}
-                      onClick={() =>
-                        void run("patch", async () => {
-                          const next = window.prompt(
-                            "Edit section text",
-                            item.text,
-                          );
-                          if (next == null) return;
-                          await apiPatch<DeliverableSection>(
-                            `/api/v1/projects/${projectId}/deliverables/${selected.id}/sections/${section.id}`,
-                            { text: next },
-                            true,
-                          );
-                          await loadSections(selected.id);
-                        })
-                      }
-                    >
-                      Edit text
-                    </button>
-                  ) : null}
-                </div>
-              ))}
-            </details>
-          ))}
+                ) : null}
+                {section.content_items.map((item) => (
+                  <div key={item.id} style={{ marginLeft: 12, marginTop: 6 }}>
+                    <p>
+                      {item.content_type === "speaker_notes" ? (
+                        <em>Speaker notes: </em>
+                      ) : null}
+                      {item.review_required ? (
+                        <strong>[REVIEW REQUIRED] </strong>
+                      ) : null}
+                      {item.text}
+                    </p>
+                    {selected &&
+                    item.content_type !== "speaker_notes" &&
+                    (selected.status === "draft" ||
+                      selected.status === "changes_requested") ? (
+                      <button
+                        type="button"
+                        className="btn-secondary"
+                        disabled={!!busy}
+                        onClick={() =>
+                          void run("patch", async () => {
+                            const next = window.prompt(
+                              "Edit section text",
+                              item.text,
+                            );
+                            if (next == null) return;
+                            await apiPatch<DeliverableSection>(
+                              `/api/v1/projects/${projectId}/deliverables/${selected.id}/sections/${section.id}`,
+                              { text: next },
+                              true,
+                            );
+                            await loadSections(selected.id);
+                          })
+                        }
+                      >
+                        Edit text
+                      </button>
+                    ) : null}
+                  </div>
+                ))}
+                {!notes && slideMeta.speaker_notes ? (
+                  <p style={{ marginLeft: 12 }}>
+                    <em>Speaker notes: {slideMeta.speaker_notes}</em>
+                  </p>
+                ) : null}
+              </details>
+            );
+          })}
         </div>
       ) : null}
     </section>

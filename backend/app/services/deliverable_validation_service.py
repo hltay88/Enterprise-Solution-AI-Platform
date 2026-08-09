@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 from app.core.exceptions import NotFoundError
 from app.repositories.deliverable_repository import DeliverableRepository
 from app.schemas.deliverable import (
+    PRESENTATION_SECTION_TYPES,
     PROPOSAL_SECTION_TYPES,
     ValidationIssue,
     ValidationOut,
@@ -49,18 +50,27 @@ class DeliverableValidationService:
         sections = self.repo.list_sections(document.current_version_id)
         snapshot = self.repo.get_snapshot(document.source_snapshot_id, project_id)
         bom_validated = bool(snapshot.bom_validated) if snapshot else False
-        return self.validate_sections(sections, bom_validated=bom_validated)
+        return self.validate_sections(
+            sections,
+            bom_validated=bom_validated,
+            document_type=document.document_type,
+        )
 
     def validate_sections(
         self,
         sections: list,
         *,
         bom_validated: bool,
+        document_type: str = "proposal",
         load_content: bool = True,
     ) -> ValidationOut:
         issues: list[ValidationIssue] = []
         present = {s.section_type for s in sections}
-        required = {code for code, _ in PROPOSAL_SECTION_TYPES}
+        if document_type == "presentation":
+            required = {code for code, _ in PRESENTATION_SECTION_TYPES}
+        else:
+            required = {code for code, _ in PROPOSAL_SECTION_TYPES}
+
         for missing in sorted(required - present):
             issues.append(
                 ValidationIssue(
@@ -83,9 +93,39 @@ class DeliverableValidationService:
                         severity="warning",
                     )
                 )
+
+            if document_type == "presentation" and load_content:
+                key_message = ""
+                for item in content_items:
+                    structured = getattr(item, "structured_data", None) or {}
+                    slide = structured.get("slide") or {}
+                    if slide.get("key_message"):
+                        key_message = str(slide.get("key_message") or "")
+                        break
+                if not key_message.strip():
+                    issues.append(
+                        ValidationIssue(
+                            code="missing_key_message",
+                            message=(
+                                f"Slide '{section.section_type}' requires a key_message "
+                                "(one primary message per slide)"
+                            ),
+                            section_type=section.section_type,
+                        )
+                    )
+
             for item in content_items:
                 text = item.text or ""
-                if not bom_validated and _PRICE_RE.search(text):
+                structured = getattr(item, "structured_data", None) or {}
+                slide = structured.get("slide") or {}
+                combined = " ".join(
+                    [
+                        text,
+                        str(slide.get("key_message") or ""),
+                        str(slide.get("speaker_notes") or ""),
+                    ]
+                )
+                if not bom_validated and _PRICE_RE.search(combined):
                     issues.append(
                         ValidationIssue(
                             code="pricing_without_authority",
@@ -96,7 +136,7 @@ class DeliverableValidationService:
                             section_type=section.section_type,
                         )
                     )
-                if _DATE_COMMIT_RE.search(text) and item.review_required is False:
+                if _DATE_COMMIT_RE.search(combined) and item.review_required is False:
                     issues.append(
                         ValidationIssue(
                             code="contractual_commitment",
@@ -108,12 +148,21 @@ class DeliverableValidationService:
                             severity="warning",
                         )
                     )
-                if section.section_type in {
+                technical_sections = {
                     "architecture",
                     "solution_components",
                     "proposed_solution",
                     "requirements",
-                }:
+                    "proposed_architecture",
+                    "key_components",
+                    "technical_highlights",
+                    "solution_overview",
+                }
+                content_type = getattr(item, "content_type", "paragraph")
+                if (
+                    section.section_type in technical_sections
+                    and content_type != "speaker_notes"
+                ):
                     refs = self.repo.list_source_refs(item.id)
                     if not refs and not item.review_required:
                         issues.append(

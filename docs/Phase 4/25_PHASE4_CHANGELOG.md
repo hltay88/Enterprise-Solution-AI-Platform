@@ -1,25 +1,23 @@
 # Phase 4 Changelog
 
-## 0.4.0 (Sprint 4.1 in progress)
+## 0.4.0 (in progress)
 
 ### Sprint 4.0 — Design locks (2026-08-10)
-- Accepted ATLAS-042…048 (deliverables namespace, snapshots, AI/render split, human approve, templates, no commercial fabrication, provider abstraction).
-- Canonical docs path: `docs/Phase 4/`.
+- Accepted ATLAS-042…048.
 
-### Sprint 4.1 — Proposal foundation (implemented)
+### Sprint 4.1 — Proposal foundation
+- Source snapshots, proposal generation/review/approve, DOCX export, deliverables API/UI.
+
+### Sprint 4.2 — Presentation Generator (implemented)
 Added:
-- Source snapshots (`source_snapshots`) with Published RKM + Complete architecture gate
-- Document templates / template versions (default proposal seed)
-- Generated documents, versions, sections, content items, source refs
-- Generation runs + export jobs
-- Proposal generation (`AIProvider.generate_proposal_content`) + local provider
-- Review / approve / revise lifecycle
-- DOCX export renderer
-- API `/api/v1/projects/{id}/deliverables/...`
-- UI `DeliverablesPanel`
-- Unit tests + `scripts/verify_sprint_4_1.py`
+- Presentation template seed (14-slide storyline)
+- `AIProvider.generate_presentation_content` (+ local provider)
+- Presentation planner, generation service, validation (key_message rule)
+- PPTX rendering via `python-pptx`
+- Export `format=pptx` for presentations
+- UI: Generate presentation + Export PPTX in Deliverables panel
+- `scripts/verify_sprint_4_2.py`
 
-Planned later (not shipped):
-- Presentation / PPTX (4.2)
+Planned later:
 - SOW / Solution Design / PDF (4.3)
 - Package + BOM commercial packaging (4.4)

@@ -16,6 +16,7 @@ from app.repositories.project_repository import ProjectRepository
 from app.schemas.deliverable import ExportIn, ExportJobOut
 from app.services.audit_service import AuditService
 from app.services.rendering.docx_renderer import render_proposal_docx
+from app.services.rendering.pptx_renderer import render_presentation_pptx
 
 
 class ExportService:
@@ -34,8 +35,6 @@ class ExportService:
         if self.projects.get_for_user(project_id, user_id) is None:
             raise NotFoundError("Project not found")
         body = body or ExportIn()
-        if body.format != "docx":
-            raise ValidationAppError("Sprint 4.1 supports format=docx only")
 
         document = self.repo.get_document(document_id, project_id)
         if document is None:
@@ -43,11 +42,20 @@ class ExportService:
         if document.current_version_id is None:
             raise ValidationAppError("Document has no version to export")
 
+        doc_type = str(document.document_type or "proposal")
+        export_format = body.format
+        if doc_type == "proposal" and export_format != "docx":
+            raise ValidationAppError("Proposals export as format=docx only")
+        if doc_type == "presentation" and export_format != "pptx":
+            raise ValidationAppError("Presentations export as format=pptx only")
+        if export_format not in {"docx", "pptx"}:
+            raise ValidationAppError(f"Unsupported export format '{export_format}'")
+
         job = self.repo.create_export_job(
             project_id=project_id,
             document_id=document.id,
             document_version_id=document.current_version_id,
-            format="docx",
+            format=export_format,
             status="processing",
             created_by=user_id,
         )
@@ -61,6 +69,7 @@ class ExportService:
                         "text": item.text,
                         "content_type": item.content_type,
                         "review_required": item.review_required,
+                        "structured_data": item.structured_data or {},
                     }
                     for item in self.repo.list_content_items(section.id)
                 ]
@@ -72,17 +81,30 @@ class ExportService:
                         "content_items": items,
                     }
                 )
-            data = render_proposal_docx(
-                title=document.title,
-                status=document.status,
-                sections=sections,
-            )
+
+            if export_format == "pptx":
+                data = render_presentation_pptx(
+                    title=document.title,
+                    status=document.status,
+                    slides=sections,
+                )
+                extension = "pptx"
+                label = "presentation PPTX"
+            else:
+                data = render_proposal_docx(
+                    title=document.title,
+                    status=document.status,
+                    sections=sections,
+                )
+                extension = "docx"
+                label = "proposal DOCX"
+
             checksum = hashlib.sha256(data).hexdigest()
             settings = get_settings()
             root = Path(settings.storage_path)
             out_dir = root / str(project_id) / "exports"
             out_dir.mkdir(parents=True, exist_ok=True)
-            filename = f"{uuid4()}_proposal.docx"
+            filename = f"{uuid4()}_{doc_type}.{extension}"
             path = out_dir / filename
             path.write_bytes(data)
 
@@ -96,11 +118,17 @@ class ExportService:
                 project_id=project_id,
                 user_id=user_id,
                 action="deliverable.export",
-                summary="Exported proposal DOCX",
+                summary=f"Exported {label}",
                 resource_type="export_job",
                 resource_id=job.id,
-                metadata={"checksum": checksum, "format": "docx"},
+                metadata={
+                    "checksum": checksum,
+                    "format": export_format,
+                    "document_type": doc_type,
+                },
             )
+        except ValidationAppError:
+            raise
         except Exception as exc:  # noqa: BLE001
             job.status = "failed"
             job.error = str(exc)[:1000]
@@ -117,7 +145,10 @@ class ExportService:
             )
             raise ValidationAppError(f"Export failed: {exc}") from exc
 
-        return self.to_out(job, download_name=f"{document.title or 'proposal'}.docx")
+        return self.to_out(
+            job,
+            download_name=f"{document.title or doc_type}.{export_format}",
+        )
 
     def get(
         self, project_id: UUID, export_id: UUID, user_id: UUID

@@ -31,7 +31,7 @@ class SourceSnapshotOut(BaseModel):
 
 
 class DeliverableGenerateIn(BaseModel):
-    document_type: Literal["proposal"] = "proposal"
+    document_type: Literal["proposal", "presentation"] = "proposal"
     snapshot_id: UUID | None = None
     architecture_id: UUID | None = None
 
@@ -63,6 +63,30 @@ class ProposalSectionIn(BaseModel):
 class ProposalContentPayload(BaseModel):
     title: str = "Customer Proposal"
     sections: list[ProposalSectionIn]
+    provider: str | None = None
+    model: str | None = None
+    prompt_version: str | None = None
+
+
+class PresentationSlideIn(BaseModel):
+    section_type: str
+    title: str
+    sequence: int = 0
+    objective: str = ""
+    key_message: str = ""
+    body_content: str = ""
+    visual_type: str = "none"
+    visual_data: dict[str, Any] = Field(default_factory=dict)
+    speaker_notes: str = ""
+    confidence: float = 0.0
+    review_required: bool = False
+    assumptions: list[str] = Field(default_factory=list)
+    source_refs: list[SourceRefIn] = Field(default_factory=list)
+
+
+class PresentationContentPayload(BaseModel):
+    title: str = "Solution Presentation"
+    slides: list[PresentationSlideIn]
     provider: str | None = None
     model: str | None = None
     prompt_version: str | None = None
@@ -134,7 +158,7 @@ class ApproveIn(BaseModel):
 
 
 class ExportIn(BaseModel):
-    format: Literal["docx"] = "docx"
+    format: Literal["docx", "pptx"] = "docx"
 
 
 class ExportJobOut(BaseModel):
@@ -181,5 +205,22 @@ PROPOSAL_SECTION_TYPES: list[tuple[str, str]] = [
     ("risks", "Risks"),
     ("exclusions", "Exclusions"),
     ("support_warranty", "Support / Warranty"),
+    ("next_steps", "Next Steps"),
+]
+
+PRESENTATION_SECTION_TYPES: list[tuple[str, str]] = [
+    ("title", "Title"),
+    ("executive_summary", "Executive Summary"),
+    ("customer_situation", "Customer Situation"),
+    ("challenges", "Challenges"),
+    ("requirements", "Requirements"),
+    ("proposed_architecture", "Proposed Architecture"),
+    ("solution_overview", "Solution Overview"),
+    ("key_components", "Key Components"),
+    ("technical_highlights", "Technical Highlights"),
+    ("benefits", "Benefits"),
+    ("implementation", "Implementation"),
+    ("timeline", "Timeline"),
+    ("risks_assumptions", "Risks / Assumptions"),
     ("next_steps", "Next Steps"),
 ]

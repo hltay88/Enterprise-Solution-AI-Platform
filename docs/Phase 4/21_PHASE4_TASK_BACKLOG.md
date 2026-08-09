@@ -10,12 +10,12 @@
 7. Export
 
 ## Sprint 4.2 — Presentation Generator
-8. Slide domain
-9. Storyline
-10. Slide generation
-11. Speaker notes
-12. PPTX rendering
-13. Validation
+8. Slide domain — **done**
+9. Storyline — **done**
+10. Slide generation — **done**
+11. Speaker notes — **done**
+12. PPTX rendering — **done**
+13. Validation — **done**
 
 ## Sprint 4.3 — SOW + Solution Design
 14. SOW schema

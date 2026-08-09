@@ -152,6 +152,19 @@ class LocalAIProvider(AIProvider):
             prompt_version=prompt_version,
         )
 
+    async def generate_presentation_content(
+        self,
+        snapshot: dict[str, Any],
+        content_plan: dict[str, Any],
+        *,
+        prompt_version: str = "presentation_v1",
+    ) -> dict[str, Any]:
+        return _local_presentation_content(
+            snapshot,
+            content_plan,
+            prompt_version=prompt_version,
+        )
+
     async def generate_clarifications(
         self,
         analysis: dict[str, Any],
@@ -1388,5 +1401,160 @@ def _local_proposal_content(
         "sections": sections_out,
         "provider": "local",
         "model": "local-proposal",
+        "prompt_version": prompt_version,
+    }
+
+
+def _local_presentation_content(
+    snapshot: dict[str, Any],
+    content_plan: dict[str, Any],
+    *,
+    prompt_version: str = "presentation_v1",
+) -> dict[str, Any]:
+    """Deterministic presentation slides from snapshot — never invents prices/dates."""
+    rkm = snapshot.get("rkm") or {}
+    arch = snapshot.get("architecture") or {}
+    bom = snapshot.get("bom") or {}
+    bom_validated = bool(bom.get("validated") or content_plan.get("bom_validated"))
+    customer = rkm.get("customer_name") or rkm.get("project_name") or "Customer"
+    arch_title = arch.get("title") or arch.get("candidate_key") or "Approved Architecture"
+    requirements = rkm.get("requirements") or []
+    components = arch.get("components") or []
+    risks = arch.get("risks") or []
+    assumptions = arch.get("assumptions") or []
+
+    slides_out: list[dict[str, Any]] = []
+    planned = content_plan.get("slides") or content_plan.get("sections") or []
+    for planned_slide in planned:
+        section_type = str(planned_slide.get("section_type") or "")
+        title = str(planned_slide.get("title") or section_type)
+        sequence = int(planned_slide.get("sequence") or 0)
+        review_required = False
+        assumptions_list: list[str] = []
+        refs: list[dict[str, Any]] = []
+        visual_type = "bullets"
+        key_message = ""
+        body = ""
+        objective = f"Communicate {title.lower()} from approved sources"
+        notes = f"Stay factual. Source: {arch_title}."
+
+        if section_type == "title":
+            key_message = f"Solution proposal for {customer}"
+            body = arch_title
+            visual_type = "none"
+            objective = "Open with customer and solution name"
+            notes = "Confirm customer naming with account team."
+        elif section_type == "executive_summary":
+            key_message = f"Approved architecture addresses priority requirements for {customer}"
+            body = arch.get("summary") or arch_title
+            refs = [{"ref_kind": "architecture", "ref_id": str(arch.get("id") or ""), "label": "architecture"}]
+        elif section_type == "customer_situation":
+            key_message = f"Engagement is grounded in the Published RKM for {customer}"
+            body = str(rkm.get("summary") or f"Requirements captured for {customer}.")
+        elif section_type == "challenges":
+            key_message = "Key risks and challenges are tracked on the approved architecture"
+            if risks:
+                body = "; ".join(str(r.get("title") or r.get("description") or "")[:80] for r in risks[:5])
+                refs = [{"ref_kind": "risk", "ref_id": str(r.get("id") or ""), "label": "risk"} for r in risks[:5]]
+            else:
+                body = "No challenges recorded in snapshot."
+                review_required = True
+                assumptions_list.append("Challenges inferred only from architecture risks")
+        elif section_type == "requirements":
+            key_message = f"{len(requirements)} published requirements guide the solution"
+            body = "; ".join(str(r.get("statement") or "")[:60] for r in requirements[:6]) or "No requirements listed"
+            refs = [
+                {"ref_kind": "requirement", "ref_id": str(r.get("id") or ""), "label": str(r.get("id") or "")}
+                for r in requirements[:10]
+            ]
+        elif section_type == "proposed_architecture":
+            key_message = f"Recommended architecture: {arch_title}"
+            body = arch.get("summary") or arch_title
+            visual_type = "architecture"
+            refs = [{"ref_kind": "architecture", "ref_id": str(arch.get("id") or ""), "label": "architecture"}]
+        elif section_type == "solution_overview":
+            key_message = "Solution scope follows approved components and design decisions"
+            body = arch.get("summary") or "See approved architecture components."
+            refs = [{"ref_kind": "architecture", "ref_id": str(arch.get("id") or ""), "label": "architecture"}]
+        elif section_type == "key_components":
+            key_message = f"{len(components)} solution components from the approved architecture"
+            body = "; ".join(f"{c.get('name')}" for c in components[:8]) or "No components"
+            visual_type = "components"
+            refs = [
+                {"ref_kind": "component", "ref_id": str(c.get("id") or ""), "label": str(c.get("name") or "")}
+                for c in components[:10]
+            ]
+        elif section_type == "technical_highlights":
+            key_message = "Technical highlights are limited to approved design decisions"
+            decisions = arch.get("decisions") or []
+            body = "; ".join(str(d.get("decision") or "")[:80] for d in decisions[:5]) or "No design decisions recorded"
+            if not decisions:
+                review_required = True
+            refs = [
+                {"ref_kind": "decision", "ref_id": str(d.get("id") or ""), "label": "decision"}
+                for d in decisions[:5]
+            ]
+        elif section_type == "benefits":
+            key_message = "Benefits require stakeholder confirmation"
+            body = "Align benefits workshop to published requirements and approved architecture."
+            review_required = True
+            assumptions_list.append("Benefits not explicit in snapshot")
+            visual_type = "callout"
+        elif section_type == "implementation":
+            key_message = "Implementation follows the approved architecture structure"
+            body = "Phased delivery mapped to approved components and design decisions."
+            refs = [{"ref_kind": "architecture", "ref_id": str(arch.get("id") or ""), "label": "architecture"}]
+        elif section_type == "timeline":
+            key_message = "No authoritative schedule in the source snapshot"
+            body = "Timeline dates require customer confirmation."
+            review_required = True
+            assumptions_list.append("Schedule not authorized")
+            visual_type = "callout"
+        elif section_type == "risks_assumptions":
+            key_message = "Risks and assumptions are carried from the approved architecture"
+            body_parts = [str(r.get("title") or r.get("description") or "")[:60] for r in risks[:4]]
+            body_parts += [str(a.get("statement") or "")[:60] for a in assumptions[:4]]
+            if not bom_validated:
+                body_parts.append("BOM not validated — commercial figures excluded")
+                review_required = True
+            body = "; ".join(p for p in body_parts if p) or "None recorded"
+            refs = [
+                {"ref_kind": "risk", "ref_id": str(r.get("id") or ""), "label": "risk"} for r in risks[:4]
+            ] + [
+                {"ref_kind": "assumption", "ref_id": str(a.get("id") or ""), "label": "assumption"}
+                for a in assumptions[:4]
+            ]
+        elif section_type == "next_steps":
+            key_message = "Review, confirm open items, then approve for customer release"
+            body = "1) Review slides 2) Resolve REVIEW REQUIRED 3) Approve presentation"
+            visual_type = "none"
+        else:
+            key_message = title
+            body = f"Content for {title}"
+            review_required = True
+
+        slides_out.append(
+            {
+                "section_type": section_type,
+                "title": title,
+                "sequence": sequence,
+                "objective": objective,
+                "key_message": key_message,
+                "body_content": body,
+                "visual_type": visual_type,
+                "visual_data": {},
+                "speaker_notes": notes,
+                "confidence": 0.35 if review_required else 0.75,
+                "review_required": review_required,
+                "assumptions": assumptions_list,
+                "source_refs": refs,
+            }
+        )
+
+    return {
+        "title": f"Presentation — {arch_title}",
+        "slides": slides_out,
+        "provider": "local",
+        "model": "local-presentation",
         "prompt_version": prompt_version,
     }

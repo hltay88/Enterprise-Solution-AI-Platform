@@ -65,3 +65,13 @@ class AIProvider(ABC):
         prompt_version: str = "proposal_v1",
     ) -> dict[str, Any]:
         """Return structured proposal content from an immutable source snapshot."""
+
+    @abstractmethod
+    async def generate_presentation_content(
+        self,
+        snapshot: dict[str, Any],
+        content_plan: dict[str, Any],
+        *,
+        prompt_version: str = "presentation_v1",
+    ) -> dict[str, Any]:
+        """Return structured presentation slides from an immutable source snapshot."""

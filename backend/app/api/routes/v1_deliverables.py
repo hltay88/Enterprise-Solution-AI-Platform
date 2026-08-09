@@ -16,6 +16,7 @@ from app.schemas.deliverable import (
 )
 from app.services.deliverable_review_service import DeliverableReviewService
 from app.services.export_service import ExportService
+from app.services.presentation_generation_service import PresentationGenerationService
 from app.services.proposal_generation_service import ProposalGenerationService
 from app.services.source_snapshot_service import SourceSnapshotService
 
@@ -51,9 +52,15 @@ async def generate_deliverable(
     db: DbSession,
     body: DeliverableGenerateIn | None = None,
 ) -> dict:
-    result = await ProposalGenerationService(db).generate(
-        project_id, current_user.id, body
-    )
+    body = body or DeliverableGenerateIn()
+    if body.document_type == "presentation":
+        result = await PresentationGenerationService(db).generate(
+            project_id, current_user.id, body
+        )
+    else:
+        result = await ProposalGenerationService(db).generate(
+            project_id, current_user.id, body
+        )
     return success_response(data=result.model_dump(mode="json"), status_code=201)
 
 

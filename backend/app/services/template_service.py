@@ -19,3 +19,10 @@ class TemplateService:
         template, version = self.repo.ensure_proposal_template_seed()
         self.db.commit()
         return template, version
+
+    def resolve_presentation_template(
+        self,
+    ) -> tuple[DocumentTemplate, TemplateVersion]:
+        template, version = self.repo.ensure_presentation_template_seed()
+        self.db.commit()
+        return template, version

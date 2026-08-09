@@ -820,6 +820,7 @@ export type DeliverableSection = {
     text: string;
     review_required: boolean;
     confidence: number;
+    structured_data?: Record<string, unknown>;
     source_refs: Array<{ id: string; ref_kind: string; ref_id: string | null; label: string }>;
   }>;
 };
