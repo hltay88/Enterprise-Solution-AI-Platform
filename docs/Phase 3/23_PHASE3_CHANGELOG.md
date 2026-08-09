@@ -1,5 +1,10 @@
 # Phase 3 Changelog
 
+## 0.3.1-task9 (dependencies & open questions)
+
+Sprint 3.1 Task 9: `domain_enrichment.py` validates catalog dependencies, flags missing
+dep domains / cycles, and adds selection-affecting open questions (no fabricated inputs).
+
 ## 0.3.1-task8 (requirement→domain traceability)
 
 Sprint 3.1 Task 8: `domain_traceability.py` builds covered/partial/optional/not_covered

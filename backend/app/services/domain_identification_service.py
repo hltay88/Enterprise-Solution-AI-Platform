@@ -30,6 +30,10 @@ from app.schemas.domain import (
     validate_domain_ai_extraction,
 )
 from app.services.audit_service import AuditService
+from app.services.domain_enrichment import (
+    enrich_domains_and_questions,
+    preprocess_domain_extraction,
+)
 from app.services.domain_traceability import (
     build_requirement_domain_traceability,
     count_uncovered_critical,
@@ -122,25 +126,53 @@ class DomainIdentificationService:
             raise ValidationAppError("AI provider returned an invalid domain payload")
 
         try:
-            # Providers already normalize; re-validate before persistence.
-            normalized = normalize_domain_identification(extraction)
+            # Drop unknown dependency codes before strict schema validation.
+            preprocessed = preprocess_domain_extraction(extraction)
+            normalized = normalize_domain_identification(preprocessed)
             validated = validate_domain_ai_extraction(normalized)
         except (ValidationError, ValueError, AppError) as exc:
             raise ValidationAppError(
                 f"AI domain identification payload failed validation: {exc}",
             ) from exc
 
+        rkm_requirements = extract_rkm_requirements(rkm_payload)
+        # Draft coverage first so enrichment can ask about uncovered criticals.
+        draft_traceability = build_requirement_domain_traceability(
+            rkm_requirements,
+            list(validated.domains),
+        )
+        validated = enrich_domains_and_questions(
+            validated,
+            requirements=rkm_requirements,
+            traceability=draft_traceability,
+            rkm_text=_rkm_text_blob(rkm_payload),
+        )
+        # Rebuild coverage after dependency sanitization / domain refinements.
+        traceability_rows = build_requirement_domain_traceability(
+            rkm_requirements,
+            list(validated.domains),
+        )
+        uncovered_critical = count_uncovered_critical(traceability_rows, rkm_requirements)
+
         major, minor, patch = self.domains.next_version(project_id)
         model_name = str(
-            normalized.get("model") or normalized.get("provider") or "unknown",
+            normalized.get("model")
+            or normalized.get("provider")
+            or validated.model
+            or validated.provider
+            or "unknown",
         )
         payload = {
-            **normalized,
+            **validated.model_dump(mode="json"),
             "project_id": str(project_id),
             "rkm_id": str(published.id),
             "rkm_version_label": published.version_label,
             "prompt_version": PROMPT_VERSION,
             "knowledge_pack_version": knowledge_pack_version,
+            "traceability_summary": {
+                "row_count": len(traceability_rows),
+                "uncovered_critical_or_high": uncovered_critical,
+            },
         }
 
         domain_rows = [_domain_tree_item(item, index) for index, item in enumerate(validated.domains)]
@@ -153,17 +185,6 @@ class DomainIdentificationService:
             }
             for question in validated.open_questions
         ]
-
-        rkm_requirements = extract_rkm_requirements(rkm_payload)
-        traceability_rows = build_requirement_domain_traceability(
-            rkm_requirements,
-            list(validated.domains),
-        )
-        uncovered_critical = count_uncovered_critical(traceability_rows, rkm_requirements)
-        payload["traceability_summary"] = {
-            "row_count": len(traceability_rows),
-            "uncovered_critical_or_high": uncovered_critical,
-        }
 
         try:
             row = self.domains.create_analysis_tree(

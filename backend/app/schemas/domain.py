@@ -269,6 +269,12 @@ class DomainAIExtraction(BaseModel):
             raise ValueError("domains must be a list")
         normalized: list[Any] = []
         for item in value:
+            if isinstance(item, SolutionDomainAI):
+                normalized.append(item.model_dump(mode="python"))
+                continue
+            if hasattr(item, "model_dump"):
+                normalized.append(item.model_dump(mode="python"))
+                continue
             if not isinstance(item, dict):
                 raise ValueError("each domain must be an object")
             row = dict(item)
