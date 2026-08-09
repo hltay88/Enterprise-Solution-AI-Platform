@@ -1037,12 +1037,8 @@ BEGIN
             ADD CONSTRAINT fk_generated_documents_current_version_id
             FOREIGN KEY (current_version_id)
             REFERENCES document_versions (id)
-            ON DELETE SET NULL
-        """,
-        """
-END IF
-        """,
-        """
+            ON DELETE SET NULL;
+    END IF;
 END $$
         """,
         """
@@ -1178,8 +1174,7 @@ WHERE t.document_type = 'proposal' AND t.code = 'default_proposal'
       WHERE tv.template_id = t.id
         AND tv.version_major = 1 AND tv.version_minor = 0 AND tv.version_patch = 0
   )
-        """
-
+        """,
         """
 INSERT INTO document_templates (id, document_type, code, name, active)
 SELECT gen_random_uuid(), 'presentation', 'default_presentation', 'Default Presentation', TRUE
