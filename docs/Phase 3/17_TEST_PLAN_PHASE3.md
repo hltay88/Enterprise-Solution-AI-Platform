@@ -38,3 +38,13 @@ Maintain a fixed golden set and run it after prompt/model changes.
 ## Sprint verify scripts
 - Sprint 3.1: `python3 scripts/verify_sprint_3_1.py` (`--unit-only` / `--smoke-only`)
 - Sprint 3.2: `python3 scripts/verify_sprint_3_2.py` (`--unit-only` / `--smoke-only`)
+- Sprint 3.3: `python3 scripts/verify_sprint_3_3.py` (Task 13 — catalogue → map → BOM → review/approve)
+
+## Backend unit coverage (Sprint 3.3)
+
+Representative modules under `backend/tests/`:
+
+- Vendor catalogue import/seed/search
+- Architecture product mapping service + routes
+- BOM import + validation heuristics + routes
+- Architecture review / Complete gate + routes

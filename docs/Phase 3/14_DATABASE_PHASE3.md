@@ -15,7 +15,7 @@
 | `domain_requirement_links` | 3.1 | **Live** | Domain ↔ RKM requirement_id |
 | `domain_dependencies` | 3.1 | **Live** | Domain → domain_code dependencies |
 | `domain_open_questions` | 3.1 | **Live** | Missing info affecting selection |
-| `requirement_traceability` | 3.1 | **Live** | RKM → domain (+ nullable later stages) |
+| `requirement_traceability` | 3.1–3.3 | **Live** | RKM → domain → architecture/component (+ optional `product_id`) |
 | `architecture_options` | 3.2 | **Live** | Replaces long-term use of MVP blob |
 | `architecture_components` | 3.2 | **Live** | |
 | `architecture_relationships` | 3.2 | **Live** | |
@@ -68,7 +68,8 @@ ORM: `backend/app/models/vendor_bom.py` (+ review/approve columns on `architectu
 - Catalogue is **global** (not project-scoped); mappings/BOM are project-scoped.
 - Never invent SKU specs in services (ATLAS-035/038) — schema stores source + `is_stale`.
 - BOM import rows are immutable; validation writes `bom_validation_results`.
-- Architecture Complete gate uses `reviewed_*` / `approved_*` columns (services in later tasks).
+- Architecture Complete gate uses `reviewed_*` / `approved_*` columns
+  (`ArchitectureReviewService`; status `complete` when uncovered critical/high = 0).
 
 ## Transitional MVP
 

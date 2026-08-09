@@ -45,5 +45,9 @@ AI recommendations remain Draft until reviewed.
 
 **Sprint 3.2 (live):** `ArchitectureGenerationService` + plural `/architectures` APIs
 persist candidates on normalized tables with capacity notes, risks/assumptions,
-scores, and architecture-stage traceability. UI: `ArchitecturePanel` (reviewable
-candidates; no approve). Singular `/architecture` routes are deprecated aliases.
+scores, and architecture-stage traceability.
+
+**Sprint 3.3 (live):** explicit product mapping, human review (`under_review`), and
+Approver Complete hard gate on uncovered critical/high requirements. UI:
+`ArchitecturePanel` (map/review/Complete) + `BomValidationPanel`. Singular
+`/architecture` routes remain deprecated aliases through 3.3.

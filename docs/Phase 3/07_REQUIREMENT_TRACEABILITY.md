@@ -38,5 +38,5 @@ built during domain analyze and exposed via `GET /api/v1/projects/{id}/traceabil
 **Sprint 3.2 Task 10 (live):** architecture generate appends requirement → domain →
 architecture/component rows (same `analysis_id` pin) via
 `architecture_traceability.py` + `ArchitectureOptionRepository.add_traceability_rows`.
-Decision / vendor links remain for later sprints. Approve gate on uncovered criticals
-stays Sprint 3.3.
+**Sprint 3.3 (live):** optional `product_id` on traceability rows; Approver Complete
+hard-fails when critical/high requirements remain `not_covered` (ATLAS-036).

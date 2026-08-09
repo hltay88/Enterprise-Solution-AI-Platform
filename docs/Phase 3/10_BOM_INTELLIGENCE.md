@@ -32,3 +32,10 @@ Check:
 
 ## Rule
 If product information is uncertain, flag it for human validation.
+
+## Implementation status
+
+**Sprint 3.3 Tasks 7–8 + 11 (live):** immutable `POST …/bom/import`, append-only
+`POST …/bom/{id}/validate` / `GET …/validation`, heuristics in `bom_validation.py`
+(missing/duplicate/unknown/compat/uncertain + companion flags). UI:
+`BomValidationPanel` (seed catalogue, import lines, validate).

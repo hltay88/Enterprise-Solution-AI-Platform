@@ -41,8 +41,9 @@ Vendor comparison must show:
 
 ## Implementation status
 
-**Sprint 3.3 Tasks 5–6 (live):** `ArchitectureProductMappingService` maps
+**Sprint 3.3 Tasks 5–6 + 11 (live):** `ArchitectureProductMappingService` maps
 architecture components to catalogue products via capability/category fit.
 Explicit `POST …/map-products` — not run during architecture generate.
 `GET …/product-mappings` + `PATCH …/product-mappings/{id}` for review of
-candidates. Preference kind defaults to `technical`.
+candidates. Preference kind defaults to `technical`. UI select/reject on
+`ArchitecturePanel`.

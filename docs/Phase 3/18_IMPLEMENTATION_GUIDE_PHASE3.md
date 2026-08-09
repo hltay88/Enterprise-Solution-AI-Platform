@@ -38,26 +38,26 @@ Verify: `python3 scripts/verify_sprint_3_1.py` (backend up; rebuild Docker after
 
 Shipped surface: pattern catalog, `architecture_options` tree, generation service
 (Published RKM + domain gate), capacity/risks/scores/traceability, plural APIs,
-`ArchitecturePanel`. Approve remains Sprint 3.3.
+`ArchitecturePanel`. Approve landed in Sprint 3.3.
 
 Verify: `python3 scripts/verify_sprint_3_2.py` (backend up; rebuild Docker after backend changes).
 
-### Sprint 3.3 — in progress
+### Sprint 3.3 — Tasks 1–12 done; Task 13 next
 1. ~~Vendor/BOM/mapping schema + ORM~~ (Task 1)
 2. ~~Pydantic schemas~~ (Task 2)
 3. ~~Catalogue import + search API~~ (Task 3)
 4. ~~Sample catalogue pack~~ (Task 4)
 5. ~~Product mapping service~~ (Task 5 — explicit action)
 6. ~~Mapping APIs~~ (Task 6)
-7. BOM import — Sprint 3.3 Task 7 (`POST …/bom/import`; immutable)
-8. BOM validation — Sprint 3.3 Task 8 (`POST …/bom/{id}/validate`)
-9. Architecture review — Sprint 3.3 Task 9 (`POST …/architectures/{id}/review`)
-10. Architecture approve — Sprint 3.3 Task 10 (hard Complete gate; Approver)
-11. Frontend panels — Sprint 3.3 Task 11 (map/review/Complete + BOM panel)
-12. Docs polish
+7. ~~BOM import~~ (Task 7 — immutable evidence)
+8. ~~BOM validation~~ (Task 8)
+9. ~~Architecture review~~ (Task 9)
+10. ~~Architecture approve~~ (Task 10 — hard Complete gate; Approver)
+11. ~~Frontend panels~~ (Task 11 — map/review/Complete + BOM panel)
+12. ~~Docs polish~~ (Task 12 — this pack aligned to live surface)
 13. `scripts/verify_sprint_3_3.py` + acceptance
 
-Defaults: seed + import catalogue; explicit Map products; hard Complete gate;
+Defaults locked: seed + import catalogue; explicit Map products; hard Complete gate;
 singular `/architecture` aliases kept deprecated through 3.3.
 
 ## Engineering rule

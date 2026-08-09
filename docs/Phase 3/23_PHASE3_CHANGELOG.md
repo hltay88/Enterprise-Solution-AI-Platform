@@ -1,5 +1,11 @@
 # Phase 3 Changelog
 
+## 0.3.3-task12 (docs polish)
+
+Sprint 3.3 Task 12: align Phase 3 pack (README, API, DB, acceptance, UI flow,
+implementation guide, test plan) with live vendor/BOM/review/Complete surface.
+Task 13 remains acceptance verify script.
+
 ## 0.3.3-task11 (frontend vendor / BOM / review panels)
 
 Sprint 3.3 Task 11: project-page UI for Map products, select/reject mappings,
