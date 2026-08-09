@@ -58,3 +58,4 @@ Wipe local DB volume (destructive):
 - `http://localhost:3000` only works while the stack is running.
 - After a Mac reboot: wait for Docker Desktop, then click **Start Atlas** (or wait for Login Item).
 - AI keys are optional; without them the backend uses the local analysis fallback.
+- Phase 4 PDF export uses LibreOffice inside the backend image (`libreoffice-writer`). Rebuild the backend image after pull if PDF export previously reported missing `soffice`.

@@ -5,6 +5,8 @@
 Phase 4 exit criteria covered for deliverable generators, package assembly, and
 export stack (DOCX/PDF/PPTX/XLSX). Smoke fixes for validated-BOM snapshot
 selection and ATLAS-047 pricing-disclaimer false positives included.
+Docker backend image installs LibreOffice Writer so default `./start-atlas.sh`
+PDF export matches ATLAS-049.
 
 ### Sprint 4.0 — Design locks (2026-08-10)
 - Accepted ATLAS-042…048.

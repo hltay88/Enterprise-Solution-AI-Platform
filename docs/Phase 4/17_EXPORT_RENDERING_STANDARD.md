@@ -4,9 +4,11 @@ Rendering must be deterministic for the same document version, template version,
 
 Outputs:
 - DOCX
-- PDF
+- PDF (LibreOffice `soffice --headless`; Docker backend image includes `libreoffice-writer`)
 - PPTX
 - XLSX
+
+Native/Mac without Docker: install LibreOffice or set `LIBREOFFICE_PATH`. Missing soffice fails the PDF export job visibly (ATLAS-049) — no silent fallback.
 
 After rendering:
 1. Verify file exists.

@@ -6,11 +6,14 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PYTHONPATH=/app
 
+# LibreOffice Writer provides `soffice` for DOCX→PDF (ATLAS-049 / Sprint 4.3).
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         tesseract-ocr \
         poppler-utils \
         antiword \
+        libreoffice-writer \
+        fonts-dejavu-core \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
