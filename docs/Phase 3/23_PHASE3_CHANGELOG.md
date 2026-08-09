@@ -1,5 +1,12 @@
 # Phase 3 Changelog
 
+## 0.3.2-task7 (capacity notes helper)
+
+Sprint 3.2 Task 7: `architecture_capacity.py` sanitizes fabricated sizing
+results into open questions and enriches domain-relevant capacity notes
+(no invented numbers). Wired into `ArchitectureGenerationService` before
+persist. Aligns with `06_CAPACITY_PLANNING.md`.
+
 ## 0.3.2-task6 (architecture generation service)
 
 Sprint 3.2 Task 6: `ArchitectureGenerationService` gates on Published RKM +

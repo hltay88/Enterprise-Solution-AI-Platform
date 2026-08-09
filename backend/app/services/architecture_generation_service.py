@@ -34,9 +34,14 @@ from app.schemas.architecture_option import (
     SolutionScoreOut,
     validate_architecture_ai_extraction,
 )
+from app.services.architecture_capacity import (
+    enrich_architecture_capacity,
+    preprocess_capacity_in_extraction,
+)
 from app.services.audit_service import AuditService
 from app.services.phase3_domain_catalog import catalog_version
 from app.services.phase3_pattern_catalog import build_pattern_pack_context
+from app.services.domain_traceability import extract_rkm_requirements
 
 logger = logging.getLogger(__name__)
 PROMPT_VERSION = "architecture-2.0"
@@ -142,8 +147,16 @@ class ArchitectureGenerationService:
             )
 
         try:
-            normalized = normalize_architecture_candidates(extraction)
+            # Task 7: strip fabricated capacity results before strict validation.
+            preprocessed = preprocess_capacity_in_extraction(extraction)
+            normalized = normalize_architecture_candidates(preprocessed)
             validated = validate_architecture_ai_extraction(normalized)
+            validated = enrich_architecture_capacity(
+                validated,
+                domain_codes=domain_codes,
+                rkm_text=_rkm_text_blob(rkm_payload),
+                requirements=extract_rkm_requirements(rkm_payload),
+            )
         except (ValidationError, ValueError, AppError) as exc:
             raise ValidationAppError(
                 f"AI architecture candidates payload failed validation: {exc}",
