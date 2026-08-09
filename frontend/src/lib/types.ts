@@ -851,3 +851,51 @@ export type ConsistencyReport = {
     code: string;
   }>;
 };
+
+export type PackageMember = {
+  id: string;
+  package_id: string;
+  document_id: string;
+  document_version_id: string;
+  document_type: string;
+  role: string;
+  title?: string | null;
+  document_status?: string | null;
+  checksum_sha256?: string | null;
+};
+
+export type DocumentPackage = {
+  id: string;
+  project_id: string;
+  title: string;
+  status: string;
+  version_label?: string | null;
+  source_snapshot_id: string;
+  bom_import_id?: string | null;
+  architecture_id?: string | null;
+  members: PackageMember[];
+  export_storage_path?: string | null;
+  export_checksum_sha256?: string | null;
+  exported_at?: string | null;
+  created_at?: string | null;
+};
+
+export type PackageValidation = {
+  ok: boolean;
+  findings: Array<{
+    code: string;
+    message: string;
+    severity: string;
+    document_type?: string | null;
+  }>;
+};
+
+export type PackageExport = {
+  package_id: string;
+  status: string;
+  storage_path?: string | null;
+  checksum_sha256?: string | null;
+  download_name?: string | null;
+  error?: string | null;
+  exported_at?: string | null;
+};

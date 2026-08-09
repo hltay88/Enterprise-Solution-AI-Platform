@@ -25,6 +25,10 @@ function supportsDocxPdf(doc: GeneratedDocument | null) {
   return !!doc && ["proposal", "sow", "solution_design"].includes(doc.document_type);
 }
 
+function isBom(doc: GeneratedDocument | null) {
+  return doc?.document_type === "bom";
+}
+
 export function DeliverablesPanel({
   projectId,
   refreshToken = 0,
@@ -130,11 +134,11 @@ export function DeliverablesPanel({
 
   return (
     <section className="form-panel">
-      <h2>Deliverables — Proposal, Presentation, SOW &amp; Design</h2>
+      <h2>Deliverables — Proposal, Presentation, SOW, Design &amp; BOM</h2>
       <p className="muted">
         Generate customer deliverables from a Complete architecture via an
-        immutable source snapshot (Sprint 4.1–4.3 / ATLAS-042…049). PDF export
-        requires LibreOffice (`soffice`).
+        immutable source snapshot (Sprint 4.1–4.4 / ATLAS-042…050). BOM requires
+        validated Phase 3 BOM. PDF requires LibreOffice (`soffice`).
       </p>
 
       {loading ? <p>Loading…</p> : null}
@@ -177,6 +181,14 @@ export function DeliverablesPanel({
           {busy === "generate-solution_design"
             ? "Generating…"
             : "Generate solution design"}
+        </button>
+        <button
+          type="button"
+          className="btn-primary"
+          disabled={!!busy || completeArch.length === 0}
+          onClick={() => void generate("bom", "BOM")}
+        >
+          {busy === "generate-bom" ? "Generating…" : "Generate BOM"}
         </button>
         <button
           type="button"
@@ -275,6 +287,30 @@ export function DeliverablesPanel({
             }
           >
             Export PPTX
+          </button>
+        ) : null}
+        {isBom(selected) ? (
+          <button
+            type="button"
+            className="btn-secondary"
+            disabled={!!busy || !selectedId}
+            onClick={() =>
+              void run("export-xlsx", async () => {
+                const job = await apiPost<ExportJob>(
+                  `/api/v1/projects/${projectId}/deliverables/${selectedId}/export`,
+                  { format: "xlsx" },
+                  true,
+                );
+                setExportJob(job);
+                setNote(
+                  job.status === "completed"
+                    ? `XLSX ready (checksum ${job.checksum_sha256?.slice(0, 12)}…)`
+                    : `Export ${job.status}`,
+                );
+              })
+            }
+          >
+            Export XLSX
           </button>
         ) : null}
         {supportsDocxPdf(selected) ? (

@@ -13,6 +13,7 @@ import { AppHeader } from "@/components/AppHeader";
 import { AuditLogPanel } from "@/components/AuditLogPanel";
 import { ClarificationPanel } from "@/components/ClarificationPanel";
 import { DeliverablesPanel } from "@/components/DeliverablesPanel";
+import { PackagePanel } from "@/components/PackagePanel";
 import { DocumentUploadPanel } from "@/components/DocumentUploadPanel";
 import { GapAnalysisPanel } from "@/components/GapAnalysisPanel";
 import { ProjectForm } from "@/components/ProjectForm";
@@ -167,6 +168,10 @@ function ProjectDetailContent({ userName }: { userName: string }) {
               refreshToken={rkmRefreshToken}
             />
             <DeliverablesPanel
+              projectId={projectId}
+              refreshToken={rkmRefreshToken}
+            />
+            <PackagePanel
               projectId={projectId}
               refreshToken={rkmRefreshToken}
             />

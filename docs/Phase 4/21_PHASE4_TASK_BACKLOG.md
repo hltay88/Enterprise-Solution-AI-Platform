@@ -25,11 +25,11 @@
 18. DOCX/PDF export — **done**
 
 ## Sprint 4.4 — Package + BOM
-19. BOM output
-20. Package assembly
-21. Package validation
-22. Approval workflow
-23. Final export
-24. Phase acceptance
+19. BOM output — **done**
+20. Package assembly — **done**
+21. Package validation — **done**
+22. Approval workflow — **done**
+23. Final export — **done**
+24. Phase acceptance — **done**
 
 Implement one task at a time.

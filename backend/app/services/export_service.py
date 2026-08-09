@@ -18,6 +18,7 @@ from app.services.audit_service import AuditService
 from app.services.rendering.docx_renderer import render_document_docx
 from app.services.rendering.pdf_renderer import convert_docx_bytes_to_pdf
 from app.services.rendering.pptx_renderer import render_presentation_pptx
+from app.services.rendering.xlsx_renderer import render_bom_xlsx
 
 _DOCX_TYPES = {"proposal", "sow", "solution_design"}
 
@@ -60,25 +61,7 @@ class ExportService:
         self.db.commit()
 
         try:
-            sections = []
-            for section in self.repo.list_sections(document.current_version_id):
-                items = [
-                    {
-                        "text": item.text,
-                        "content_type": item.content_type,
-                        "review_required": item.review_required,
-                        "structured_data": item.structured_data or {},
-                    }
-                    for item in self.repo.list_content_items(section.id)
-                ]
-                sections.append(
-                    {
-                        "title": section.title,
-                        "section_type": section.section_type,
-                        "assumptions": list(section.assumptions_json or []),
-                        "content_items": items,
-                    }
-                )
+            sections = self._load_sections(document.current_version_id)
 
             if export_format == "pptx":
                 data = render_presentation_pptx(
@@ -88,6 +71,14 @@ class ExportService:
                 )
                 extension = "pptx"
                 label = "presentation PPTX"
+            elif export_format == "xlsx":
+                data = render_bom_xlsx(
+                    title=document.title,
+                    status=document.status,
+                    sections=sections,
+                )
+                extension = "xlsx"
+                label = "BOM XLSX"
             else:
                 docx_bytes = render_document_docx(
                     title=document.title,
@@ -168,10 +159,73 @@ class ExportService:
             download_name=f"{document.title or doc_type}.{export_format}",
         )
 
+    def render_bytes(
+        self,
+        document_id: UUID,
+        project_id: UUID,
+        export_format: str,
+    ) -> tuple[bytes, str]:
+        """Render deliverable bytes without creating an export job (package ZIP)."""
+        document = self.repo.get_document(document_id, project_id)
+        if document is None or document.current_version_id is None:
+            raise NotFoundError("Deliverable not found")
+        doc_type = str(document.document_type or "proposal")
+        self._validate_format(doc_type, export_format)
+        sections = self._load_sections(document.current_version_id)
+        if export_format == "pptx":
+            return (
+                render_presentation_pptx(
+                    title=document.title, status=document.status, slides=sections
+                ),
+                "pptx",
+            )
+        if export_format == "xlsx":
+            return (
+                render_bom_xlsx(
+                    title=document.title, status=document.status, sections=sections
+                ),
+                "xlsx",
+            )
+        docx_bytes = render_document_docx(
+            title=document.title,
+            status=document.status,
+            sections=sections,
+            document_label=doc_type.replace("_", " ").title(),
+        )
+        if export_format == "pdf":
+            return convert_docx_bytes_to_pdf(docx_bytes), "pdf"
+        return docx_bytes, "docx"
+
+    def _load_sections(self, version_id: UUID) -> list[dict]:
+        sections = []
+        for section in self.repo.list_sections(version_id):
+            items = [
+                {
+                    "text": item.text,
+                    "content_type": item.content_type,
+                    "review_required": item.review_required,
+                    "structured_data": item.structured_data or {},
+                }
+                for item in self.repo.list_content_items(section.id)
+            ]
+            sections.append(
+                {
+                    "title": section.title,
+                    "section_type": section.section_type,
+                    "assumptions": list(section.assumptions_json or []),
+                    "content_items": items,
+                }
+            )
+        return sections
+
     def _validate_format(self, doc_type: str, export_format: str) -> None:
         if doc_type == "presentation":
             if export_format != "pptx":
                 raise ValidationAppError("Presentations export as format=pptx only")
+            return
+        if doc_type == "bom":
+            if export_format != "xlsx":
+                raise ValidationAppError("BOM exports as format=xlsx only")
             return
         if doc_type in _DOCX_TYPES:
             if export_format not in {"docx", "pdf"}:

@@ -28,6 +28,15 @@ Sprint **4.0** (2026-08-10) locked the integration choices below before Sprint 4
 
 ---
 
+## ATLAS-050 — Document package hard gate + ZIP export
+
+**Status:** Accepted (Sprint 4.4)  
+**Date:** 2026-08-10  
+
+**Decision:** Package assembly requires a validated BOM and approved proposal, presentation, SOW, and solution design pinned to the same architecture. BOM spreadsheet deliverable is a deterministic projection (no AI) exported via openpyxl (`format=xlsx`). Final package export is a ZIP containing `manifest.json` plus canonical artifacts (DOCX/PPTX/XLSX). Pricing columns are omitted unless authoritative price fields exist (ATLAS-047).
+
+---
+
 ## ATLAS-042 — Deliverables API under projects (not Phase 2 documents)
 
 **Status:** Accepted (Sprint 4.0)  

@@ -16,7 +16,7 @@ Phase 2 requirement-file ingest retains `/documents` and
 ## Generation
 
 - `POST /projects/{projectId}/deliverables/generate`
-  - body: `{ document_type: "proposal" | "presentation", snapshot_id?, architecture_id? }`
+  - body: `{ document_type: "proposal" | "presentation" | "sow" | "solution_design" | "bom", snapshot_id?, architecture_id? }`
 - `POST /projects/{projectId}/deliverables/preview` (optional dry-run)
 
 ## Deliverables
@@ -36,11 +36,16 @@ Phase 2 requirement-file ingest retains `/documents` and
 ## Export
 
 - `POST /projects/{projectId}/deliverables/{documentId}/export`
-  - proposal → `{ format: "docx" }`
+  - proposal / sow / solution_design → `{ format: "docx" | "pdf" }`
   - presentation → `{ format: "pptx" }`
+  - bom → `{ format: "xlsx" }`
 - `GET /projects/{projectId}/deliverables/exports/{exportId}`
 
 ## Packages (Sprint 4.4)
 
-- `POST /projects/{projectId}/packages/generate`
+- `POST /projects/{projectId}/packages/assemble` (alias: `/packages/generate`)
 - `GET /projects/{projectId}/packages`
+- `GET /projects/{projectId}/packages/{packageId}`
+- `POST /projects/{projectId}/packages/{packageId}/validate`
+- `POST /projects/{projectId}/packages/{packageId}/approve`
+- `POST /projects/{projectId}/packages/{packageId}/export` → ZIP + manifest

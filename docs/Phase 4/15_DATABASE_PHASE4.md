@@ -14,8 +14,12 @@ Sprint 4.1 entities (see `docker/postgres/init/10_phase4_deliverables.sql`):
 - `document_approvals`
 - `export_jobs`
 
-Deferred to later sprints:
+Sprint 4.4 entities (see `docker/postgres/init/11_phase4_packages.sql`):
+
 - `document_packages`
+- `document_package_members`
+
+Optional / deferred:
 - `generation_artifacts` (optional; raw payload stored on `generation_runs`)
 - `document_comments`
 
@@ -23,3 +27,4 @@ Integrity:
 - Documents reference immutable source snapshots.
 - Approved versions cannot be updated in place (revise creates a new version).
 - Generation runs retain model, prompt, template and source metadata.
+- Packages require validated BOM + approved required members (ATLAS-050).

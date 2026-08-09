@@ -8,8 +8,8 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field
 
-DocumentType = Literal["proposal", "presentation", "sow", "solution_design"]
-ExportFormat = Literal["docx", "pptx", "pdf"]
+DocumentType = Literal["proposal", "presentation", "sow", "solution_design", "bom"]
+ExportFormat = Literal["docx", "pptx", "pdf", "xlsx"]
 
 
 class SnapshotCreateIn(BaseModel):
@@ -311,9 +311,27 @@ SOLUTION_DESIGN_SECTION_TYPES: list[tuple[str, str]] = [
     ("appendices", "Appendices"),
 ]
 
+BOM_SECTION_TYPES: list[tuple[str, str]] = [
+    ("cover", "Cover"),
+    ("line_items", "Line Items"),
+    ("classification", "Classification"),
+    ("issues", "Issues"),
+    ("sources", "Sources"),
+]
+
 SECTION_TYPES_BY_DOCUMENT: dict[str, list[tuple[str, str]]] = {
     "proposal": PROPOSAL_SECTION_TYPES,
     "presentation": PRESENTATION_SECTION_TYPES,
     "sow": SOW_SECTION_TYPES,
     "solution_design": SOLUTION_DESIGN_SECTION_TYPES,
+    "bom": BOM_SECTION_TYPES,
 }
+
+REQUIRED_PACKAGE_DOCUMENT_TYPES: tuple[str, ...] = (
+    "proposal",
+    "presentation",
+    "sow",
+    "solution_design",
+    "bom",
+)
+

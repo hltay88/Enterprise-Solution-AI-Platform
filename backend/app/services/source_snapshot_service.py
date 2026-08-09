@@ -331,13 +331,17 @@ class SourceSnapshotService:
             "validated": validated,
             "bom_import_id": str(chosen.id),
             "validation_status": getattr(validation, "status", None),
+            "issues": list(getattr(validation, "issues", None) or []) if validation else [],
             "items": [
                 {
                     "vendor": i.vendor,
                     "product_model": i.product_model,
                     "quantity": i.quantity,
+                    "unit": i.unit,
                     "category": i.category,
                     "description": i.description,
+                    "sku": i.sku,
+                    "notes": i.notes,
                 }
                 for i in items
             ],

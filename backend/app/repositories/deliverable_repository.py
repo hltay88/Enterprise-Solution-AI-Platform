@@ -23,6 +23,7 @@ from app.models.deliverable import (
     TemplateVersion,
 )
 from app.schemas.deliverable import (
+    BOM_SECTION_TYPES,
     PRESENTATION_SECTION_TYPES,
     PROPOSAL_SECTION_TYPES,
     SOLUTION_DESIGN_SECTION_TYPES,
@@ -34,6 +35,7 @@ _DEFAULT_TEMPLATE_CODES: dict[str, str] = {
     "presentation": "default_presentation",
     "sow": "default_sow",
     "solution_design": "default_solution_design",
+    "bom": "default_bom",
 }
 
 
@@ -110,6 +112,15 @@ class DeliverableRepository:
             name="Default Solution Design",
             section_types=SOLUTION_DESIGN_SECTION_TYPES,
             styles_json={"format": "docx"},
+        )
+
+    def ensure_bom_template_seed(self) -> tuple[DocumentTemplate, TemplateVersion]:
+        return self._ensure_template_seed(
+            document_type="bom",
+            code="default_bom",
+            name="Default BOM Package Sheet",
+            section_types=BOM_SECTION_TYPES,
+            styles_json={"format": "xlsx"},
         )
 
     def _ensure_template_seed(

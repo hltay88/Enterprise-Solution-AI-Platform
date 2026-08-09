@@ -12,6 +12,8 @@ PDF exports convert DOCX via LibreOffice. Cross-document consistency is soft (fi
 
 Sprint 4.4:
 Assemble approved outputs into a package and add final BOM/export validation.
+Hard gate: validated BOM + approved proposal/presentation/SOW/solution design.
+ZIP export with manifest.json (ATLAS-050).
 
 Principles:
 - Reuse common document services.

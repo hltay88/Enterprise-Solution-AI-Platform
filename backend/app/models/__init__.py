@@ -35,6 +35,8 @@ from app.models.user import User
 from app.models.deliverable import (
     ContentItem,
     DocumentApproval,
+    DocumentPackage,
+    DocumentPackageMember,
     DocumentSection,
     DocumentSourceRef,
     DocumentTemplate,
@@ -103,4 +105,6 @@ __all__ = [
     "DocumentSourceRef",
     "DocumentApproval",
     "ExportJob",
+    "DocumentPackage",
+    "DocumentPackageMember",
 ]

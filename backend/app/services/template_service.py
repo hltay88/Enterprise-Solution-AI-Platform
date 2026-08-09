@@ -38,3 +38,8 @@ class TemplateService:
         template, version = self.repo.ensure_solution_design_template_seed()
         self.db.commit()
         return template, version
+
+    def resolve_bom_template(self) -> tuple[DocumentTemplate, TemplateVersion]:
+        template, version = self.repo.ensure_bom_template_seed()
+        self.db.commit()
+        return template, version

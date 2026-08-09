@@ -28,5 +28,14 @@ Added:
 - `scripts/verify_sprint_4_3.py`
 - ATLAS-049 PDF conversion path
 
-Planned later:
-- Package + BOM commercial packaging (4.4)
+### Sprint 4.4 — Package + BOM (implemented)
+Added:
+- Deterministic BOM deliverable (`document_type=bom`) + XLSX via openpyxl
+- `document_packages` / members; assemble hard gate (validated BOM + 4 approved docs)
+- Package validate / approve / ZIP export with `manifest.json`
+- UI: Generate BOM, Package panel
+- `scripts/verify_sprint_4_4.py`
+- ATLAS-050 package gate + ZIP final export
+
+## Atlas Foundation 0.4
+Phase 4 exit criteria covered for implemented deliverable generators, package assembly, and export stack (DOCX/PDF/PPTX/XLSX).

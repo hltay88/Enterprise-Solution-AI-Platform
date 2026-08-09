@@ -14,6 +14,7 @@ from app.schemas.deliverable import (
     SectionPatchIn,
     SnapshotCreateIn,
 )
+from app.services.bom_generation_service import BomGenerationService
 from app.services.cross_document_consistency_service import (
     CrossDocumentConsistencyService,
 )
@@ -80,6 +81,10 @@ async def generate_deliverable(
         )
     elif body.document_type == "solution_design":
         result = await SolutionDesignGenerationService(db).generate(
+            project_id, current_user.id, body
+        )
+    elif body.document_type == "bom":
+        result = await BomGenerationService(db).generate(
             project_id, current_user.id, body
         )
     else:
