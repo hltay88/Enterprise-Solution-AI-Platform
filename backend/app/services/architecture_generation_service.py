@@ -115,6 +115,55 @@ class ArchitectureGenerationService:
             architectures=outs,
         )
 
+    def list_risks(
+        self,
+        project_id: UUID,
+        user_id: UUID,
+        *,
+        architecture_id: UUID | None = None,
+    ) -> list[SolutionRiskOut]:
+        """List risks for a project, optionally scoped to one architecture option."""
+        self._require_project(project_id, user_id)
+        if architecture_id is not None:
+            option = self.architectures.get_for_project(architecture_id, project_id)
+            if option is None:
+                raise NotFoundError("Architecture option not found")
+            rows = self.architectures.list_risks(architecture_id=architecture_id)
+        else:
+            latest = self.architectures.get_latest(project_id)
+            if latest is None:
+                return []
+            # Default: risks for the latest generation batch.
+            generation = self.architectures.list_generation(project_id, latest.generation_id)
+            rows = []
+            for option in generation:
+                rows.extend(self.architectures.list_risks(architecture_id=option.id))
+        return [self._risk_out(item) for item in rows]
+
+    def list_assumptions(
+        self,
+        project_id: UUID,
+        user_id: UUID,
+        *,
+        architecture_id: UUID | None = None,
+    ) -> list[ArchitectureAssumptionOut]:
+        """List assumptions for a project, optionally scoped to one architecture option."""
+        self._require_project(project_id, user_id)
+        if architecture_id is not None:
+            option = self.architectures.get_for_project(architecture_id, project_id)
+            if option is None:
+                raise NotFoundError("Architecture option not found")
+            rows = self.architectures.list_assumptions(architecture_id)
+        else:
+            latest = self.architectures.get_latest(project_id)
+            if latest is None:
+                return []
+            generation = self.architectures.list_generation(project_id, latest.generation_id)
+            rows = []
+            for option in generation:
+                rows.extend(self.architectures.list_assumptions(option.id))
+        return [self._assumption_out(item) for item in rows]
+
     async def generate(self, project_id: UUID, user_id: UUID) -> ArchitectureGenerateOut:
         self._require_project(project_id, user_id)
         published = self.rkms.get_published(project_id)
@@ -313,6 +362,50 @@ class ArchitectureGenerationService:
             raise NotFoundError("Project not found")
         return project
 
+    @staticmethod
+    def _risk_out(item) -> SolutionRiskOut:
+        return SolutionRiskOut(
+            id=item.id,
+            architecture_id=getattr(item, "architecture_id", None),
+            project_id=getattr(item, "project_id", None),
+            description=item.description,
+            category=item.category or "technical",
+            cause=item.cause or "",
+            impact=item.impact or "",
+            probability=item.probability,  # type: ignore[arg-type]
+            severity=item.severity,  # type: ignore[arg-type]
+            mitigation=item.mitigation or "",
+            owner=item.owner,
+            related_requirement_ids=[
+                str(req) for req in (item.related_requirement_ids or [])
+            ],
+        )
+
+    @staticmethod
+    def _assumption_out(
+        item,
+        *,
+        affected_component_ids: list[UUID] | None = None,
+    ) -> ArchitectureAssumptionOut:
+        if affected_component_ids is None:
+            parsed: list[UUID] = []
+            for raw in item.affected_component_ids or []:
+                try:
+                    parsed.append(UUID(str(raw)))
+                except (TypeError, ValueError):
+                    continue
+            affected_component_ids = parsed
+        return ArchitectureAssumptionOut(
+            id=item.id,
+            architecture_id=getattr(item, "architecture_id", None),
+            project_id=getattr(item, "project_id", None),
+            statement=item.statement,
+            reason=item.reason or "",
+            affected_component_ids=affected_component_ids,
+            validation_required=bool(item.validation_required),
+            status=item.status,  # type: ignore[arg-type]
+        )
+
     def _to_summary(self, row) -> ArchitectureOptionSummaryOut:
         return ArchitectureOptionSummaryOut(
             id=row.id,
@@ -410,33 +503,10 @@ class ArchitectureGenerationService:
                 for item in decisions
             ],
             assumptions=[
-                ArchitectureAssumptionOut(
-                    id=item.id,
-                    statement=item.statement,
-                    reason=item.reason or "",
-                    affected_component_ids=ids,
-                    validation_required=bool(item.validation_required),
-                    status=item.status,  # type: ignore[arg-type]
-                )
+                self._assumption_out(item, affected_component_ids=ids)
                 for item, ids in zip(assumptions, affected_ids, strict=True)
             ],
-            risks=[
-                SolutionRiskOut(
-                    id=item.id,
-                    description=item.description,
-                    category=item.category or "technical",
-                    cause=item.cause or "",
-                    impact=item.impact or "",
-                    probability=item.probability,  # type: ignore[arg-type]
-                    severity=item.severity,  # type: ignore[arg-type]
-                    mitigation=item.mitigation or "",
-                    owner=item.owner,
-                    related_requirement_ids=[
-                        str(req) for req in (item.related_requirement_ids or [])
-                    ],
-                )
-                for item in risks
-            ],
+            risks=[self._risk_out(item) for item in risks],
             scores=[
                 SolutionScoreOut(
                     id=item.id,

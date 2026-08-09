@@ -1,5 +1,11 @@
 # Phase 3 Changelog
 
+## 0.3.2-task11 (architectures API + MVP aliases)
+
+Sprint 3.2 Task 11: plural `/architectures` generate/list/get plus `/risks` and
+`/assumptions` (`?architecture_id=`). Singular `/architecture` routes alias the
+new generation service (deprecated). Review/approve deferred to 3.3.
+
 ## 0.3.2-task10 (architecture traceability)
 
 Sprint 3.2 Task 10: `architecture_traceability.py` builds requirement → domain →

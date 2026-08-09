@@ -583,6 +583,8 @@ class DesignDecisionOut(BaseModel):
 
 class ArchitectureAssumptionOut(BaseModel):
     id: UUID
+    architecture_id: UUID | None = None
+    project_id: UUID | None = None
     statement: str
     reason: str = ""
     affected_component_ids: list[UUID] = Field(default_factory=list)
@@ -592,6 +594,8 @@ class ArchitectureAssumptionOut(BaseModel):
 
 class SolutionRiskOut(BaseModel):
     id: UUID
+    architecture_id: UUID | None = None
+    project_id: UUID | None = None
     description: str
     category: str = "technical"
     cause: str = ""
