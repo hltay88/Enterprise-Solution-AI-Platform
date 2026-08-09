@@ -1,5 +1,10 @@
 # Phase 3 Changelog
 
+## 0.3.1-task5 (phase 3 knowledge packs)
+
+Sprint 3.1 Task 5: `phase3_knowledge_packs.py` — catalog-driven domain pack context,
+`pack_version()`, detection via aliases + Phase 2 checklist bridge. Stage F packs unchanged.
+
 ## 0.3.1-task4 (domain repository)
 
 Sprint 3.1 Task 4: `DomainRepository` with `create_analysis_tree`, version helpers,
