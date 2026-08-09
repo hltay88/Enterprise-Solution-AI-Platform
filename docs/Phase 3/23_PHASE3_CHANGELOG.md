@@ -1,5 +1,12 @@
 # Phase 3 Changelog
 
+## 0.3.1-task14 (sprint verification)
+
+Sprint 3.1 Task 14: `scripts/verify_sprint_3_1.py` runs pytest + API smoke
+(publish RKM → domains/analyze → GET domains/traceability → architecture generate).
+Also fixes `DomainRepository.create_analysis_tree` flush order so dependencies
+insert after `solution_domains` (FK violation under real DB).
+
 ## 0.3.1-task13 (docs polish)
 
 Sprint 3.1 Task 13: aligned Phase 3 docs with shipped domain/traceability work —
@@ -9,8 +16,8 @@ No `/solutions/` API surface (ATLAS-031).
 ## 0.3.1 (Sprint 3.1 — Solution Domain Identification)
 
 Shipped end-to-end: frozen catalog + packs, normalized domain tables, AI identify,
-`DomainIdentificationService`, `/domains` + `/traceability` APIs, `SolutionDomainPanel`.
-Task 14 optional verify script remains for regression packaging.
+`DomainIdentificationService`, `/domains` + `/traceability` APIs, `SolutionDomainPanel`,
+plus `scripts/verify_sprint_3_1.py` for unit + smoke regression.
 
 ## 0.3.1-task12 (solution domain UI)
 

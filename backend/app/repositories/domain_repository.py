@@ -190,9 +190,13 @@ class DomainRepository:
             updated_at=now,
         )
         self.db.add(analysis)
+        # Flush parent before children — ORM has no relationship() graph, so
+        # insertmany can otherwise write domain_dependencies before solution_domains.
+        self.db.flush()
 
         code_to_domain: dict[str, SolutionDomain] = {}
         seen_codes: set[str] = set()
+        pending_children: list[tuple[SolutionDomain, dict[str, Any]]] = []
 
         for index, item in enumerate(domains or []):
             if not isinstance(item, dict):
@@ -224,7 +228,12 @@ class DomainRepository:
             )
             self.db.add(domain)
             code_to_domain[code] = domain
+            pending_children.append((domain, item))
 
+        self.db.flush()
+
+        for domain, item in pending_children:
+            code = domain.domain_code
             for req in item.get("supporting_requirements") or []:
                 requirement_id, evidence = _parse_requirement_ref(req)
                 if not requirement_id:

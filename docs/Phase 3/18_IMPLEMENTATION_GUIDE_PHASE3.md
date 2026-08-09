@@ -13,7 +13,7 @@ Frozen in [`21_PHASE3_DECISIONS.md`](./21_PHASE3_DECISIONS.md):
 
 No feature code in Sprint 3.0.
 
-### Sprint 3.1 — complete (code + docs; optional verify script = Task 14)
+### Sprint 3.1 — complete
 1. ~~Solution domain model~~
 2. ~~Domain identification~~
 3. ~~Knowledge pack integration~~
@@ -21,6 +21,8 @@ No feature code in Sprint 3.0.
 
 Shipped surface: catalog/packs, normalized tables, AI identify, analyze service,
 `/domains` + `/traceability` APIs, `SolutionDomainPanel`. See [23_PHASE3_CHANGELOG.md](./23_PHASE3_CHANGELOG.md).
+
+Verify: `python3 scripts/verify_sprint_3_1.py` (backend up; rebuild Docker after backend changes).
 
 ### Sprint 3.2
 5. Architecture pattern library

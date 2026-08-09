@@ -63,3 +63,6 @@ scoring, risks/assumptions, vendor catalogue, BOM validation, architecture revie
 (see [15_API_PHASE3.md](./15_API_PHASE3.md), [22_PHASE3_TASK_BACKLOG.md](./22_PHASE3_TASK_BACKLOG.md)).
 
 API namespace remains `/api/v1/projects/{id}/…` — no `/solutions/` surface (ATLAS-031).
+
+**Verify Sprint 3.1:** with Atlas running, `python3 scripts/verify_sprint_3_1.py`
+(`--unit-only` / `--smoke-only` supported). Rebuild Docker backend after code changes.
