@@ -1,5 +1,12 @@
 # Phase 3 Changelog
 
+## 0.3.3-task02 (vendor / BOM / review Pydantic schemas)
+
+Sprint 3.3 Task 2: `backend/app/schemas/vendor_bom.py` contracts for catalogue
+import/search, product mapping, BOM import/validate, and architecture
+review/approve. Extends `ArchitectureOptionOut` with review/approve fields and
+status literals. No persistence/API wiring yet.
+
 ## 0.3.3-task01 (vendor / BOM / mapping schema)
 
 Sprint 3.3 Task 1: `09_phase3_vendors_bom.sql` + `ensure_schema` + ORM for

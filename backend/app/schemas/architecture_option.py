@@ -15,7 +15,13 @@ from pydantic import BaseModel, Field, field_validator, model_validator
 
 from app.services.phase3_pattern_catalog import PatternCatalogError, require_pattern_code
 
-ArchitectureStatus = Literal["draft", "recommended"]
+ArchitectureStatus = Literal[
+    "draft",
+    "recommended",
+    "under_review",
+    "approved",
+    "complete",
+]
 ComponentKind = Literal["business", "functional", "logical", "physical", "technology", "operations"]
 RiskProbability = Literal["low", "medium", "high"]
 RiskSeverity = Literal["low", "medium", "high", "critical"]
@@ -642,6 +648,8 @@ class ArchitectureOptionSummaryOut(BaseModel):
     version_label: str
     rkm_version_label: str | None = None
     domain_analysis_id: UUID | None = None
+    reviewed_at: datetime | None = None
+    approved_at: datetime | None = None
     created_at: datetime
 
 
@@ -679,6 +687,12 @@ class ArchitectureOptionOut(BaseModel):
     capacity_notes: list[CapacityNoteOut] = Field(default_factory=list)
     advantages: list[str] = Field(default_factory=list)
     disadvantages: list[str] = Field(default_factory=list)
+    reviewed_at: datetime | None = None
+    reviewed_by: UUID | None = None
+    review_note: str | None = None
+    approved_at: datetime | None = None
+    approved_by: UUID | None = None
+    approval_note: str | None = None
     created_at: datetime
     updated_at: datetime
     payload: dict[str, Any] = Field(default_factory=dict)

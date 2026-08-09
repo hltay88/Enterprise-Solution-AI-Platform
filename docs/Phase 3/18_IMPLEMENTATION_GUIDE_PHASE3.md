@@ -44,7 +44,7 @@ Verify: `python3 scripts/verify_sprint_3_2.py` (backend up; rebuild Docker after
 
 ### Sprint 3.3 — in progress
 1. ~~Vendor/BOM/mapping schema + ORM~~ (Task 1)
-2. Pydantic schemas
+2. ~~Pydantic schemas~~ (Task 2)
 3. Catalogue import + search API (seed + import)
 4. Sample catalogue pack
 5. Product mapping service (explicit action)

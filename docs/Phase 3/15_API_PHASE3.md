@@ -31,15 +31,21 @@ Review/approve stay Sprint 3.3.
 Auth: JWT as Phase 2. Generate/analyze require Editor+; reads require authenticated project owner.
 Envelope: ATLAS-014 `success_response`. No `/solutions/` routes.
 
-## Target surface (remaining Sprint 3.3+)
+## Target surface (Sprint 3.3 — schemas ready, APIs pending)
+
+DTO contracts live in `backend/app/schemas/vendor_bom.py` (Task 2). Routes not wired yet.
 
 ### Architecture review / approve
 - `POST /projects/{project_id}/architectures/{id}/review`
 - `POST /projects/{project_id}/architectures/{id}/approve`
 
+### Product mapping
+- `POST /projects/{project_id}/architectures/{id}/map-products` (explicit action)
+- `GET /projects/{project_id}/architectures/{id}/product-mappings`
+
 ### BOM
 - `POST /projects/{project_id}/bom/import`
-- `POST /projects/{project_id}/bom/validate`
+- `POST /projects/{project_id}/bom/{id}/validate`
 - `GET /projects/{project_id}/bom/{id}/validation`
 
 ### Vendor (global)
