@@ -41,8 +41,8 @@ Vendor comparison must show:
 
 ## Implementation status
 
-**Sprint 3.3 Task 5 (live, service only):** `ArchitectureProductMappingService`
-maps architecture components to catalogue products via capability/category fit
-(`architecture_product_matching.py`). Explicit `map_products` action — not run
-during architecture generate. Preference kind defaults to `technical`. HTTP
-routes in Task 6.
+**Sprint 3.3 Tasks 5–6 (live):** `ArchitectureProductMappingService` maps
+architecture components to catalogue products via capability/category fit.
+Explicit `POST …/map-products` — not run during architecture generate.
+`GET …/product-mappings` + `PATCH …/product-mappings/{id}` for review of
+candidates. Preference kind defaults to `technical`.

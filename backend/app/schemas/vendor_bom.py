@@ -279,9 +279,12 @@ class VendorCatalogueSearchOut(BaseModel):
 
 
 class ArchitectureProductMapIn(BaseModel):
-    """Explicit Map products action body (ATLAS-035 — not auto on generate)."""
+    """Explicit Map products action body (ATLAS-035 — not auto on generate).
 
-    architecture_id: UUID
+    ``architecture_id`` may be omitted when the route supplies it from the path.
+    """
+
+    architecture_id: UUID | None = None
     component_ids: list[UUID] | None = None
     catalogue_id: UUID | None = None
     region: str | None = None

@@ -21,6 +21,10 @@ from app.schemas.architecture_option import (
     ArchitectureAssumptionOut,
     SolutionRiskOut,
 )
+from app.schemas.vendor_bom import (
+    ArchitectureProductMappingOut,
+    ArchitectureProductMapResultOut,
+)
 
 
 def _user(role: str = "editor"):
@@ -64,10 +68,94 @@ def test_architecture_route_paths_registered():
     assert "/projects/{project_id}/architectures/generate" in plural
     assert "/projects/{project_id}/architectures" in plural
     assert "/projects/{project_id}/architectures/{architecture_id}" in plural
+    assert "/projects/{project_id}/architectures/{architecture_id}/map-products" in plural
+    assert (
+        "/projects/{project_id}/architectures/{architecture_id}/product-mappings"
+        in plural
+    )
+    assert "/projects/{project_id}/product-mappings/{mapping_id}" in plural
     assert "/projects/{project_id}/risks" in plural
     assert "/projects/{project_id}/assumptions" in plural
     assert "/projects/{project_id}/architecture" in singular
     assert "/projects/{project_id}/architecture/generate" in singular
+
+
+def test_map_products_and_list_mappings():
+    user = _user("editor")
+    project_id = uuid4()
+    architecture_id = uuid4()
+    mapping_id = uuid4()
+    now = datetime.now(timezone.utc)
+    mapping = ArchitectureProductMappingOut(
+        id=mapping_id,
+        project_id=project_id,
+        architecture_id=architecture_id,
+        component_id=uuid4(),
+        product_id=uuid4(),
+        fit_score=4.0,
+        rationale="capability match",
+        status="candidate",
+        preference_kind="technical",
+        vendor="RefNet",
+        product_model="RN-AP-6E",
+        created_at=now,
+        updated_at=now,
+    )
+    map_result = ArchitectureProductMapResultOut(
+        architecture_id=architecture_id,
+        mappings=[mapping],
+        unmatched_component_ids=[],
+    )
+    client = TestClient(_app(user))
+
+    with patch(
+        "app.api.routes.v1_architectures.ArchitectureProductMappingService",
+    ) as service_cls:
+        service_cls.return_value.map_products.return_value = map_result
+        service_cls.return_value.list_mappings.return_value = [mapping]
+        service_cls.return_value.update_mapping.return_value = mapping.model_copy(
+            update={"status": "selected"},
+        )
+        map_response = client.post(
+            f"/api/v1/projects/{project_id}/architectures/{architecture_id}/map-products",
+            json={"region": "APAC"},
+        )
+        list_response = client.get(
+            f"/api/v1/projects/{project_id}/architectures/{architecture_id}/product-mappings",
+        )
+        patch_response = client.patch(
+            f"/api/v1/projects/{project_id}/product-mappings/{mapping_id}",
+            json={"status": "selected"},
+        )
+
+    assert map_response.status_code == 201
+    assert map_response.json()["data"]["architecture_id"] == str(architecture_id)
+    assert list_response.status_code == 200
+    assert list_response.json()["data"][0]["product_model"] == "RN-AP-6E"
+    assert patch_response.status_code == 200
+    service_cls.return_value.map_products.assert_called_once()
+    called_body = service_cls.return_value.map_products.call_args.args[2]
+    assert called_body.architecture_id == architecture_id
+
+
+def test_map_products_maps_validation_error():
+    user = _user()
+    project_id = uuid4()
+    architecture_id = uuid4()
+    client = TestClient(_app(user))
+
+    with patch(
+        "app.api.routes.v1_architectures.ArchitectureProductMappingService",
+    ) as service_cls:
+        service_cls.return_value.map_products.side_effect = ValidationAppError(
+            "No catalogue products available",
+        )
+        response = client.post(
+            f"/api/v1/projects/{project_id}/architectures/{architecture_id}/map-products",
+        )
+
+    assert response.status_code == 422
+    assert "catalogue" in response.json()["error"]["message"]
 
 
 def test_list_and_get_architecture_ok():

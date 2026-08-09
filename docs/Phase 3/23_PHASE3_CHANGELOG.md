@@ -1,5 +1,11 @@
 # Phase 3 Changelog
 
+## 0.3.3-task06 (product mapping APIs)
+
+Sprint 3.3 Task 6: project-scoped routes for explicit map-products, list
+product-mappings, and PATCH mapping status/preference. Wires
+`ArchitectureProductMappingService` under ATLAS-031 `/projects/{id}/…`.
+
 ## 0.3.3-task05 (architecture product mapping service)
 
 Sprint 3.3 Task 5: capability/category matcher, mapping repository, and

@@ -45,6 +45,8 @@ class ArchitectureProductMappingService:
         body: ArchitectureProductMapIn,
     ) -> ArchitectureProductMapResultOut:
         self._require_project(project_id, user_id)
+        if body.architecture_id is None:
+            raise ValidationAppError("architecture_id is required")
         option = self.architectures.get_for_project(body.architecture_id, project_id)
         if option is None:
             raise NotFoundError("Architecture option not found")

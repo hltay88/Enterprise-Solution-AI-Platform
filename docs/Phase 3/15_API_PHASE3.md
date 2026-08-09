@@ -45,6 +45,14 @@ Global (not project-scoped):
 Never invents SKU specs; products older than 365 days (by `source_date`) are flagged `is_stale`.
 Seed file: `knowledge/phase3/vendors/seed_catalogue.json` (fictional vendors only).
 
+### Product mapping (Task 6 — ATLAS-035) — **Live**
+
+- `POST /projects/{project_id}/architectures/{architecture_id}/map-products` (Editor+; explicit)
+- `GET /projects/{project_id}/architectures/{architecture_id}/product-mappings`
+- `PATCH /projects/{project_id}/product-mappings/{mapping_id}` (Editor+; status/preference)
+
+Optional body on map: `component_ids`, `catalogue_id`, `region`, `include_stale`.
+
 ## Target surface (Sprint 3.3 remaining)
 
 DTO contracts in `backend/app/schemas/vendor_bom.py`.
@@ -52,10 +60,6 @@ DTO contracts in `backend/app/schemas/vendor_bom.py`.
 ### Architecture review / approve
 - `POST /projects/{project_id}/architectures/{id}/review`
 - `POST /projects/{project_id}/architectures/{id}/approve`
-
-### Product mapping
-- `POST /projects/{project_id}/architectures/{id}/map-products` (explicit action)
-- `GET /projects/{project_id}/architectures/{id}/product-mappings`
 
 ### BOM
 - `POST /projects/{project_id}/bom/import`

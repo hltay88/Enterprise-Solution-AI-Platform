@@ -48,7 +48,7 @@ Verify: `python3 scripts/verify_sprint_3_2.py` (backend up; rebuild Docker after
 3. ~~Catalogue import + search API~~ (Task 3)
 4. ~~Sample catalogue pack~~ (Task 4)
 5. ~~Product mapping service~~ (Task 5 — explicit action)
-6. Mapping APIs
+6. ~~Mapping APIs~~ (Task 6)
 7. BOM import
 8. BOM validation
 9. Architecture review
