@@ -1,5 +1,11 @@
 # Phase 3 Changelog
 
+## 0.3.1-task2 (domain schema)
+
+Sprint 3.1 Task 2: `domain_analyses`, `solution_domains`, links/dependencies/open questions,
+and `requirement_traceability` via `07_phase3_domains.sql` + `ensure_schema` + ORM models.
+No domain analyze service/API yet.
+
 ## 0.3.1-task1 (domain catalog freeze)
 
 Sprint 3.1 Task 1: frozen Phase 3 domain codes in `knowledge/phase3/domains/catalog.json`,
