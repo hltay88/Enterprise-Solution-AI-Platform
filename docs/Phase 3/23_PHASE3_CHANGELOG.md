@@ -1,5 +1,13 @@
 # Phase 3 Changelog
 
+## 0.3.2-task6 (architecture generation service)
+
+Sprint 3.2 Task 6: `ArchitectureGenerationService` gates on Published RKM +
+latest domain analysis, builds pattern pack context, calls
+`recommend_architectures`, persists via `ArchitectureOptionRepository`, and
+audits `architectures.generate`. No plural HTTP routes yet (Task 11). MVP
+singular `ArchitectureService` unchanged.
+
 ## 0.3.2-task5 (architecture candidates AI)
 
 Sprint 3.2 Task 5: `recommend_architectures` on AI providers, prompt

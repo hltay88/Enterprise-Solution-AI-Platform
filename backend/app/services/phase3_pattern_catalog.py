@@ -246,6 +246,116 @@ def patterns_for_domains(domain_codes: list[str] | None = None) -> list[PatternC
     ]
 
 
+MAX_PATTERN_PACKS = 5
+MAX_PATTERN_CHARS_PER_FILE = 1200
+MAX_PATTERN_TOTAL_CHARS = 5000
+_PATTERN_STUB_FILES = ("overview.md",)
+
+
+def build_pattern_pack_context(
+    *text_blobs: str,
+    domain_codes: list[str] | None = None,
+    candidate_codes: list[str] | None = None,
+) -> str:
+    """Build bounded Phase 3 pattern pack context for architecture candidate prompts.
+
+    Prefer ``candidate_codes``, else patterns related to ``domain_codes``, else
+    keyword hits from ``text_blobs`` against catalog names/aliases. Always
+    includes emission_rule + catalog version.
+    """
+    catalog = load_pattern_catalog()
+    codes: list[str] = []
+    seen: set[str] = set()
+
+    if candidate_codes is not None:
+        for raw in candidate_codes:
+            try:
+                code = require_pattern_code(raw)
+            except PatternCatalogError:
+                continue
+            if code not in seen:
+                seen.add(code)
+                codes.append(code)
+    elif domain_codes:
+        for entry in patterns_for_domains(domain_codes):
+            if entry.code not in seen:
+                seen.add(entry.code)
+                codes.append(entry.code)
+    else:
+        blob = " ".join(part for part in text_blobs if part).lower()
+        for entry in catalog.patterns:
+            needles = {
+                entry.code,
+                entry.code.replace("_", " "),
+                entry.name.lower(),
+                *[alias.lower() for alias in entry.aliases],
+            }
+            if any(needle and needle in blob for needle in needles):
+                if entry.code not in seen:
+                    seen.add(entry.code)
+                    codes.append(entry.code)
+
+    header = (
+        "Phase 3 Architecture Pattern catalog context "
+        "(vendor-neutral; recommendations only; no product SKUs)\n"
+        f"catalog_version: {catalog.catalog_version}\n"
+        f"emission_rule: {catalog.emission_rule}\n"
+        f"known_pattern_codes: {', '.join(sorted(catalog.codes()))}\n"
+    )
+    if not codes:
+        return header + "No pattern packs matched; use only catalog pattern codes."
+
+    chunks: list[str] = []
+    total = 0
+    for code in codes[:MAX_PATTERN_PACKS]:
+        entry = catalog.get(code)
+        if entry is None:
+            continue
+        block = _render_pattern_pack_block(entry)
+        if total + len(block) > MAX_PATTERN_TOTAL_CHARS:
+            break
+        chunks.append(block)
+        total += len(block)
+
+    if not chunks:
+        return header + "No pack content available."
+    return header + "\n" + "\n\n".join(chunks)
+
+
+def _render_pattern_pack_block(entry: PatternCatalogEntry) -> str:
+    folder = patterns_root() / entry.pack_dir
+    parts: list[str] = [
+        f"### Pattern pack: {entry.code} ({entry.name})",
+        f"catalog_code: {entry.code}",
+        f"related_domain_codes: {', '.join(entry.related_domain_codes) or '(none)'}",
+    ]
+    if entry.notes:
+        parts.append(f"notes: {entry.notes}")
+    if not folder.is_dir():
+        parts.append(
+            "pack_status: catalog_metadata_only "
+            f"(missing directory {folder.name}/)",
+        )
+        return "\n".join(parts)
+
+    loaded_any = False
+    for filename in _PATTERN_STUB_FILES:
+        path = folder / filename
+        if not path.is_file():
+            continue
+        try:
+            text = path.read_text(encoding="utf-8").strip()
+        except OSError:
+            continue
+        if not text:
+            continue
+        loaded_any = True
+        parts.append(f"#### {filename}\n{text[:MAX_PATTERN_CHARS_PER_FILE]}")
+    if not loaded_any:
+        parts.append("pack_status: catalog_metadata_only (no stub markdown files)")
+    return "\n".join(parts)
+
+
 def _string_tuple(value: Any, *, field: str) -> tuple[str, ...]:
     if value is None:
         return ()

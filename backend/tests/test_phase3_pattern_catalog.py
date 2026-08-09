@@ -94,3 +94,12 @@ def test_list_pattern_codes_sorted():
     codes = list_pattern_codes()
     assert codes == sorted(codes)
     assert "wireless_enterprise" in codes
+
+
+def test_build_pattern_pack_context_for_domains():
+    from app.services.phase3_pattern_catalog import build_pattern_pack_context
+
+    context = build_pattern_pack_context(domain_codes=["wifi", "campus_lan"])
+    assert "emission_rule" in context
+    assert "wireless_enterprise" in context
+    assert "catalog_version" in context
