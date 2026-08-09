@@ -17,7 +17,7 @@
 - [ ] Product mapping — Sprint 3.3
 
 ## P2
-- [ ] BOM import
+- [x] BOM import — Sprint 3.3 Task 7 (immutable evidence; validation Task 8)
 - [ ] BOM validation
 - [ ] Architecture comparison UI
 - [ ] Advanced vendor analytics

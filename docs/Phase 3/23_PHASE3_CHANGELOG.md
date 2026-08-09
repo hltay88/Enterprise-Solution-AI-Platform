@@ -1,5 +1,11 @@
 # Phase 3 Changelog
 
+## 0.3.3-task07 (BOM import)
+
+Sprint 3.3 Task 7: immutable BOM evidence import (`bom_imports` + `bom_items`)
+via `POST /projects/{id}/bom/import`, plus list/get. Soft-links catalogue
+products on exact vendor+model match only; validation is Task 8 (ATLAS-039).
+
 ## 0.3.3-task06 (product mapping APIs)
 
 Sprint 3.3 Task 6: project-scoped routes for explicit map-products, list

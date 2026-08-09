@@ -49,7 +49,7 @@ Verify: `python3 scripts/verify_sprint_3_2.py` (backend up; rebuild Docker after
 4. ~~Sample catalogue pack~~ (Task 4)
 5. ~~Product mapping service~~ (Task 5 — explicit action)
 6. ~~Mapping APIs~~ (Task 6)
-7. BOM import
+7. BOM import — Sprint 3.3 Task 7 (`POST …/bom/import`; immutable)
 8. BOM validation
 9. Architecture review
 10. Architecture approve (hard Complete gate on uncovered criticals)

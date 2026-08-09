@@ -53,6 +53,20 @@ Seed file: `knowledge/phase3/vendors/seed_catalogue.json` (fictional vendors onl
 
 Optional body on map: `component_ids`, `catalogue_id`, `region`, `include_stale`.
 
+## BOM import (Sprint 3.3 Task 7)
+
+Immutable evidence snapshot (ATLAS-039). Editor+ for import; any project member
+for list/get.
+
+- `POST /projects/{project_id}/bom/import` (Editor+)
+- `GET /projects/{project_id}/bom`
+- `GET /projects/{project_id}/bom/{bom_import_id}`
+
+Body: `source` (required), optional `source_filename` / `architecture_id` /
+`notes`, and `items[]` with `product_model` | `sku` | `description`. Exact
+catalogue vendor+model matches set `mapped_product_id`; inventing SKUs is
+forbidden.
+
 ## Target surface (Sprint 3.3 remaining)
 
 DTO contracts in `backend/app/schemas/vendor_bom.py`.
@@ -61,7 +75,6 @@ DTO contracts in `backend/app/schemas/vendor_bom.py`.
 - `POST /projects/{project_id}/architectures/{id}/review`
 - `POST /projects/{project_id}/architectures/{id}/approve`
 
-### BOM
-- `POST /projects/{project_id}/bom/import`
+### BOM validation (Task 8)
 - `POST /projects/{project_id}/bom/{id}/validate`
 - `GET /projects/{project_id}/bom/{id}/validation`
