@@ -10,6 +10,7 @@ from app.api.routes import (
     v1_domains,
     v1_gap,
     v1_requirements,
+    v1_vendors,
 )
 
 v1_router = APIRouter()
@@ -20,3 +21,4 @@ v1_router.include_router(v1_audit.router)
 v1_router.include_router(v1_architecture.router)
 v1_router.include_router(v1_architectures.router)
 v1_router.include_router(v1_domains.router)
+v1_router.include_router(v1_vendors.router)

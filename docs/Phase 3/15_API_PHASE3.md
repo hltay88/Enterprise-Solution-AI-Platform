@@ -31,9 +31,21 @@ Review/approve stay Sprint 3.3.
 Auth: JWT as Phase 2. Generate/analyze require Editor+; reads require authenticated project owner.
 Envelope: ATLAS-014 `success_response`. No `/solutions/` routes.
 
-## Target surface (Sprint 3.3 — schemas ready, APIs pending)
+## Implemented (Sprint 3.3 partial)
 
-DTO contracts live in `backend/app/schemas/vendor_bom.py` (Task 2). Routes not wired yet.
+### Vendor catalogue (Task 3 — ATLAS-038) — **Live**
+
+Global (not project-scoped):
+
+- `POST /vendors/catalogue/import` (Editor+)
+- `GET /vendors/catalogue/search` (`q`, `vendor`, `category`, `region`, `catalogue_id`, `include_stale`, `limit`)
+- `GET /vendors/catalogue/{catalogue_id}`
+
+Never invents SKU specs; products older than 365 days (by `source_date`) are flagged `is_stale`.
+
+## Target surface (Sprint 3.3 remaining)
+
+DTO contracts in `backend/app/schemas/vendor_bom.py`.
 
 ### Architecture review / approve
 - `POST /projects/{project_id}/architectures/{id}/review`
@@ -47,7 +59,3 @@ DTO contracts live in `backend/app/schemas/vendor_bom.py` (Task 2). Routes not w
 - `POST /projects/{project_id}/bom/import`
 - `POST /projects/{project_id}/bom/{id}/validate`
 - `GET /projects/{project_id}/bom/{id}/validation`
-
-### Vendor (global)
-- `POST /vendors/catalogue/import`
-- `GET /vendors/catalogue/search`

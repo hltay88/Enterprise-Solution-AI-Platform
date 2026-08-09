@@ -1,5 +1,12 @@
 # Phase 3 Changelog
 
+## 0.3.3-task03 (vendor catalogue import + search API)
+
+Sprint 3.3 Task 3: `VendorCatalogueRepository` + `VendorCatalogueService` and
+global routes `POST/GET /api/v1/vendors/catalogue…` (import, search, get).
+Never invents SKU specs; auto-flags stale by source_date (>365 days). Seed pack
+still Task 4.
+
 ## 0.3.3-task02 (vendor / BOM / review Pydantic schemas)
 
 Sprint 3.3 Task 2: `backend/app/schemas/vendor_bom.py` contracts for catalogue
