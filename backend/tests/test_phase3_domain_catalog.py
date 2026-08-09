@@ -29,7 +29,7 @@ def _clear_cache():
 
 
 def test_catalog_version_matches_version_file():
-    assert catalog_version() == "1.0.0"
+    assert catalog_version() == "1.1.0"
     assert version_file_path().is_file()
     catalog = load_domain_catalog()
     assert catalog.catalog_version == catalog_version()

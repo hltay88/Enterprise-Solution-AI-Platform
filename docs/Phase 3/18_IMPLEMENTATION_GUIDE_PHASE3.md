@@ -24,8 +24,8 @@ Shipped surface: catalog/packs, normalized tables, AI identify, analyze service,
 
 Verify: `python3 scripts/verify_sprint_3_1.py` (backend up; rebuild Docker after backend changes).
 
-### Sprint 3.2
-5. Architecture pattern library
+### Sprint 3.2 — in progress
+5. ~~Architecture pattern library~~ (Task 1 — catalog freeze)
 6. Candidate architecture generation (refactor MVP → normalized `/architectures`)
 7. Capacity planning
 8. Architecture scoring

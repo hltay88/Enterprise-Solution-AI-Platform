@@ -1,5 +1,11 @@
 # Phase 3 Changelog
 
+## 0.3.2-task1 (architecture pattern catalog freeze)
+
+Sprint 3.2 Task 1: frozen pattern codes in `knowledge/phase3/patterns/catalog.json`,
+pack version bumped to `1.1.0`, priority pattern stubs, and loader
+`phase3_pattern_catalog.py`. No architecture generate API yet.
+
 ## 0.3.1-task14 (sprint verification)
 
 Sprint 3.1 Task 14: `scripts/verify_sprint_3_1.py` runs pytest + API smoke

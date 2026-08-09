@@ -23,7 +23,7 @@ def _clear_cache():
 
 
 def test_pack_version_stable():
-    assert pack_version() == "1.0.0"
+    assert pack_version() == "1.1.0"
 
 
 def test_list_domain_catalog_includes_required_codes():
@@ -44,7 +44,7 @@ def test_build_domain_pack_context_includes_stub_and_emission_rule():
     context = build_domain_pack_context(
         "Enterprise wireless WLAN coverage and roaming requirements",
     )
-    assert "pack_version: 1.0.0" in context
+    assert "pack_version: 1.1.0" in context
     assert "emission_rule" in context
     assert "wifi" in context.lower()
     assert "vendor-neutral" in context.lower()
@@ -56,13 +56,13 @@ def test_build_domain_pack_context_candidate_codes_catalog_only_for_missing_pack
     # beyond missing dir — still must return catalog metadata.
     context = build_domain_pack_context(candidate_codes=["audio_visual"])
     assert "audio_visual" in context
-    assert "pack_version: 1.0.0" in context
+    assert "pack_version: 1.1.0" in context
     assert "catalog_code: audio_visual" in context
 
 
 def test_build_domain_pack_context_unrelated_text_still_returns_rule():
     context = build_domain_pack_context("Office furniture refresh and paint colors only")
-    assert "pack_version: 1.0.0" in context
+    assert "pack_version: 1.1.0" in context
     assert "No domain packs matched" in context or "emission_rule" in context
 
 

@@ -1,0 +1,127 @@
+{
+  "schema_version": 1,
+  "catalog_version": "1.1.0",
+  "description": "Atlas Foundation 0.3 Phase 3 Architecture Pattern catalog (Sprint 3.2 Task 1 freeze).",
+  "emission_rule": "AI and services may only emit pattern codes listed in this catalog, or aliases that resolve to those codes. Patterns are recommendations, not mandatory designs. Do not invent product/SKU patterns.",
+  "patterns": [
+    {
+      "code": "two_tier_campus",
+      "name": "Two-tier campus",
+      "aliases": ["2-tier campus", "collapsed core campus", "two tier campus"],
+      "related_domain_codes": ["campus_lan", "identity", "cybersecurity", "monitoring_observability"],
+      "pack_dir": "two_tier_campus"
+    },
+    {
+      "code": "three_tier_campus",
+      "name": "Three-tier campus",
+      "aliases": ["3-tier campus", "core distribution access", "three tier campus"],
+      "related_domain_codes": ["campus_lan", "identity", "cybersecurity", "monitoring_observability"],
+      "pack_dir": "three_tier_campus"
+    },
+    {
+      "code": "sdwan",
+      "name": "SD-WAN",
+      "aliases": ["sd-wan", "software defined wan"],
+      "related_domain_codes": ["wan_sdwan", "internet", "cybersecurity", "monitoring_observability"],
+      "pack_dir": "sdwan"
+    },
+    {
+      "code": "secure_internet_edge",
+      "name": "Secure Internet Edge",
+      "aliases": ["internet edge", "secure edge", "egress firewall"],
+      "related_domain_codes": ["internet", "security_edge", "cybersecurity"],
+      "pack_dir": "secure_internet_edge"
+    },
+    {
+      "code": "branch_connectivity",
+      "name": "Branch connectivity",
+      "aliases": ["branch wan", "remote site connectivity"],
+      "related_domain_codes": ["wan_sdwan", "internet", "security_edge", "identity"],
+      "pack_dir": "branch_connectivity"
+    },
+    {
+      "code": "wireless_enterprise",
+      "name": "Wireless enterprise",
+      "aliases": ["enterprise wifi", "wifi architecture", "wlan architecture"],
+      "related_domain_codes": ["wifi", "campus_lan", "identity", "cybersecurity"],
+      "pack_dir": "wireless_enterprise"
+    },
+    {
+      "code": "data_centre_leaf_spine",
+      "name": "Data Centre leaf-spine",
+      "aliases": ["leaf spine", "dc fabric", "leaf-spine"],
+      "related_domain_codes": ["data_centre", "compute", "storage", "cybersecurity"],
+      "pack_dir": "data_centre_leaf_spine"
+    },
+    {
+      "code": "hci",
+      "name": "HCI",
+      "aliases": ["hyperconverged", "hyper-converged infrastructure"],
+      "related_domain_codes": ["compute", "storage", "data_centre", "backup_dr"],
+      "pack_dir": "hci"
+    },
+    {
+      "code": "backup_dr",
+      "name": "Backup and DR",
+      "aliases": ["backup architecture", "disaster recovery pattern", "dr architecture"],
+      "related_domain_codes": ["backup_dr", "storage", "compute"],
+      "pack_dir": "backup_dr"
+    },
+    {
+      "code": "hybrid_cloud",
+      "name": "Hybrid cloud",
+      "aliases": ["hybrid cloud architecture", "multi-cloud landing"],
+      "related_domain_codes": ["cloud", "identity", "cybersecurity", "wan_sdwan", "internet"],
+      "pack_dir": "hybrid_cloud"
+    },
+    {
+      "code": "zero_trust",
+      "name": "Zero Trust",
+      "aliases": ["zta", "zero trust architecture", "ztna pattern"],
+      "related_domain_codes": ["identity", "ztna_vpn", "cybersecurity", "security_edge"],
+      "pack_dir": "zero_trust"
+    },
+    {
+      "code": "security_operations",
+      "name": "Security operations",
+      "aliases": ["secops", "soc architecture", "security monitoring"],
+      "related_domain_codes": ["cybersecurity", "monitoring_observability", "identity"],
+      "pack_dir": "security_operations"
+    },
+    {
+      "code": "meeting_room",
+      "name": "Meeting room",
+      "aliases": ["huddle room", "conference room av"],
+      "related_domain_codes": ["collaboration", "audio_visual", "wifi", "campus_lan"],
+      "pack_dir": "meeting_room"
+    },
+    {
+      "code": "control_room",
+      "name": "Control room",
+      "aliases": ["noc room", "operations control room"],
+      "related_domain_codes": ["audio_visual", "led_video_wall", "collaboration", "cybersecurity"],
+      "pack_dir": "control_room"
+    },
+    {
+      "code": "led_video_wall",
+      "name": "LED video wall",
+      "aliases": ["led wall", "video wall architecture"],
+      "related_domain_codes": ["led_video_wall", "audio_visual", "compute"],
+      "pack_dir": "led_video_wall"
+    },
+    {
+      "code": "digital_signage",
+      "name": "Digital signage",
+      "aliases": ["signage architecture", "digital displays"],
+      "related_domain_codes": ["digital_signage", "wifi", "campus_lan"],
+      "pack_dir": "digital_signage"
+    },
+    {
+      "code": "smart_building",
+      "name": "Smart building",
+      "aliases": ["building systems", "bms integration pattern"],
+      "related_domain_codes": ["smart_building", "iot", "campus_lan", "cybersecurity"],
+      "pack_dir": "smart_building"
+    }
+  ]
+}
