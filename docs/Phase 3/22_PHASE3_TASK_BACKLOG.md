@@ -20,7 +20,7 @@
 - [x] BOM import — Sprint 3.3 Task 7 (immutable evidence; validation Task 8)
 - [x] BOM validation — Sprint 3.3 Task 8 (`bom_validation_results`; human flags)
 - [x] Sprint 3.3 docs polish — Task 12
-- [ ] Sprint 3.3 acceptance verify — Task 13 (`scripts/verify_sprint_3_3.py`)
+- [x] Sprint 3.3 acceptance verify — Task 13 (`scripts/verify_sprint_3_3.py`)
 - [ ] Architecture comparison UI
 - [ ] Advanced vendor analytics
 

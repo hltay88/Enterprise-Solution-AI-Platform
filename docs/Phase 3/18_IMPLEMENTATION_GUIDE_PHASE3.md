@@ -42,7 +42,7 @@ Shipped surface: pattern catalog, `architecture_options` tree, generation servic
 
 Verify: `python3 scripts/verify_sprint_3_2.py` (backend up; rebuild Docker after backend changes).
 
-### Sprint 3.3 — Tasks 1–12 done; Task 13 next
+### Sprint 3.3 — complete (Tasks 1–13)
 1. ~~Vendor/BOM/mapping schema + ORM~~ (Task 1)
 2. ~~Pydantic schemas~~ (Task 2)
 3. ~~Catalogue import + search API~~ (Task 3)
@@ -54,11 +54,13 @@ Verify: `python3 scripts/verify_sprint_3_2.py` (backend up; rebuild Docker after
 9. ~~Architecture review~~ (Task 9)
 10. ~~Architecture approve~~ (Task 10 — hard Complete gate; Approver)
 11. ~~Frontend panels~~ (Task 11 — map/review/Complete + BOM panel)
-12. ~~Docs polish~~ (Task 12 — this pack aligned to live surface)
-13. `scripts/verify_sprint_3_3.py` + acceptance
+12. ~~Docs polish~~ (Task 12)
+13. ~~`scripts/verify_sprint_3_3.py` + acceptance~~ (Task 13)
 
 Defaults locked: seed + import catalogue; explicit Map products; hard Complete gate;
 singular `/architecture` aliases kept deprecated through 3.3.
+
+Verify: `python3 scripts/verify_sprint_3_3.py` (backend up; rebuild Docker after backend changes).
 
 ## Engineering rule
 Implement one bounded task at a time.

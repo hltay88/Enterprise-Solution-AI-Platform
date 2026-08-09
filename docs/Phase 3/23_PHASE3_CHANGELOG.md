@@ -1,5 +1,11 @@
 # Phase 3 Changelog
 
+## 0.3.3-task13 (acceptance verify script)
+
+Sprint 3.3 Task 13: `scripts/verify_sprint_3_3.py` — pytest + API smoke for
+catalogue seed/search, map-products, BOM import/validate, review, and Complete
+hard gate (ATLAS-035…039). Closes Sprint 3.3 acceptance path.
+
 ## 0.3.3-task12 (docs polish)
 
 Sprint 3.3 Task 12: align Phase 3 pack (README, API, DB, acceptance, UI flow,

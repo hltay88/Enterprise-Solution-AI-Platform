@@ -15,7 +15,7 @@
 | Vendor/product mapping functional | **Met** (explicit map-products; ATLAS-035) |
 | BOM import and validation functional | **Met** (immutable import + validation; ATLAS-039) |
 | Human architecture approval functional | **Met** (review + Approver Complete gate; ATLAS-036/037) |
-| Security and regression tests pass | **Verify** — unit tests + sprint scripts (Task 13: `verify_sprint_3_3.py`) |
+| Security and regression tests pass | **Met via** `scripts/verify_sprint_3_3.py` (+ prior sprint scripts) |
 
 ## How to verify
 
@@ -23,14 +23,16 @@ With Atlas running (rebuild Docker backend after API changes):
 
 - Sprint 3.1: `python3 scripts/verify_sprint_3_1.py`
 - Sprint 3.2: `python3 scripts/verify_sprint_3_2.py`
-- Sprint 3.3: `python3 scripts/verify_sprint_3_3.py` (Task 13)
+- Sprint 3.3: `python3 scripts/verify_sprint_3_3.py`
 
 Backend unit suite: `cd backend && .venv/bin/python -m pytest -q`
 
 ## Phase 3 output
 
-The **complete** architecture package (status `complete` after Approver gate) plus
-Published RKM, mappings, and validated BOM evidence become the primary input to Phase 4.
+The architecture package after human review (and `complete` when the Approver
+Complete gate passes) plus Published RKM, mappings, and validated BOM evidence
+become the primary input to Phase 4. If uncovered critical/high requirements
+remain, Complete correctly hard-fails until coverage is fixed.
 
 ## Phase 4 input
 
@@ -53,8 +55,8 @@ Document Generation Platform:
 
 ## Freeze rule
 
-After Sprint 3.3 acceptance (Task 13 verify), freeze Phase 3 baseline as Atlas Foundation 0.3.
-Future changes go through a new controlled revision.
+After Sprint 3.3 acceptance (`verify_sprint_3_3.py` green), freeze Phase 3 baseline
+as Atlas Foundation 0.3. Future changes go through a new controlled revision.
 
 ## Out of scope (remain Phase 4+)
 

@@ -6,8 +6,7 @@
 **Sprint 3.0 locks:** [21_PHASE3_DECISIONS.md](./21_PHASE3_DECISIONS.md) (ATLAS-031…034) — complete.  
 **Sprint 3.1:** Solution Domain Identification — implemented (catalog → analyze API → UI).  
 **Sprint 3.2:** Architecture engine — complete (Tasks 1–14).  
-**Sprint 3.3:** Vendor / BOM / approve — implementation complete through Task 12;
-acceptance verify is Task 13 (`scripts/verify_sprint_3_3.py`).
+**Sprint 3.3:** Vendor / BOM / approve — **complete** (Tasks 1–13).
 
 ## Read order
 
@@ -64,15 +63,13 @@ Handover context from Phase 2: [../Phase 2/PHASE3_HANDOVER.md](../Phase%202/PHAS
 - API: `POST/GET …/architectures…`, `GET …/risks`, `GET …/assumptions` (+ singular MVP aliases)
 - Verify: `scripts/verify_sprint_3_2.py`
 
-**Shipped — Sprint 3.3 vendor / BOM / approve (Tasks 1–12):**
+**Shipped — Sprint 3.3 vendor / BOM / approve (Tasks 1–13):**
 - Schema/ORM + DTOs; catalogue import/seed/search (ATLAS-038)
 - Explicit product mapping service + APIs (ATLAS-035)
 - Immutable BOM import + validation results (ATLAS-039)
 - Architecture review + Approver Complete hard gate (ATLAS-036/037)
 - UI: `ArchitecturePanel` (map/review/Complete) + `BomValidationPanel`
-- Docs: this pack polished for 3.3 surface (Task 12)
-
-**Remaining in 3.3:** `scripts/verify_sprint_3_3.py` + acceptance run (Task 13).
+- Docs polished (Task 12); verify: `scripts/verify_sprint_3_3.py` (Task 13)
 
 API namespace remains `/api/v1/projects/{id}/…` — no `/solutions/` surface (ATLAS-031).
 Global catalogue lives under `/api/v1/vendors/catalogue/…`.
@@ -80,4 +77,4 @@ Global catalogue lives under `/api/v1/vendors/catalogue/…`.
 **Verify:** with Atlas running, rebuild Docker backend after code changes, then:
 - Sprint 3.1: `python3 scripts/verify_sprint_3_1.py` (`--unit-only` / `--smoke-only`)
 - Sprint 3.2: `python3 scripts/verify_sprint_3_2.py` (`--unit-only` / `--smoke-only`)
-- Sprint 3.3: `python3 scripts/verify_sprint_3_3.py` (Task 13)
+- Sprint 3.3: `python3 scripts/verify_sprint_3_3.py` (`--unit-only` / `--smoke-only` / `--focused-unit`)
