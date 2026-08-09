@@ -1,5 +1,12 @@
 # Phase 3 Changelog
 
+## 0.3.3-task05 (architecture product mapping service)
+
+Sprint 3.3 Task 5: capability/category matcher, mapping repository, and
+`ArchitectureProductMappingService.map_products` (explicit action; not on
+generate). Preserves selected/rejected rows when re-mapping candidates. APIs
+in Task 6.
+
 ## 0.3.3-task04 (vendor seed catalogue pack)
 
 Sprint 3.3 Task 4: frozen seed at `knowledge/phase3/vendors/seed_catalogue.json`

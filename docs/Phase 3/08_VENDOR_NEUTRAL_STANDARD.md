@@ -38,3 +38,11 @@ Vendor comparison must show:
 - dependencies
 - lifecycle considerations
 - confidence
+
+## Implementation status
+
+**Sprint 3.3 Task 5 (live, service only):** `ArchitectureProductMappingService`
+maps architecture components to catalogue products via capability/category fit
+(`architecture_product_matching.py`). Explicit `map_products` action — not run
+during architecture generate. Preference kind defaults to `technical`. HTTP
+routes in Task 6.
