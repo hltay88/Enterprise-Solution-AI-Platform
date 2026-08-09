@@ -12,6 +12,7 @@ import { BomValidationPanel } from "@/components/BomValidationPanel";
 import { AppHeader } from "@/components/AppHeader";
 import { AuditLogPanel } from "@/components/AuditLogPanel";
 import { ClarificationPanel } from "@/components/ClarificationPanel";
+import { DeliverablesPanel } from "@/components/DeliverablesPanel";
 import { DocumentUploadPanel } from "@/components/DocumentUploadPanel";
 import { GapAnalysisPanel } from "@/components/GapAnalysisPanel";
 import { ProjectForm } from "@/components/ProjectForm";
@@ -162,6 +163,10 @@ function ProjectDetailContent({ userName }: { userName: string }) {
               refreshToken={rkmRefreshToken}
             />
             <BomValidationPanel
+              projectId={projectId}
+              refreshToken={rkmRefreshToken}
+            />
+            <DeliverablesPanel
               projectId={projectId}
               refreshToken={rkmRefreshToken}
             />

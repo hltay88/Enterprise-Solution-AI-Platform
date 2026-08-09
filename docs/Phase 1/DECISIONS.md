@@ -789,6 +789,22 @@ Full text: [`docs/Phase 3/21_PHASE3_DECISIONS.md`](../Phase%203/21_PHASE3_DECISI
 | ATLAS-040 | Multi-domain support (IT + AV/LED/signage/smart building) | Accepted |
 | ATLAS-041 | AI provider independence via abstraction | Accepted |
 
+---
+
+# Phase 4 Decisions (ATLAS-042+)
+
+Full text: [`docs/Phase 4/23_PHASE4_DECISIONS.md`](../Phase%204/23_PHASE4_DECISIONS.md).
+
+| ID | Title | Status |
+|----|-------|--------|
+| ATLAS-042 | Deliverables API under `/projects/{id}/deliverables` (not Phase 2 `/documents`) | Accepted |
+| ATLAS-043 | Immutable source snapshot required per generation run | Accepted |
+| ATLAS-044 | AI emits structured content; rendering is separate | Accepted |
+| ATLAS-045 | Human Approver required for customer-facing deliverables | Accepted |
+| ATLAS-046 | Templates versioned independently of documents | Accepted |
+| ATLAS-047 | No prices/warranties/dates without authoritative data | Accepted |
+| ATLAS-048 | AI provider abstraction retained for Phase 4 | Accepted |
+
 ---  
   
 # Future Decision Log  

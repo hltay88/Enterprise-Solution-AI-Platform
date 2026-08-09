@@ -7,6 +7,7 @@ from app.api.routes import (
     v1_architectures,
     v1_audit,
     v1_bom,
+    v1_deliverables,
     v1_documents,
     v1_domains,
     v1_gap,
@@ -24,3 +25,4 @@ v1_router.include_router(v1_architectures.router)
 v1_router.include_router(v1_domains.router)
 v1_router.include_router(v1_vendors.router)
 v1_router.include_router(v1_bom.router)
+v1_router.include_router(v1_deliverables.router)

@@ -55,3 +55,13 @@ class AIProvider(ABC):
         knowledge_pack_context: str = "",
     ) -> dict[str, Any]:
         """Return Solution Domain Model extraction from a Published RKM."""
+
+    @abstractmethod
+    async def generate_proposal_content(
+        self,
+        snapshot: dict[str, Any],
+        content_plan: dict[str, Any],
+        *,
+        prompt_version: str = "proposal_v1",
+    ) -> dict[str, Any]:
+        """Return structured proposal content from an immutable source snapshot."""

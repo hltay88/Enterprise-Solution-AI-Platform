@@ -1,26 +1,43 @@
 # API Phase 4
 
-Base: /api/v1
+Base: `/api/v1`
 
-Generation:
-- POST /projects/{projectId}/documents/generate
-- POST /projects/{projectId}/documents/preview
+**Namespace (ATLAS-042):** Generated deliverables live under
+`/projects/{projectId}/deliverables/...`.
 
-Documents:
-- GET /projects/{projectId}/documents
-- GET /documents/{documentId}
-- POST /documents/{documentId}/revise
-- POST /documents/{documentId}/validate
-- POST /documents/{documentId}/approve
+Phase 2 requirement-file ingest retains `/documents` and
+`/projects/{projectId}/documents` — do not overload those paths.
 
-Sections:
-- GET /documents/{documentId}/sections
-- PATCH /documents/{documentId}/sections/{sectionId}
+## Snapshots
 
-Export:
-- POST /documents/{documentId}/export
-- GET /exports/{exportId}
+- `POST /projects/{projectId}/deliverables/snapshots`
+- `GET /projects/{projectId}/deliverables/snapshots/{snapshotId}`
 
-Packages:
-- POST /projects/{projectId}/packages/generate
-- GET /projects/{projectId}/packages
+## Generation
+
+- `POST /projects/{projectId}/deliverables/generate`
+- `POST /projects/{projectId}/deliverables/preview` (optional dry-run)
+
+## Deliverables
+
+- `GET /projects/{projectId}/deliverables`
+- `GET /projects/{projectId}/deliverables/{documentId}`
+- `POST /projects/{projectId}/deliverables/{documentId}/revise`
+- `POST /projects/{projectId}/deliverables/{documentId}/validate`
+- `POST /projects/{projectId}/deliverables/{documentId}/review`
+- `POST /projects/{projectId}/deliverables/{documentId}/approve`
+
+## Sections
+
+- `GET /projects/{projectId}/deliverables/{documentId}/sections`
+- `PATCH /projects/{projectId}/deliverables/{documentId}/sections/{sectionId}`
+
+## Export
+
+- `POST /projects/{projectId}/deliverables/{documentId}/export`
+- `GET /projects/{projectId}/deliverables/exports/{exportId}`
+
+## Packages (Sprint 4.4)
+
+- `POST /projects/{projectId}/packages/generate`
+- `GET /projects/{projectId}/packages`

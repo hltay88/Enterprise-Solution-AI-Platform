@@ -130,6 +130,12 @@ def test_generate_persists_and_audits_on_success():
         },
         created_at=datetime.now(timezone.utc),
         updated_at=datetime.now(timezone.utc),
+        reviewed_at=None,
+        reviewed_by=None,
+        review_note=None,
+        approved_at=None,
+        approved_by=None,
+        approval_note=None,
     )
     component_id = uuid4()
     service.architectures = MagicMock()

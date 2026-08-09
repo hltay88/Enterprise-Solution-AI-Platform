@@ -780,3 +780,62 @@ export type VersionCompare = {
     reasoning_changed?: boolean;
   };
 };
+
+export type SourceSnapshot = {
+  id: string;
+  project_id: string;
+  rkm_id: string | null;
+  rkm_version_label: string | null;
+  architecture_id: string | null;
+  architecture_version_label: string | null;
+  bom_validated: boolean;
+  created_at: string | null;
+};
+
+export type GeneratedDocument = {
+  id: string;
+  project_id: string;
+  document_type: string;
+  title: string;
+  status: string;
+  source_snapshot_id: string;
+  current_version_id: string | null;
+  version_label: string | null;
+  bom_validated?: boolean | null;
+  created_at: string | null;
+  approved_at: string | null;
+};
+
+export type DeliverableSection = {
+  id: string;
+  section_type: string;
+  title: string;
+  sequence: number;
+  status: string;
+  confidence: number;
+  assumptions: string[];
+  content_items: Array<{
+    id: string;
+    content_type: string;
+    text: string;
+    review_required: boolean;
+    confidence: number;
+    source_refs: Array<{ id: string; ref_kind: string; ref_id: string | null; label: string }>;
+  }>;
+};
+
+export type ExportJob = {
+  id: string;
+  status: string;
+  format: string;
+  checksum_sha256: string | null;
+  page_count: number | null;
+  error: string | null;
+  download_name: string | null;
+  storage_path: string | null;
+};
+
+export type DeliverableValidation = {
+  ok: boolean;
+  issues: Array<{ code: string; message: string; section_type?: string | null; severity: string }>;
+};

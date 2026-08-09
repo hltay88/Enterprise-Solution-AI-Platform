@@ -32,6 +32,19 @@ from app.models.requirement_evidence import RequirementEvidence, RequirementEvid
 from app.models.requirement_item import RequirementItem
 from app.models.requirement_model import RequirementModel
 from app.models.user import User
+from app.models.deliverable import (
+    ContentItem,
+    DocumentApproval,
+    DocumentSection,
+    DocumentSourceRef,
+    DocumentTemplate,
+    DocumentVersion,
+    ExportJob,
+    GeneratedDocument,
+    GenerationRun,
+    SourceSnapshot,
+    TemplateVersion,
+)
 from app.models.vendor_bom import (
     ArchitectureProductMapping,
     BomImport,
@@ -79,4 +92,15 @@ __all__ = [
     "BomImport",
     "BomItem",
     "BomValidationResult",
+    "DocumentTemplate",
+    "TemplateVersion",
+    "SourceSnapshot",
+    "GenerationRun",
+    "GeneratedDocument",
+    "DocumentVersion",
+    "DocumentSection",
+    "ContentItem",
+    "DocumentSourceRef",
+    "DocumentApproval",
+    "ExportJob",
 ]

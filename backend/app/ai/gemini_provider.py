@@ -244,6 +244,39 @@ class GeminiProvider(AIProvider):
         result["model"] = self.model
         return result
 
+    async def generate_proposal_content(
+        self,
+        snapshot: dict[str, Any],
+        content_plan: dict[str, Any],
+        *,
+        prompt_version: str = "proposal_v1",
+    ) -> dict[str, Any]:
+        system_prompt = load_prompt("proposal_generate.txt")
+        user_prompt = (
+            "Generate a structured customer proposal from this immutable source "
+            "snapshot and content plan. Never invent prices, warranties, SLAs, or "
+            "dates. Mark gaps as review_required=true.\n\n"
+            "SOURCE SNAPSHOT JSON:\n"
+            + json.dumps(snapshot, ensure_ascii=True)[:100000]
+            + "\n\nCONTENT PLAN JSON:\n"
+            + json.dumps(content_plan, ensure_ascii=True)[:20000]
+        )
+        response = await self._generate(
+            action="generate proposal content",
+            system_prompt=system_prompt,
+            user_prompt=user_prompt,
+            temperature=0.2,
+        )
+        payload = parse_json_object(
+            response.text or "",
+            empty_message="AI provider returned an empty proposal response",
+            invalid_message="AI provider returned invalid JSON for proposal content",
+        )
+        payload["provider"] = "gemini"
+        payload["model"] = self.model
+        payload["prompt_version"] = prompt_version
+        return payload
+
     async def _generate(
         self,
         *,

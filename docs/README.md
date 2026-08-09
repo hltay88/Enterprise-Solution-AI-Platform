@@ -8,6 +8,7 @@ Canonical docs are organized by phase. Prefer these paths; do not create paralle
 | [Phase 1/](./Phase%201/) | Foundation 0.1 — vision, local start, DB/API standards, Sprint 1 decisions |
 | [Phase 2/](./Phase%202/) | Foundation 0.2 — Requirement Intelligence Engine (RKM) |
 | [Phase 3/](./Phase%203/) | Foundation 0.3 — Solution Recommendation Engine |
+| [Phase 4/](./Phase%204/) | Foundation 0.4 — Document Generation Platform |
 
 ## Quick links
 
@@ -16,3 +17,5 @@ Canonical docs are organized by phase. Prefer these paths; do not create paralle
 - Phase 2 read order: [Phase 2/README.md](./Phase%202/README.md)
 - Phase 3 read order: [Phase 3/README.md](./Phase%203/README.md)
   (Sprint 3.1 domains + Sprint 3.2 architecture engine shipped — see Phase 3 changelog)
+- Phase 4 read order: [Phase 4/01_PHASE4_PROJECT.md](./Phase%204/01_PHASE4_PROJECT.md)
+  (Sprint 4.0 locks in [23_PHASE4_DECISIONS.md](./Phase%204/23_PHASE4_DECISIONS.md); Sprint 4.1 = Proposal foundation)

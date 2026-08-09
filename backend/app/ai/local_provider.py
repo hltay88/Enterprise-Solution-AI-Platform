@@ -139,6 +139,19 @@ class LocalAIProvider(AIProvider):
             knowledge_pack_context=knowledge_pack_context,
         )
 
+    async def generate_proposal_content(
+        self,
+        snapshot: dict[str, Any],
+        content_plan: dict[str, Any],
+        *,
+        prompt_version: str = "proposal_v1",
+    ) -> dict[str, Any]:
+        return _local_proposal_content(
+            snapshot,
+            content_plan,
+            prompt_version=prompt_version,
+        )
+
     async def generate_clarifications(
         self,
         analysis: dict[str, Any],
@@ -1154,3 +1167,226 @@ def _matching_requirements(
         if any(needle and needle in hay for needle in needles):
             matched.append(req["id"])
     return matched
+
+
+def _local_proposal_content(
+    snapshot: dict[str, Any],
+    content_plan: dict[str, Any],
+    *,
+    prompt_version: str = "proposal_v1",
+) -> dict[str, Any]:
+    """Deterministic proposal draft from snapshot — never invents prices/dates."""
+    rkm = snapshot.get("rkm") or {}
+    arch = snapshot.get("architecture") or {}
+    bom = snapshot.get("bom") or {}
+    bom_validated = bool(bom.get("validated") or content_plan.get("bom_validated"))
+    customer = rkm.get("customer_name") or rkm.get("project_name") or "the customer"
+    title = f"Proposal — {arch.get('title') or 'Solution Architecture'}"
+    requirements = rkm.get("requirements") or []
+    components = arch.get("components") or []
+    risks = arch.get("risks") or []
+    assumptions = arch.get("assumptions") or []
+    decisions = arch.get("decisions") or []
+
+    def _item(
+        text: str,
+        *,
+        refs: list[dict[str, Any]] | None = None,
+        review_required: bool = False,
+        content_type: str = "paragraph",
+        confidence: float = 0.75,
+    ) -> dict[str, Any]:
+        return {
+            "content_type": content_type,
+            "text": text,
+            "structured_data": {},
+            "confidence": confidence,
+            "review_required": review_required,
+            "source_refs": refs or [],
+        }
+
+    sections_out: list[dict[str, Any]] = []
+    for planned in content_plan.get("sections") or []:
+        section_type = str(planned.get("section_type") or "")
+        section_title = str(planned.get("title") or section_type)
+        sequence = int(planned.get("sequence") or 0)
+        items: list[dict[str, Any]] = []
+        section_assumptions: list[str] = []
+
+        if section_type == "cover":
+            items.append(_item(f"{title}\nPrepared for {customer}"))
+        elif section_type == "executive_summary":
+            items.append(
+                _item(
+                    (arch.get("summary") or f"This proposal outlines a solution for {customer} "
+                     f"based on the approved architecture '{arch.get('title') or arch.get('candidate_key')}'.")
+                )
+            )
+        elif section_type == "customer_understanding":
+            items.append(
+                _item(
+                    str(rkm.get("summary") or f"Engagement for {customer} based on the Published RKM.")
+                )
+            )
+        elif section_type == "challenges":
+            if risks:
+                for risk in risks[:8]:
+                    items.append(
+                        _item(
+                            str(risk.get("title") or risk.get("description") or "Risk"),
+                            refs=[{"ref_kind": "risk", "ref_id": str(risk.get("id") or ""), "label": "risk"}],
+                            content_type="bullet_list",
+                        )
+                    )
+            else:
+                items.append(
+                    _item(
+                        "Challenges are inferred only from approved architecture risks; none recorded.",
+                        review_required=True,
+                        confidence=0.4,
+                    )
+                )
+                section_assumptions.append("No explicit challenges recorded in source snapshot")
+        elif section_type == "requirements":
+            for req in requirements[:40]:
+                req_id = str(req.get("id") or "")
+                items.append(
+                    _item(
+                        str(req.get("statement") or ""),
+                        refs=[{"ref_kind": "requirement", "ref_id": req_id, "label": req_id}],
+                        content_type="bullet_list",
+                    )
+                )
+            if not requirements:
+                items.append(_item("No requirements present in snapshot.", review_required=True))
+        elif section_type in {"proposed_solution", "architecture"}:
+            items.append(
+                _item(
+                    arch.get("summary") or arch.get("title") or "Approved architecture",
+                    refs=[{"ref_kind": "architecture", "ref_id": str(arch.get("id") or ""), "label": "architecture"}],
+                )
+            )
+            for decision in decisions[:10]:
+                items.append(
+                    _item(
+                        str(decision.get("decision") or ""),
+                        refs=[{"ref_kind": "decision", "ref_id": str(decision.get("id") or ""), "label": "decision"}],
+                        content_type="bullet_list",
+                    )
+                )
+        elif section_type == "solution_components":
+            for component in components:
+                items.append(
+                    _item(
+                        f"{component.get('name')}: {component.get('purpose') or ''}".strip(": "),
+                        refs=[
+                            {
+                                "ref_kind": "component",
+                                "ref_id": str(component.get("id") or ""),
+                                "label": str(component.get("name") or "component"),
+                            }
+                        ],
+                        content_type="bullet_list",
+                    )
+                )
+            if not components:
+                items.append(_item("No components in approved architecture.", review_required=True))
+        elif section_type == "benefits":
+            items.append(
+                _item(
+                    "Benefits should be confirmed with stakeholders; derived only from approved scope.",
+                    review_required=True,
+                    confidence=0.45,
+                )
+            )
+            section_assumptions.append("Benefits not explicitly present in snapshot")
+        elif section_type == "implementation_approach":
+            items.append(
+                _item(
+                    "Implementation approach will follow the approved architecture components and design decisions.",
+                    refs=[{"ref_kind": "architecture", "ref_id": str(arch.get("id") or ""), "label": "architecture"}],
+                )
+            )
+        elif section_type == "timeline":
+            items.append(
+                _item(
+                    "No authoritative schedule is present in the source snapshot. Timeline requires customer confirmation.",
+                    review_required=True,
+                    confidence=0.3,
+                )
+            )
+            section_assumptions.append("Schedule not authorized in snapshot")
+        elif section_type == "assumptions":
+            for assumption in assumptions:
+                items.append(
+                    _item(
+                        str(assumption.get("statement") or ""),
+                        refs=[{"ref_kind": "assumption", "ref_id": str(assumption.get("id") or ""), "label": "assumption"}],
+                        content_type="bullet_list",
+                    )
+                )
+            if not bom_validated:
+                items.append(
+                    _item(
+                        "Validated BOM / approved pricing data is not available; commercial figures are excluded.",
+                        review_required=True,
+                        content_type="assumption",
+                    )
+                )
+            if not assumptions:
+                items.append(_item("No architecture assumptions recorded.", review_required=True))
+        elif section_type == "risks":
+            for risk in risks:
+                items.append(
+                    _item(
+                        f"{risk.get('title') or risk.get('description')} "
+                        f"(severity={risk.get('severity')})",
+                        refs=[{"ref_kind": "risk", "ref_id": str(risk.get("id") or ""), "label": "risk"}],
+                        content_type="bullet_list",
+                    )
+                )
+            if not risks:
+                items.append(_item("No risks recorded on the approved architecture.", review_required=True))
+        elif section_type == "exclusions":
+            items.append(
+                _item(
+                    "Items not covered by the Published RKM or approved architecture are excluded unless added via change control.",
+                    review_required=True,
+                )
+            )
+        elif section_type == "support_warranty":
+            items.append(
+                _item(
+                    "Support and warranty terms are not present as authoritative approved data in the snapshot.",
+                    review_required=True,
+                    confidence=0.2,
+                )
+            )
+            section_assumptions.append("Warranty/support require commercial approval")
+        elif section_type == "next_steps":
+            items.append(
+                _item(
+                    "1. Review this draft proposal\n2. Confirm open REVIEW REQUIRED items\n3. Approve for customer release"
+                )
+            )
+        else:
+            items.append(_item(f"Content for {section_title}", review_required=True, confidence=0.4))
+
+        sections_out.append(
+            {
+                "section_type": section_type,
+                "title": section_title,
+                "sequence": sequence,
+                "confidence": min((i.get("confidence") or 0.5) for i in items) if items else 0.5,
+                "assumptions": section_assumptions,
+                "content_items": items,
+            }
+        )
+
+    return {
+        "title": title,
+        "sections": sections_out,
+        "provider": "local",
+        "model": "local-proposal",
+        "prompt_version": prompt_version,
+    }
