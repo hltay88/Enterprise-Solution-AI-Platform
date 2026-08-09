@@ -1,5 +1,13 @@
 # Phase 3 Changelog
 
+## 0.3.3-p2-vendor-analytics (advanced vendor analytics)
+
+Post–Sprint 3.3 P2: project-fit dashboard — component coverage, unmatched
+components, fit-score buckets (0–5), selected/candidate/rejected — plus catalogue
+freshness (`GET /vendors/catalogue/analytics`,
+`GET /projects/{id}/vendor-analytics`, `VendorAnalyticsPanel`). Aggregates only —
+never invents SKUs or commercial figures (ATLAS-035/038).
+
 ## 0.3.3-p2-compare (architecture comparison UI)
 
 Post–Sprint 3.3 P2: `ArchitectureComparePanel` on the project page — select up to

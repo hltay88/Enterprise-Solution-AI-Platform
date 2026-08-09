@@ -14,7 +14,11 @@ from app.api.deps import get_current_user, get_db, get_editor_user
 from app.api.routes import v1_vendors
 from app.core.exceptions import AppError, NotFoundError, ValidationAppError
 from app.core.responses import error_response
-from app.schemas.vendor_bom import VendorCatalogueOut, VendorCatalogueSearchOut
+from app.schemas.vendor_bom import (
+    VendorCatalogueAnalyticsOut,
+    VendorCatalogueOut,
+    VendorCatalogueSearchOut,
+)
 
 
 def _user(role: str = "editor"):
@@ -40,7 +44,36 @@ def test_vendor_route_paths_registered():
     assert "/vendors/catalogue/import" in paths
     assert "/vendors/catalogue/seed" in paths
     assert "/vendors/catalogue/search" in paths
+    assert "/vendors/catalogue/analytics" in paths
     assert "/vendors/catalogue/{catalogue_id}" in paths
+
+
+def test_catalogue_analytics_returns_200():
+    user = _user("viewer")
+    catalogue_id = uuid4()
+    out = VendorCatalogueAnalyticsOut(
+        catalogue_id=catalogue_id,
+        catalogue_name="Seed",
+        product_count=3,
+        stale_count=1,
+        stale_ratio=0.3333,
+        average_confidence=0.8,
+        by_vendor=[{"key": "ExampleNet", "count": 3}],
+        warnings=["1/3 products are stale (source_date > 365 days) — ATLAS-038"],
+    )
+    client = TestClient(_app(user))
+
+    with patch("app.api.routes.v1_vendors.VendorAnalyticsService") as service_cls:
+        service_cls.return_value.catalogue_analytics.return_value = out
+        response = client.get("/api/v1/vendors/catalogue/analytics")
+
+    assert response.status_code == 200
+    body = response.json()["data"]
+    assert body["catalogue_id"] == str(catalogue_id)
+    assert body["product_count"] == 3
+    service_cls.return_value.catalogue_analytics.assert_called_once_with(
+        catalogue_id=None,
+    )
 
 
 def test_seed_catalogue_returns_201():

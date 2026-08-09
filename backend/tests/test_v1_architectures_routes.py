@@ -25,6 +25,9 @@ from app.schemas.vendor_bom import (
     ArchitectureProductMappingOut,
     ArchitectureProductMapResultOut,
     ArchitectureReviewOut,
+    VendorAnalyticsBundleOut,
+    VendorCatalogueAnalyticsOut,
+    VendorMappingAnalyticsOut,
 )
 
 
@@ -79,6 +82,7 @@ def test_architecture_route_paths_registered():
     assert "/projects/{project_id}/architectures/{architecture_id}/approve" in plural
     assert "/projects/{project_id}/risks" in plural
     assert "/projects/{project_id}/assumptions" in plural
+    assert "/projects/{project_id}/vendor-analytics" in plural
     assert "/projects/{project_id}/architecture" in singular
     assert "/projects/{project_id}/architecture/generate" in singular
 
@@ -411,3 +415,38 @@ def test_approve_architecture_maps_validation_error():
 
     assert response.status_code == 422
     assert "Cannot Complete" in response.json()["error"]["message"]
+
+
+def test_project_vendor_analytics_returns_200():
+    user = _user("viewer")
+    project_id = uuid4()
+    catalogue_id = uuid4()
+    out = VendorAnalyticsBundleOut(
+        catalogue=VendorCatalogueAnalyticsOut(
+            catalogue_id=catalogue_id,
+            catalogue_name="Seed",
+            product_count=2,
+        ),
+        mappings=VendorMappingAnalyticsOut(
+            project_id=project_id,
+            mapping_count=0,
+        ),
+    )
+    client = TestClient(_app(user))
+
+    with patch(
+        "app.api.routes.v1_architectures.VendorAnalyticsService",
+    ) as service_cls:
+        service_cls.return_value.project_bundle.return_value = out
+        response = client.get(f"/api/v1/projects/{project_id}/vendor-analytics")
+
+    assert response.status_code == 200
+    data = response.json()["data"]
+    assert data["catalogue"]["product_count"] == 2
+    assert data["mappings"]["project_id"] == str(project_id)
+    service_cls.return_value.project_bundle.assert_called_once_with(
+        project_id,
+        user.id,
+        architecture_id=None,
+        catalogue_id=None,
+    )

@@ -10,6 +10,7 @@ from fastapi import APIRouter, Query
 from app.api.deps import CurrentUser, DbSession, EditorUser
 from app.core.responses import success_response
 from app.schemas.vendor_bom import VendorCatalogueImportIn
+from app.services.vendor_analytics_service import VendorAnalyticsService
 from app.services.vendor_catalogue_service import VendorCatalogueService
 
 router = APIRouter(prefix="/vendors", tags=["v1-vendors"])
@@ -60,6 +61,17 @@ def search_catalogue(
         include_stale=include_stale,
         limit=limit,
     )
+    return success_response(data=result.model_dump(mode="json"))
+
+
+@router.get("/catalogue/analytics")
+def catalogue_analytics(
+    current_user: CurrentUser,
+    db: DbSession,
+    catalogue_id: UUID | None = Query(default=None),
+) -> dict:
+    """Catalogue health aggregates (stale/lifecycle/vendor/category)."""
+    result = VendorAnalyticsService(db).catalogue_analytics(catalogue_id=catalogue_id)
     return success_response(data=result.model_dump(mode="json"))
 
 

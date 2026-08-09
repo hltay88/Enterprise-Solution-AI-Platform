@@ -40,6 +40,9 @@ On the project page, after RKM governance and **before** Architecture:
 
 - **Architecture comparison** (`ArchitectureComparePanel`) — select up to 3 candidates from
   the latest generation; compare scores, counts, advantages/disadvantages side-by-side.
+- **Vendor analytics** (`VendorAnalyticsPanel`) — project fit (coverage, unmatched
+  components, fit-score distribution, selected/candidate/rejected) plus catalogue
+  freshness; optional architecture filter.
 
 ## Main screens
 - Solution Overview
@@ -49,7 +52,7 @@ On the project page, after RKM governance and **before** Architecture:
 - Requirement Traceability — **partial (domain stage in Domain panel; arch links via API)**
 - Capacity Calculator — **partial (capacity notes on candidate)**
 - Risks & Assumptions — **partial (on candidate + `/risks` `/assumptions` APIs)**
-- Vendor Comparison — **partial (product mapping on Architecture panel)**
+- Vendor Comparison — **live (`VendorAnalyticsPanel` + mapping on Architecture panel)**
 - BOM Validation — **live (`BomValidationPanel`)**
 - Architecture Decision — **review/Complete on Architecture panel**
 

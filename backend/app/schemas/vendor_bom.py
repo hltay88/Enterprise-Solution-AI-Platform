@@ -275,6 +275,61 @@ class VendorCatalogueSearchOut(BaseModel):
     products: list[VendorProductSummaryOut] = Field(default_factory=list)
 
 
+# --- Vendor analytics (Phase 3 P2) ----------------------------------------------------
+
+
+class NamedCountOut(BaseModel):
+    key: str
+    count: int = 0
+
+
+class VendorCatalogueAnalyticsOut(BaseModel):
+    """Aggregate catalogue health — no commercial inventing."""
+
+    catalogue_id: UUID | None = None
+    catalogue_name: str | None = None
+    product_count: int = 0
+    stale_count: int = 0
+    stale_ratio: float = 0.0
+    average_confidence: float | None = None
+    by_vendor: list[NamedCountOut] = Field(default_factory=list)
+    by_category: list[NamedCountOut] = Field(default_factory=list)
+    by_lifecycle: list[NamedCountOut] = Field(default_factory=list)
+    by_region: list[NamedCountOut] = Field(default_factory=list)
+    warnings: list[str] = Field(default_factory=list)
+
+
+class VendorMappingAnalyticsOut(BaseModel):
+    """Project/architecture mapping analytics (ATLAS-035 preference distinctions)."""
+
+    project_id: UUID
+    architecture_id: UUID | None = None
+    mapping_count: int = 0
+    by_status: list[NamedCountOut] = Field(default_factory=list)
+    by_preference_kind: list[NamedCountOut] = Field(default_factory=list)
+    by_vendor: list[NamedCountOut] = Field(default_factory=list)
+    by_lifecycle: list[NamedCountOut] = Field(default_factory=list)
+    fit_score_buckets: list[NamedCountOut] = Field(default_factory=list)
+    component_count: int = 0
+    mapped_component_count: int = 0
+    unmatched_component_count: int = 0
+    unmatched_component_ids: list[UUID] = Field(default_factory=list)
+    coverage_ratio: float = 0.0
+    stale_mapped_count: int = 0
+    average_fit_score: float | None = None
+    selected_count: int = 0
+    candidate_count: int = 0
+    rejected_count: int = 0
+    warnings: list[str] = Field(default_factory=list)
+
+
+class VendorAnalyticsBundleOut(BaseModel):
+    """Combined catalogue + project mapping analytics for the UI."""
+
+    catalogue: VendorCatalogueAnalyticsOut
+    mappings: VendorMappingAnalyticsOut
+
+
 # --- Product mapping -----------------------------------------------------------------
 
 

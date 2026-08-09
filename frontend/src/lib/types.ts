@@ -311,6 +311,52 @@ export type VendorCatalogue = {
   created_at: string;
 };
 
+export type NamedCount = {
+  key: string;
+  count: number;
+};
+
+export type VendorCatalogueAnalytics = {
+  catalogue_id: string | null;
+  catalogue_name: string | null;
+  product_count: number;
+  stale_count: number;
+  stale_ratio: number;
+  average_confidence: number | null;
+  by_vendor: NamedCount[];
+  by_category: NamedCount[];
+  by_lifecycle: NamedCount[];
+  by_region: NamedCount[];
+  warnings: string[];
+};
+
+export type VendorMappingAnalytics = {
+  project_id: string;
+  architecture_id: string | null;
+  mapping_count: number;
+  by_status: NamedCount[];
+  by_preference_kind: NamedCount[];
+  by_vendor: NamedCount[];
+  by_lifecycle: NamedCount[];
+  fit_score_buckets: NamedCount[];
+  component_count: number;
+  mapped_component_count: number;
+  unmatched_component_count: number;
+  unmatched_component_ids: string[];
+  coverage_ratio: number;
+  stale_mapped_count: number;
+  average_fit_score: number | null;
+  selected_count: number;
+  candidate_count: number;
+  rejected_count: number;
+  warnings: string[];
+};
+
+export type VendorAnalyticsBundle = {
+  catalogue: VendorCatalogueAnalytics;
+  mappings: VendorMappingAnalytics;
+};
+
 export type DomainDependency = {
   id: string | null;
   depends_on_domain_code: string;

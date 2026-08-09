@@ -22,7 +22,7 @@
 - [x] Sprint 3.3 docs polish — Task 12
 - [x] Sprint 3.3 acceptance verify — Task 13 (`scripts/verify_sprint_3_3.py`)
 - [x] Architecture comparison UI — `ArchitectureComparePanel` (side-by-side candidates)
-- [ ] Advanced vendor analytics
+- [x] Advanced vendor analytics — project-fit dashboard + catalogue freshness (`VendorAnalyticsPanel`)
 
 ## Definition of Done
 A task is complete only when:

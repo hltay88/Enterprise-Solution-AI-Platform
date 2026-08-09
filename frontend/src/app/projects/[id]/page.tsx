@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 
 import { AnalysisPanel } from "@/components/AnalysisPanel";
 import { ArchitectureComparePanel } from "@/components/ArchitectureComparePanel";
+import { VendorAnalyticsPanel } from "@/components/VendorAnalyticsPanel";
 import { ArchitecturePanel } from "@/components/ArchitecturePanel";
 import { BomValidationPanel } from "@/components/BomValidationPanel";
 import { AppHeader } from "@/components/AppHeader";
@@ -153,6 +154,10 @@ function ProjectDetailContent({ userName }: { userName: string }) {
               refreshToken={rkmRefreshToken}
             />
             <ArchitectureComparePanel
+              projectId={projectId}
+              refreshToken={rkmRefreshToken}
+            />
+            <VendorAnalyticsPanel
               projectId={projectId}
               refreshToken={rkmRefreshToken}
             />

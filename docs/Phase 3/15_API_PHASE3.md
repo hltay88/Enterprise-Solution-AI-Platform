@@ -37,7 +37,18 @@ Seed: `knowledge/phase3/vendors/seed_catalogue.json` (fictional vendors only).
 - `POST /vendors/catalogue/import` (Editor+)
 - `POST /vendors/catalogue/seed` (Editor+; idempotent; `?force=true` re-imports)
 - `GET /vendors/catalogue/search` (`q`, `vendor`, `category`, `region`, `catalogue_id`, `include_stale`, `limit`)
+- `GET /vendors/catalogue/analytics` (`?catalogue_id=` optional; default = latest catalogue)
 - `GET /vendors/catalogue/{catalogue_id}`
+
+## Vendor analytics (Phase 3 P2) — **Live**
+
+Project-fit dashboard + catalogue freshness. Aggregates only (coverage, fit buckets,
+status/preference/vendor/lifecycle + catalogue stale/region). Never invents SKUs or
+commercial figures (ATLAS-035/038).
+
+- `GET /vendors/catalogue/analytics` (global catalogue health)
+- `GET /projects/{project_id}/vendor-analytics` (`?architecture_id=`, optional `catalogue_id`)
+  — mapping payload includes `coverage_ratio`, `unmatched_component_*`, `fit_score_buckets`
 
 ## Product mapping (Sprint 3.3) — **Live**
 

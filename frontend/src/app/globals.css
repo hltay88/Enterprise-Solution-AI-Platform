@@ -626,6 +626,24 @@ body {
   margin: 0.35rem 0 0;
 }
 
+.field-inline {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 14rem;
+}
+
+.field-inline select {
+  min-height: 2.25rem;
+}
+
+.architecture-compare-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: 1rem;
+  margin-top: 0.75rem;
+}
+
 .architecture-compare-pick {
   display: flex;
   align-items: flex-start;

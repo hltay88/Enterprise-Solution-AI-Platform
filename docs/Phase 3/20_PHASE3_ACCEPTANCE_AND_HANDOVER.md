@@ -60,7 +60,6 @@ as Atlas Foundation 0.3. Future changes go through a new controlled revision.
 
 ## Out of scope (remain Phase 4+ / later)
 
-- Advanced vendor analytics (Phase 3 P2 remaining)
 - Full capacity calculator UI (notes on candidate are live)
 - Final commercial quotation / PO
 - Automatic vendor negotiation

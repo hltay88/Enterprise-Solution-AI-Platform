@@ -22,6 +22,7 @@ from app.services.architecture_product_mapping_service import (
     ArchitectureProductMappingService,
 )
 from app.services.architecture_review_service import ArchitectureReviewService
+from app.services.vendor_analytics_service import VendorAnalyticsService
 
 router = APIRouter(prefix="/projects", tags=["v1-architectures"])
 
@@ -151,6 +152,24 @@ def approve_architecture(
         architecture_id,
         current_user.id,
         body or ArchitectureApproveIn(),
+    )
+    return success_response(data=result.model_dump(mode="json"))
+
+
+@router.get("/{project_id}/vendor-analytics")
+def project_vendor_analytics(
+    project_id: UUID,
+    current_user: CurrentUser,
+    db: DbSession,
+    architecture_id: UUID | None = Query(default=None),
+    catalogue_id: UUID | None = Query(default=None),
+) -> dict:
+    """Catalogue health + mapping analytics for the project (Phase 3 P2)."""
+    result = VendorAnalyticsService(db).project_bundle(
+        project_id,
+        current_user.id,
+        architecture_id=architecture_id,
+        catalogue_id=catalogue_id,
     )
     return success_response(data=result.model_dump(mode="json"))
 

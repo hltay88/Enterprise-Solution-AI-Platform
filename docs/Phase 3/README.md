@@ -7,7 +7,7 @@
 **Sprint 3.1:** Solution Domain Identification — implemented (catalog → analyze API → UI).  
 **Sprint 3.2:** Architecture engine — complete (Tasks 1–14).  
 **Sprint 3.3:** Vendor / BOM / approve — **complete** (Tasks 1–13).  
-**Post–3.3 P2:** Architecture comparison UI — **live**; advanced vendor analytics still open.
+**Post–3.3 P2:** Architecture comparison UI — **live**; advanced vendor analytics — **live**.
 
 ## Read order
 
