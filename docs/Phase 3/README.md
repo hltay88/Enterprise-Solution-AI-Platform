@@ -2,7 +2,8 @@
 
 **Folder:** `docs/Phase 3/` (canonical for Phase 3)  
 **Codename:** Solution Recommendation Engine (Atlas Foundation 0.3)  
-**Input rule (ATLAS-023):** Consume only **Published** RKMs — never raw customer documents.
+**Input rule (ATLAS-023):** Consume only **Published** RKMs — never raw customer documents.  
+**Sprint 3.0 locks:** [21_PHASE3_DECISIONS.md](./21_PHASE3_DECISIONS.md) (ATLAS-031…034) — complete; Sprint 3.1 may start.
 
 ## Read order
 
@@ -49,5 +50,6 @@ Handover context from Phase 2: [../Phase 2/PHASE3_HANDOVER.md](../Phase%202/PHAS
 **Shipped (thin MVP):** generate / fetch architecture recommendation from a Published RKM
 (`POST/GET /api/v1/projects/{id}/architecture…`, `architecture_models` table, Architecture panel).
 
-**Not yet built:** full `/solutions/…` surface in [15_API_PHASE3.md](./15_API_PHASE3.md), domain analysis,
-traceability APIs, vendor catalogue, BOM validation, architecture review/approve, scoring UI.
+**Not yet built:** domain analysis, traceability APIs, plural `/architectures` lifecycle,
+vendor catalogue, BOM validation, architecture review/approve, scoring UI
+(see locked surface in [15_API_PHASE3.md](./15_API_PHASE3.md)).

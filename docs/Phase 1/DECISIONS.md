@@ -769,6 +769,26 @@ Full text: [`docs/Phase 2/DECISIONS_PHASE2.md`](../Phase%202/DECISIONS_PHASE2.md
 | ATLAS-029 | OCR / RKM generation are async jobs | Accepted |
 | ATLAS-030 | Embeddings / vector DB deferred past Sprint 2.1 | Accepted |
 
+---
+
+# Phase 3 Decisions (ATLAS-031+)
+
+Full text: [`docs/Phase 3/21_PHASE3_DECISIONS.md`](../Phase%203/21_PHASE3_DECISIONS.md).
+
+| ID | Title | Status |
+|----|-------|--------|
+| ATLAS-031 | Phase 3 APIs under `/api/v1/projects/{id}/…` | Accepted |
+| ATLAS-032 | Normalized Phase 3 tables; reuse `projects` (no `solution_projects`) | Accepted |
+| ATLAS-033 | Phase 3 decision IDs use ATLAS-031+ (retire ADR-017…024) | Accepted |
+| ATLAS-034 | Keep thin architecture MVP until Sprint 3.2 refactor | Accepted |
+| ATLAS-035 | Vendor neutrality first | Accepted |
+| ATLAS-036 | Requirement / evidence traceability mandatory | Accepted |
+| ATLAS-037 | AI cannot approve architecture (human Approver) | Accepted |
+| ATLAS-038 | Vendor catalogue data is versioned | Accepted |
+| ATLAS-039 | External BOM is evidence, not truth | Accepted |
+| ATLAS-040 | Multi-domain support (IT + AV/LED/signage/smart building) | Accepted |
+| ATLAS-041 | AI provider independence via abstraction | Accepted |
+
 ---  
   
 # Future Decision Log  

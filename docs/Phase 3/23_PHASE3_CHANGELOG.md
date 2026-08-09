@@ -1,5 +1,10 @@
 # Phase 3 Changelog
 
+## 0.3.0-sprint3.0 (design lock)
+
+Sprint 3.0 accepted ATLAS-031…034 (and mapped former ADR-017…024 → ATLAS-035…041).
+API/DB/MVP fate frozen in `21_PHASE3_DECISIONS.md`. No feature code in this revision.
+
 ## 0.3.0 (baseline pack + thin architecture MVP)
 
 Doc pack `01`–`23` added under `docs/Phase 3/`.
@@ -10,9 +15,9 @@ Doc pack `01`–`23` added under `docs/Phase 3/`.
 - Architecture panel in the project UI
 - Vendor-neutral technology categories (no product SKUs)
 
-**Still planned (see backlog / acceptance):** domain identification APIs, pattern library,
+**Still planned (see backlog / acceptance):** domain identification, pattern library,
 capacity, scoring, risks/assumptions, vendor catalogue, BOM import/validation,
-architecture review/approve under the `/solutions/…` surface in `15_API_PHASE3.md`.
+architecture review/approve under the locked `/projects/{id}/…` surface in `15_API_PHASE3.md`.
 
 ## Revision policy
 Do not silently alter the Phase 3 baseline.
