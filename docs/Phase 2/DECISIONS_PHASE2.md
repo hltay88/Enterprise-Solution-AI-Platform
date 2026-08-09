@@ -3,7 +3,7 @@
 Phase 2 Architecture Decisions  
 Namespace: **ATLAS-020+** (see ATLAS-028)
 
-> Historical note: an earlier draft used “Decision 011–016”, which collided with Sprint 1 IDs in `docs/DECISIONS.md`. Those draft numbers are retired.
+> Historical note: an earlier draft used “Decision 011–016”, which collided with Sprint 1 IDs in `docs/Phase 1/DECISIONS.md`. Those draft numbers are retired.
 
 ---
 
@@ -127,7 +127,7 @@ Namespace: **ATLAS-020+** (see ATLAS-028)
 **Status:** Accepted  
 **Date:** 2026-08-04  
 
-**Decision:** All Phase 2 architecture decisions use **ATLAS-020+** in both `docs/Phase 2/DECISIONS_PHASE2.md` and the main `docs/DECISIONS.md` log.  
+**Decision:** All Phase 2 architecture decisions use **ATLAS-020+** in both `docs/Phase 2/DECISIONS_PHASE2.md` and the main `docs/Phase 1/DECISIONS.md` log.  
 
 **Reason:** Removes collision with Sprint 1 ATLAS-011…015a.
 

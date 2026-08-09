@@ -753,7 +753,7 @@ Clarification quality improves for multi-domain opportunities without requiring 
   
 # Phase 2 Decisions (ATLAS-020+)  
   
-Full text: `docs/Phase 2/DECISIONS_PHASE2.md` and `docs/Phase 2/PHASE2_ROADMAP.md`.  
+Full text: [`docs/Phase 2/DECISIONS_PHASE2.md`](../Phase%202/DECISIONS_PHASE2.md) and [`docs/Phase 2/PHASE2_ROADMAP.md`](../Phase%202/PHASE2_ROADMAP.md).  
   
 | ID | Title | Status |
 |----|-------|--------|

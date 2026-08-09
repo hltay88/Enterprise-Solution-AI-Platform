@@ -1,4 +1,4 @@
--- Project Atlas — Sprint 1 / 1.1 schema (docs/DATABASE.md)
+-- Project Atlas — Sprint 1 / 1.1 schema (docs/Phase 1/DATABASE.md)
 -- Runs once on first database initialization via docker-entrypoint-initdb.d.
 
 CREATE TABLE IF NOT EXISTS users (
