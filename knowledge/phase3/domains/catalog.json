@@ -1,0 +1,180 @@
+{
+  "schema_version": 1,
+  "catalog_version": "1.0.0",
+  "description": "Atlas Foundation 0.3 Phase 3 Solution Domain catalog (Sprint 3.1 Task 1 freeze).",
+  "emission_rule": "AI and services may only emit domain codes listed in this catalog, or aliases that resolve to those codes. Do not invent free-text domain names or product/SKU domains.",
+  "dependency_kinds": ["required", "recommended"],
+  "selection_sources": ["requirement", "dependency", "optional_alternative"],
+  "domains": [
+    {
+      "code": "campus_lan",
+      "name": "Campus LAN",
+      "aliases": ["lan", "campus network", "switching", "networking"],
+      "phase2_checklist_ids": ["networking"],
+      "typical_dependencies": ["identity", "cybersecurity", "monitoring_observability"],
+      "pack_dir": "campus_lan"
+    },
+    {
+      "code": "wan_sdwan",
+      "name": "WAN / SD-WAN",
+      "aliases": ["wan", "sd-wan", "sdwan", "branch wan"],
+      "phase2_checklist_ids": ["networking"],
+      "typical_dependencies": ["internet", "cybersecurity", "monitoring_observability"],
+      "pack_dir": "wan_sdwan"
+    },
+    {
+      "code": "internet",
+      "name": "Internet",
+      "aliases": ["internet edge", "isp", "breakout"],
+      "phase2_checklist_ids": ["networking", "network_security"],
+      "typical_dependencies": ["security_edge", "cybersecurity"],
+      "pack_dir": "internet"
+    },
+    {
+      "code": "wifi",
+      "name": "Wi-Fi",
+      "aliases": ["wi-fi", "wireless", "wlan", "wifi 6", "wifi6"],
+      "phase2_checklist_ids": ["wireless"],
+      "typical_dependencies": ["campus_lan", "identity", "cybersecurity"],
+      "pack_dir": "wifi"
+    },
+    {
+      "code": "data_centre",
+      "name": "Data Centre",
+      "aliases": ["data center", "dc", "datacentre", "datacenter"],
+      "phase2_checklist_ids": ["data_centre"],
+      "typical_dependencies": ["compute", "storage", "cybersecurity", "monitoring_observability"],
+      "pack_dir": "data_centre"
+    },
+    {
+      "code": "cloud",
+      "name": "Cloud",
+      "aliases": ["public cloud", "hybrid cloud", "iaas", "paas"],
+      "phase2_checklist_ids": ["cloud"],
+      "typical_dependencies": ["identity", "cybersecurity", "monitoring_observability"],
+      "pack_dir": "cloud"
+    },
+    {
+      "code": "compute",
+      "name": "Compute",
+      "aliases": ["servers", "server", "virtualization", "hci", "hypervisor"],
+      "phase2_checklist_ids": ["servers", "virtualization", "hci"],
+      "typical_dependencies": ["storage", "cybersecurity", "monitoring_observability"],
+      "pack_dir": "compute"
+    },
+    {
+      "code": "storage",
+      "name": "Storage",
+      "aliases": ["san", "nas", "object storage"],
+      "phase2_checklist_ids": ["storage"],
+      "typical_dependencies": ["backup_dr", "monitoring_observability"],
+      "pack_dir": "storage"
+    },
+    {
+      "code": "backup_dr",
+      "name": "Backup / DR",
+      "aliases": ["backup", "disaster recovery", "dr", "business continuity"],
+      "phase2_checklist_ids": ["backup"],
+      "typical_dependencies": ["storage", "compute"],
+      "pack_dir": "backup_dr"
+    },
+    {
+      "code": "cybersecurity",
+      "name": "Cybersecurity",
+      "aliases": ["security", "cyber security", "infosec"],
+      "phase2_checklist_ids": ["cybersecurity", "network_security"],
+      "typical_dependencies": ["identity", "monitoring_observability"],
+      "pack_dir": "cybersecurity"
+    },
+    {
+      "code": "identity",
+      "name": "Identity",
+      "aliases": ["iam", "idam", "authentication", "directory", "entra id", "active directory"],
+      "phase2_checklist_ids": ["cybersecurity", "microsoft"],
+      "typical_dependencies": ["cybersecurity"],
+      "pack_dir": "identity"
+    },
+    {
+      "code": "collaboration",
+      "name": "Collaboration",
+      "aliases": ["uc", "unified communications", "meeting rooms", "teams rooms"],
+      "phase2_checklist_ids": ["collaboration"],
+      "typical_dependencies": ["identity", "campus_lan", "wifi"],
+      "pack_dir": "collaboration"
+    },
+    {
+      "code": "audio_visual",
+      "name": "Audio Visual",
+      "aliases": ["av", "audio-visual", "audiovisual", "meeting room av"],
+      "phase2_checklist_ids": ["av"],
+      "typical_dependencies": ["collaboration", "campus_lan"],
+      "pack_dir": "audio_visual"
+    },
+    {
+      "code": "led_video_wall",
+      "name": "LED Video Wall",
+      "aliases": ["led", "video wall", "led wall"],
+      "phase2_checklist_ids": ["led"],
+      "typical_dependencies": ["audio_visual", "compute"],
+      "pack_dir": "led_video_wall"
+    },
+    {
+      "code": "digital_signage",
+      "name": "Digital Signage",
+      "aliases": ["signage", "digital displays"],
+      "phase2_checklist_ids": ["digital_signage"],
+      "typical_dependencies": ["campus_lan", "compute"],
+      "pack_dir": "digital_signage"
+    },
+    {
+      "code": "smart_building",
+      "name": "Smart Building",
+      "aliases": ["smart buildings", "bms", "building automation"],
+      "phase2_checklist_ids": ["iot_smart_building"],
+      "typical_dependencies": ["iot", "campus_lan", "cybersecurity"],
+      "pack_dir": "smart_building"
+    },
+    {
+      "code": "cctv",
+      "name": "CCTV",
+      "aliases": ["video surveillance", "ip cameras", "vms"],
+      "phase2_checklist_ids": ["cctv"],
+      "typical_dependencies": ["campus_lan", "storage", "cybersecurity"],
+      "pack_dir": "cctv"
+    },
+    {
+      "code": "iot",
+      "name": "IoT",
+      "aliases": ["internet of things", "ot", "sensors"],
+      "phase2_checklist_ids": ["iot_smart_building"],
+      "typical_dependencies": ["campus_lan", "cybersecurity", "monitoring_observability"],
+      "pack_dir": "iot"
+    },
+    {
+      "code": "monitoring_observability",
+      "name": "Monitoring / Observability",
+      "aliases": ["monitoring", "observability", "noc", "nms"],
+      "phase2_checklist_ids": [],
+      "typical_dependencies": [],
+      "pack_dir": "monitoring_observability"
+    },
+    {
+      "code": "ztna_vpn",
+      "name": "ZTNA / VPN",
+      "aliases": ["ztna", "vpn", "remote access", "zero trust network access"],
+      "phase2_checklist_ids": ["network_security", "cybersecurity"],
+      "typical_dependencies": ["identity", "cybersecurity", "internet"],
+      "pack_dir": "ztna_vpn",
+      "notes": "Dependency-oriented domain from Phase 3 domain model remote-access example."
+    },
+    {
+      "code": "security_edge",
+      "name": "Firewall / Security Edge",
+      "aliases": ["firewall", "ngfw", "secure edge", "security edge"],
+      "phase2_checklist_ids": ["network_security"],
+      "typical_dependencies": ["internet", "cybersecurity", "identity"],
+      "pack_dir": "security_edge",
+      "notes": "Dependency-oriented domain from Phase 3 domain model remote-access example."
+    }
+  ]
+}

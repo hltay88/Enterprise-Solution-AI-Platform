@@ -1,5 +1,11 @@
 # Phase 3 Changelog
 
+## 0.3.1-task1 (domain catalog freeze)
+
+Sprint 3.1 Task 1: frozen Phase 3 domain codes in `knowledge/phase3/domains/catalog.json`,
+`knowledge/phase3/VERSION`, priority domain overview stubs, and loader
+`backend/app/services/phase3_domain_catalog.py`. No domain analyze API yet.
+
 ## 0.3.0-sprint3.0 (design lock)
 
 Sprint 3.0 accepted ATLAS-031…034 (and mapped former ADR-017…024 → ATLAS-035…041).
