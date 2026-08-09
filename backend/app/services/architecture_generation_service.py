@@ -38,10 +38,14 @@ from app.services.architecture_capacity import (
     enrich_architecture_capacity,
     preprocess_capacity_in_extraction,
 )
+from app.services.architecture_risks import (
+    enrich_architecture_risks_assumptions,
+    preprocess_risks_assumptions_in_extraction,
+)
 from app.services.audit_service import AuditService
+from app.services.domain_traceability import extract_rkm_requirements
 from app.services.phase3_domain_catalog import catalog_version
 from app.services.phase3_pattern_catalog import build_pattern_pack_context
-from app.services.domain_traceability import extract_rkm_requirements
 
 logger = logging.getLogger(__name__)
 PROMPT_VERSION = "architecture-2.0"
@@ -147,15 +151,23 @@ class ArchitectureGenerationService:
             )
 
         try:
-            # Task 7: strip fabricated capacity results before strict validation.
+            # Task 7/8: sanitize capacity + risks/assumptions before validation.
+            requirements = extract_rkm_requirements(rkm_payload)
             preprocessed = preprocess_capacity_in_extraction(extraction)
+            preprocessed = preprocess_risks_assumptions_in_extraction(preprocessed)
             normalized = normalize_architecture_candidates(preprocessed)
             validated = validate_architecture_ai_extraction(normalized)
             validated = enrich_architecture_capacity(
                 validated,
                 domain_codes=domain_codes,
                 rkm_text=_rkm_text_blob(rkm_payload),
-                requirements=extract_rkm_requirements(rkm_payload),
+                requirements=requirements,
+            )
+            validated = enrich_architecture_risks_assumptions(
+                validated,
+                domain_codes=domain_codes,
+                rkm_payload=rkm_payload,
+                requirements=requirements,
             )
         except (ValidationError, ValueError, AppError) as exc:
             raise ValidationAppError(
