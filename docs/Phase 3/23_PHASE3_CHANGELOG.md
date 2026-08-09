@@ -1,5 +1,12 @@
 # Phase 3 Changelog
 
+## 0.3.2-task10 (architecture traceability)
+
+Sprint 3.2 Task 10: `architecture_traceability.py` builds requirement → domain →
+architecture/component rows; `ArchitectureOptionRepository.add_traceability_rows`
+persists them on generate. Domain-stage rows unchanged. Decision/vendor links still
+deferred. Soft uncovered-critical count recorded on audit metadata.
+
 ## 0.3.2-task9 (architecture scoring engine)
 
 Sprint 3.2 Task 9: `architecture_scoring.py` applies default weights from

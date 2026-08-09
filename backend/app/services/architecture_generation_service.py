@@ -48,6 +48,12 @@ from app.services.architecture_scoring import (
     preprocess_scores_in_extraction,
     score_summary_for_candidate,
 )
+from app.services.architecture_traceability import (
+    architectures_payload_for_traceability,
+    build_requirement_architecture_traceability,
+    count_architecture_uncovered_critical,
+    domain_links_from_analysis,
+)
 from app.services.audit_service import AuditService
 from app.services.domain_traceability import extract_rkm_requirements
 from app.services.phase3_domain_catalog import catalog_version
@@ -238,6 +244,33 @@ class ArchitectureGenerationService:
         except ValueError as exc:
             raise ValidationAppError(str(exc)) from exc
 
+        # Task 10: extend requirement_traceability with architecture/component links.
+        domain_ids = [row.id for row in domain_rows]
+        req_links = self.domains.list_requirement_links(domain_ids)
+        components_by_id = {
+            option.id: self.architectures.list_components(option.id) for option in options
+        }
+        trace_rows = build_requirement_architecture_traceability(
+            requirements=requirements,
+            architectures=architectures_payload_for_traceability(
+                options,
+                components_by_id,
+            ),
+            domain_links=domain_links_from_analysis(domain_rows, req_links),
+        )
+        try:
+            traceability_count = self.architectures.add_traceability_rows(
+                project_id=project_id,
+                analysis_id=domain_analysis.id,
+                rows=trace_rows,
+            )
+        except ValueError as exc:
+            raise ValidationAppError(str(exc)) from exc
+        uncovered_critical = count_architecture_uncovered_critical(
+            trace_rows,
+            requirements,
+        )
+
         generation_id = options[0].generation_id
         version_label = options[0].version_label
         outs = [self._to_out(row) for row in options]
@@ -264,6 +297,8 @@ class ArchitectureGenerationService:
                 "knowledge_pack_version": knowledge_pack_version,
                 "candidate_count": len(options),
                 "candidate_keys": [row.candidate_key for row in options],
+                "traceability_count": traceability_count,
+                "uncovered_critical_or_high": uncovered_critical,
             },
         )
         return ArchitectureGenerateOut(

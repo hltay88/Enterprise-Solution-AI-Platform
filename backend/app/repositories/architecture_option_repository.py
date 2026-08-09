@@ -23,6 +23,7 @@ from app.models.architecture_option import (
     SolutionRisk,
     SolutionScore,
 )
+from app.models.domain_analysis import RequirementTraceability
 
 
 def compute_next_architecture_version(
@@ -181,6 +182,63 @@ class ArchitectureOptionRepository:
             .where(ArchitectureComponent.architecture_id == architecture_id)
         )
         return int(self.db.scalar(statement) or 0)
+
+    def add_traceability_rows(
+        self,
+        *,
+        project_id: UUID,
+        analysis_id: UUID,
+        rows: list[dict[str, Any]],
+        commit: bool = True,
+    ) -> int:
+        """Persist architecture-stage requirement_traceability rows.
+
+        Each row may include requirement_id, domain_id, architecture_id,
+        component_id, decision_id, status, evidence. Domain analyze rows are
+        left untouched; this only inserts new architecture-linked rows.
+        """
+        if not rows:
+            return 0
+        now = datetime.now(timezone.utc)
+        added = 0
+        for index, row in enumerate(rows):
+            if not isinstance(row, dict):
+                raise ValueError(f"traceability[{index}] must be an object")
+            requirement_id = str(row.get("requirement_id") or "").strip()
+            if not requirement_id:
+                raise ValueError(f"traceability[{index}].requirement_id is required")
+            architecture_id = row.get("architecture_id")
+            if architecture_id is None:
+                raise ValueError(
+                    f"traceability[{index}].architecture_id is required for "
+                    "architecture-stage rows",
+                )
+            self.db.add(
+                RequirementTraceability(
+                    id=uuid4(),
+                    project_id=project_id,
+                    analysis_id=analysis_id,
+                    requirement_id=requirement_id,
+                    domain_id=row.get("domain_id"),
+                    architecture_id=architecture_id,
+                    component_id=row.get("component_id"),
+                    decision_id=row.get("decision_id"),
+                    evidence=(
+                        str(row["evidence"]).strip()
+                        if row.get("evidence") is not None
+                        else None
+                    ),
+                    status=str(row.get("status") or "not_covered").strip() or "not_covered",
+                    created_at=now,
+                    updated_at=now,
+                ),
+            )
+            added += 1
+        if commit:
+            self.db.commit()
+        else:
+            self.db.flush()
+        return added
 
     def create_generation_tree(
         self,

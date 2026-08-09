@@ -88,8 +88,10 @@ def test_generate_persists_and_audits_on_success():
         rkm_version_label="2.0.0",
         summary="Wi-Fi + campus",
     )
+    domain_row_id = uuid4()
     service.domains.list_domains.return_value = [
         SimpleNamespace(
+            id=domain_row_id,
             domain_code="wifi",
             name="Wi-Fi",
             confidence=0.8,
@@ -97,6 +99,9 @@ def test_generate_persists_and_audits_on_success():
             mandatory_or_optional="mandatory",
             reason="Coverage",
         ),
+    ]
+    service.domains.list_requirement_links.return_value = [
+        SimpleNamespace(domain_id=domain_row_id, requirement_id="REQ-WIFI-1"),
     ]
 
     created = SimpleNamespace(
@@ -126,16 +131,27 @@ def test_generate_persists_and_audits_on_success():
         created_at=datetime.now(timezone.utc),
         updated_at=datetime.now(timezone.utc),
     )
+    component_id = uuid4()
     service.architectures = MagicMock()
     service.architectures.next_version.return_value = (1, 0, 0)
     service.architectures.create_generation_tree.return_value = [created]
-    service.architectures.list_components.return_value = []
+    service.architectures.list_components.return_value = [
+        SimpleNamespace(
+            id=component_id,
+            name="Access",
+            purpose="Underlay",
+            component_kind="logical",
+            sort_order=0,
+            maps_to_requirements=["REQ-WIFI-1"],
+        ),
+    ]
     service.architectures.list_relationships.return_value = []
     service.architectures.list_decisions.return_value = []
     service.architectures.list_assumptions.return_value = []
     service.architectures.list_risks.return_value = []
     service.architectures.list_scores.return_value = []
     service.architectures.list_capacity_notes.return_value = []
+    service.architectures.add_traceability_rows.return_value = 1
 
     extraction = {
         "summary": "Candidates",
@@ -213,6 +229,14 @@ def test_generate_persists_and_audits_on_success():
     assert 0 <= kwargs["architectures"][0]["overall_score"] <= 5
     assert len(kwargs["architectures"][0]["scores"]) == 9
     assert "scoring" in kwargs["architectures"][0]["payload_json"]
+    service.architectures.add_traceability_rows.assert_called_once()
+    trace_kwargs = service.architectures.add_traceability_rows.call_args.kwargs
+    assert trace_kwargs["analysis_id"] == domain_analysis_id
+    assert trace_kwargs["rows"]
+    assert any(
+        row["requirement_id"] == "REQ-WIFI-1" and row.get("component_id") == component_id
+        for row in trace_kwargs["rows"]
+    )
     provider.recommend_architectures.assert_awaited_once()
     call_kwargs = provider.recommend_architectures.await_args.kwargs
     assert "wifi" in call_kwargs["domain_context"]
@@ -220,6 +244,7 @@ def test_generate_persists_and_audits_on_success():
     audit.record.assert_called_once()
     assert audit.record.call_args.kwargs["action"] == "architectures.generate"
     assert audit.record.call_args.kwargs["metadata"]["candidate_count"] == 1
+    assert "traceability_count" in audit.record.call_args.kwargs["metadata"]
 
 
 def test_generate_does_not_persist_invalid_ai_payload():
