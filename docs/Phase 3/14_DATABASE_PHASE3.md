@@ -42,7 +42,8 @@ Repository: `backend/app/repositories/domain_repository.py`
 
 Init: `docker/postgres/init/08_phase3_architectures.sql`  
 Additive mirror: `backend/app/db/schema.py` (`ensure_schema`)  
-ORM: `backend/app/models/architecture_option.py`
+ORM: `backend/app/models/architecture_option.py`  
+Repository: `backend/app/repositories/architecture_option_repository.py`
 
 ### Notes
 
