@@ -26,7 +26,7 @@ Insufficient results surface `INSUFFICIENT EVIDENCE — REVIEW REQUIRED`.
 
 | Env | Default | Purpose |
 |-----|---------|---------|
-| `ATLAS_EMBEDDING_PROVIDER` | `auto` | Embeddings backend |
+| `ATLAS_EMBEDDING_PROVIDER` | `local` | Embeddings backend (`local` recommended on Mac; `auto` falls back at runtime) |
 | `ATLAS_EMBEDDING_MODEL` | (provider default) | Model id |
 | `ATLAS_EMBEDDING_DIMS` | `384` | Must match DDL `vector(384)` |
 | `ATLAS_KNOWLEDGE_CHUNK_SIZE` | `1000` | Chunk chars |
