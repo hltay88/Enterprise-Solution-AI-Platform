@@ -1,5 +1,12 @@
 # Phase 5 Changelog
 
+## UI + eval gap close (2026-08-10)
+
+Named Phase 5 screens from `19_UI_PHASE5.md`: `/solutions` (Solution Review),
+`/approvals` (Approval Center), `/usage` (Usage Dashboard); `/governance`
+positioned as Audit Viewer. Golden-set domains expanded for data centre, AV/LED,
+digital signage, and smart-building (`21_PHASE5_AI_EVALUATION.md`).
+
 ## Phase 5 portable 100% closeout (2026-08-10)
 
 Closed remaining Foundation 0.5 partials with Mac-local / portable depth:

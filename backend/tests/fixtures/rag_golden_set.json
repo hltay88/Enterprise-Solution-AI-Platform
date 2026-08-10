@@ -21,6 +21,12 @@
       "domain_hint": "cybersecurity"
     },
     {
+      "id": "cloud_landing",
+      "query": "cloud landing zone connectivity identity shared services",
+      "must_contain_any": ["cloud", "landing", "identity", "network", "shared"],
+      "domain_hint": "cloud"
+    },
+    {
       "id": "hci_compute",
       "query": "hyperconverged infrastructure HCI compute cluster design",
       "must_contain_any": ["hci", "compute", "cluster", "hyperconverg", "virtual"],
@@ -31,6 +37,30 @@
       "query": "backup disaster recovery RPO RTO retention",
       "must_contain_any": ["backup", "recovery", "rpo", "rto", "retention"],
       "domain_hint": "backup"
+    },
+    {
+      "id": "data_centre_fabric",
+      "query": "data centre spine leaf fabric leaf-spine switching",
+      "must_contain_any": ["data", "centre", "center", "fabric", "spine", "leaf"],
+      "domain_hint": "data_centre"
+    },
+    {
+      "id": "av_led_videowall",
+      "query": "AV LED videowall control room display design",
+      "must_contain_any": ["av", "led", "videowall", "video", "display", "control"],
+      "domain_hint": "av_led"
+    },
+    {
+      "id": "digital_signage",
+      "query": "digital signage content player CMS screens network",
+      "must_contain_any": ["signage", "digital", "player", "cms", "screen"],
+      "domain_hint": "digital_signage"
+    },
+    {
+      "id": "smart_building",
+      "query": "smart building BMS IoT sensors occupancy HVAC integration",
+      "must_contain_any": ["building", "bms", "iot", "sensor", "hvac", "occupancy"],
+      "domain_hint": "smart_building"
     }
   ]
 }

@@ -33,8 +33,13 @@ def test_golden_set_lexical_overlap_gate():
         "wireless": "High-density Wi-Fi AP spacing and RF design for wireless capacity planning.",
         "networking": "Campus LAN and WAN with SD-WAN routing best practices for enterprise networks.",
         "cybersecurity": "Zero trust segmentation with firewall cybersecurity controls and policy.",
+        "cloud": "Cloud landing zone with identity, connectivity, and shared services design.",
         "hci": "Hyperconverged infrastructure HCI compute cluster design and virtualization.",
         "backup": "Backup disaster recovery with RPO RTO retention policies and restore drills.",
+        "data_centre": "Data centre spine-leaf fabric switching for leaf-spine data center networks.",
+        "av_led": "AV LED videowall control room display design and video wall processors.",
+        "digital_signage": "Digital signage content player CMS screens and network distribution.",
+        "smart_building": "Smart building BMS IoT sensors occupancy HVAC integration patterns.",
     }
     for case in data["cases"]:
         corpus = corpora[case["domain_hint"]]

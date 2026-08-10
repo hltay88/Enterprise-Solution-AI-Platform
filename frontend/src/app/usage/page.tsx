@@ -6,31 +6,31 @@ import { useEffect, useState } from "react";
 import { AppHeader } from "@/components/AppHeader";
 import { RequireAuth } from "@/components/RequireAuth";
 import { apiGet, ApiClientError } from "@/lib/api";
-import type { AuditEvent, UsageSummary } from "@/lib/types";
+import type { UsageRecord, UsageSummary } from "@/lib/types";
 
-function GovernanceContent({ userName }: { userName: string }) {
+function UsageDashboardContent({ userName }: { userName: string }) {
   const [usage, setUsage] = useState<UsageSummary | null>(null);
-  const [events, setEvents] = useState<AuditEvent[]>([]);
+  const [records, setRecords] = useState<UsageRecord[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     async function load() {
       try {
-        const [summary, audit] = await Promise.all([
+        const [summary, list] = await Promise.all([
           apiGet<UsageSummary>("/api/v1/usage/summary", true),
-          apiGet<AuditEvent[]>("/api/v1/audit-events?limit=40", true),
+          apiGet<UsageRecord[]>("/api/v1/usage?limit=40", true),
         ]);
         if (!cancelled) {
           setUsage(summary);
-          setEvents(audit);
+          setRecords(list);
         }
       } catch (err) {
         if (!cancelled) {
           setError(
             err instanceof ApiClientError
               ? err.message
-              : "Unable to load governance data (approver role required)",
+              : "Unable to load usage dashboard (approver role required)",
           );
         }
       }
@@ -41,20 +41,23 @@ function GovernanceContent({ userName }: { userName: string }) {
     };
   }, []);
 
+  const estimatedTotal = records.reduce(
+    (sum, row) => sum + (row.estimated_cost_usd ?? 0),
+    0,
+  );
+
   return (
     <div className="shell">
       <AppHeader userName={userName} showDashboardLink showKnowledgeLink />
       <main className="page">
         <section className="page-header">
           <p className="muted">
-            <Link href="/dashboard">← Back to dashboard</Link>
+            <Link href="/governance">← Governance / audit</Link>
           </p>
-          <h1>Audit Viewer</h1>
+          <h1>Usage Dashboard</h1>
           <p>
-            Consolidated audit events. Usage metrics live on the{" "}
-            <Link href="/usage">Usage Dashboard</Link>; approvals on the{" "}
-            <Link href="/approvals">Approval Center</Link>; solutions on{" "}
-            <Link href="/solutions">Solution Review</Link>.
+            Metered usage observability — latency, event mix, and estimated cost
+            (portable Phase 5 billing).
           </p>
         </section>
 
@@ -62,17 +65,15 @@ function GovernanceContent({ userName }: { userName: string }) {
 
         {usage ? (
           <section className="panel rkm-panel">
-            <div className="panel-heading">
-              <h2>Usage snapshot</h2>
-              <Link className="btn-secondary btn-compact" href="/usage">
-                Open Usage Dashboard
-              </Link>
-            </div>
+            <h2>Summary</h2>
             <p>
               Total {usage.total} · success {usage.success_count} · failure{" "}
               {usage.failure_count}
               {usage.avg_latency_ms != null
                 ? ` · avg latency ${Math.round(usage.avg_latency_ms)}ms`
+                : ""}
+              {estimatedTotal > 0
+                ? ` · est. cost (recent) $${estimatedTotal.toFixed(4)}`
                 : ""}
             </p>
             <ul>
@@ -86,17 +87,21 @@ function GovernanceContent({ userName }: { userName: string }) {
         ) : null}
 
         <section className="panel rkm-panel">
-          <h2>Audit events</h2>
-          {events.length === 0 ? (
-            <p className="muted">No audit events yet.</p>
+          <h2>Recent usage records</h2>
+          {records.length === 0 ? (
+            <p className="muted">No usage records yet.</p>
           ) : (
             <ul>
-              {events.map((e) => (
-                <li key={e.id}>
+              {records.map((row) => (
+                <li key={row.id}>
                   <span className="muted">
-                    {new Date(e.created_at).toLocaleString()} · {e.action}
-                  </span>{" "}
-                  — {e.summary}
+                    {new Date(row.created_at).toLocaleString()} · {row.event_type}
+                  </span>
+                  {row.latency_ms != null ? ` · ${row.latency_ms}ms` : ""}
+                  {row.estimated_cost_usd != null
+                    ? ` · $${row.estimated_cost_usd.toFixed(4)}`
+                    : ""}
+                  {row.success ? "" : " · failed"}
                 </li>
               ))}
             </ul>
@@ -107,10 +112,10 @@ function GovernanceContent({ userName }: { userName: string }) {
   );
 }
 
-export default function GovernancePage() {
+export default function UsageDashboardPage() {
   return (
     <RequireAuth>
-      {(user) => <GovernanceContent userName={user.name} />}
+      {(user) => <UsageDashboardContent userName={user.name} />}
     </RequireAuth>
   );
 }

@@ -26,6 +26,8 @@ Accepted at **Mac-local / portable** depth — no live SaaS IdP or vendor billin
 | Billing | Metered local provider (cost estimates) + usage records; `noop` optional |
 | Security | Isolation filters + release-gate pytest suite (rate-limit, write deny, audit no-delete, OIDC mock) |
 | Multi-tenant UX | Demo tenant + `/tenants` admin |
+| Named Phase 5 UI screens | `/solutions`, `/approvals`, `/usage`, `/governance` (audit), knowledge + retrieve |
+| Golden eval domains | Network, security, cloud, DC, HCI/backup, AV/LED, signage, smart-building |
 
 Demo harden assets: `scripts/seed_demo_knowledge.py`, `docs/Phase 5/DEMO_SMOKE_CHECKLIST.md`.
 

@@ -41,8 +41,23 @@ export function AppHeader({
           </Link>
         ) : null}
         {userName ? (
+          <Link className="nav-link" href="/solutions">
+            Solutions
+          </Link>
+        ) : null}
+        {userName ? (
+          <Link className="nav-link" href="/approvals">
+            Approvals
+          </Link>
+        ) : null}
+        {userName ? (
+          <Link className="nav-link" href="/usage">
+            Usage
+          </Link>
+        ) : null}
+        {userName ? (
           <Link className="nav-link" href="/governance">
-            Governance
+            Audit
           </Link>
         ) : null}
         {userName ? (

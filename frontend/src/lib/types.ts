@@ -1187,3 +1187,21 @@ export type UsageSummary = {
   by_event_type: Record<string, number>;
   avg_latency_ms?: number | null;
 };
+
+export type UsageRecord = {
+  id: string;
+  event_type: string;
+  provider?: string | null;
+  model?: string | null;
+  latency_ms?: number | null;
+  token_input?: number | null;
+  token_output?: number | null;
+  estimated_cost_usd?: number | null;
+  success: boolean;
+  error_code?: string | null;
+  user_id?: string | null;
+  project_id?: string | null;
+  tenant_id?: string | null;
+  metadata?: Record<string, unknown>;
+  created_at: string;
+};
