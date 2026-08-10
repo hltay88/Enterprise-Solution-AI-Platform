@@ -1,6 +1,9 @@
 # Project Atlas — Phase 5
 ## Atlas Foundation 0.5 — Enterprise Solution AI Platform
 
+**Status: frozen as Atlas Foundation 0.5 (2026-08-10).**  
+Acceptance: [27_PHASE5_ACCEPTANCE_AND_HANDOVER.md](./27_PHASE5_ACCEPTANCE_AND_HANDOVER.md)
+
 Purpose: evolve Atlas from presales automation into an enterprise solution intelligence platform.
 
 Sprints:

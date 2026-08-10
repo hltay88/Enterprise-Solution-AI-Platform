@@ -21,6 +21,7 @@ Canonical docs are organized by phase. Prefer these paths; do not create paralle
 - Phase 4 read order: [Phase 4/01_PHASE4_PROJECT.md](./Phase%204/01_PHASE4_PROJECT.md)
   (Sprint 4.0 locks in [23_PHASE4_DECISIONS.md](./Phase%204/23_PHASE4_DECISIONS.md); Sprint 4.1 = Proposal foundation)
 - Phase 5 read order: [Phase 5/01_PHASE5_PROJECT.md](./Phase%205/01_PHASE5_PROJECT.md)
+  · **Frozen as Atlas Foundation 0.5** — [Phase 5/27_PHASE5_ACCEPTANCE_AND_HANDOVER.md](./Phase%205/27_PHASE5_ACCEPTANCE_AND_HANDOVER.md)
   · Sprint 5.1 implementation: [Phase 5/IMPLEMENTATION_SPRINT_5_1.md](./Phase%205/IMPLEMENTATION_SPRINT_5_1.md)
   · Sprint 5.2 implementation: [Phase 5/IMPLEMENTATION_SPRINT_5_2.md](./Phase%205/IMPLEMENTATION_SPRINT_5_2.md)
   · Sprint 5.3 implementation: [Phase 5/IMPLEMENTATION_SPRINT_5_3.md](./Phase%205/IMPLEMENTATION_SPRINT_5_3.md)

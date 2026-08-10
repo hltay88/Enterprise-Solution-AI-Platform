@@ -1,5 +1,11 @@
 # Phase 5 Changelog
 
+## Atlas Foundation 0.5 (frozen 2026-08-10)
+
+Enterprise Knowledge Engine, RAG retrieval, multi-agent orchestration (15 specialists),
+collaboration/governance, and multi-tenant SaaS foundation — accepted as Mac-local MVP.
+See `27_PHASE5_ACCEPTANCE_AND_HANDOVER.md`.
+
 ## 0.5.5 — Sprint 5.5
 SaaS / multi-tenant foundation MVP.
 
