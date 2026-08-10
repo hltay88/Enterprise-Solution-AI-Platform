@@ -231,9 +231,14 @@ export function KnowledgeLibraryView({ user }: Props) {
         <section className="panel">
           <div className="panel-heading">
             <h2>Library</h2>
-            <button className="btn-secondary btn-compact" type="button" onClick={() => void load()}>
-              Refresh
-            </button>
+            <div className="button-row">
+              <Link className="btn-secondary btn-compact" href="/knowledge/retrieve">
+                Retrieval Explorer
+              </Link>
+              <button className="btn-secondary btn-compact" type="button" onClick={() => void load()}>
+                Refresh
+              </button>
+            </div>
           </div>
           <div className="form-row filters">
             <label>

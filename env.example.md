@@ -33,6 +33,16 @@ OPENAI_MODEL=gpt-4o-mini
 # gemini | openai | local
 ATLAS_AI_PROVIDER=auto
 
+# Sprint 5.2 RAG embeddings (provider-neutral)
+# auto = Gemini (if keyed) -> OpenAI (if keyed) -> local hash embedder
+ATLAS_EMBEDDING_PROVIDER=auto
+ATLAS_EMBEDDING_MODEL=
+ATLAS_EMBEDDING_DIMS=384
+ATLAS_KNOWLEDGE_CHUNK_SIZE=1000
+ATLAS_KNOWLEDGE_CHUNK_OVERLAP=150
+ATLAS_RETRIEVAL_TOP_K=8
+ATLAS_RETRIEVAL_MIN_SCORE=0.05
+
 # Optional future providers
 ANTHROPIC_API_KEY=
 

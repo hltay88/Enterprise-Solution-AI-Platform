@@ -973,3 +973,42 @@ export type KnowledgeType = {
   code: string;
   name: string;
 };
+
+export type RetrievalCitation = {
+  knowledge_id: string;
+  knowledge_version_id: string;
+  chunk_id: string;
+  title: string;
+  version_label: string;
+  status: string;
+  domain_code?: string | null;
+  knowledge_type?: string | null;
+  page_number?: number | null;
+  section_label?: string | null;
+  source_document_name?: string | null;
+  excerpt?: string;
+};
+
+export type RetrievalHit = {
+  rank: number;
+  chunk_id: string;
+  content: string;
+  vector_score?: number | null;
+  keyword_score?: number | null;
+  fused_score?: number | null;
+  citation: RetrievalCitation;
+};
+
+export type RetrievalSearchResult = {
+  run_id: string;
+  query: string;
+  insufficient_evidence: boolean;
+  review_required?: boolean;
+  context_text?: string;
+  message?: string | null;
+  embedding_provider: string;
+  embedding_model: string;
+  latency_ms: number;
+  hits: RetrievalHit[];
+  citations?: RetrievalCitation[];
+};

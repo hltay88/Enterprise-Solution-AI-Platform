@@ -22,3 +22,4 @@ Canonical docs are organized by phase. Prefer these paths; do not create paralle
   (Sprint 4.0 locks in [23_PHASE4_DECISIONS.md](./Phase%204/23_PHASE4_DECISIONS.md); Sprint 4.1 = Proposal foundation)
 - Phase 5 read order: [Phase 5/01_PHASE5_PROJECT.md](./Phase%205/01_PHASE5_PROJECT.md)
   · Sprint 5.1 implementation: [Phase 5/IMPLEMENTATION_SPRINT_5_1.md](./Phase%205/IMPLEMENTATION_SPRINT_5_1.md)
+  · Sprint 5.2 implementation: [Phase 5/IMPLEMENTATION_SPRINT_5_2.md](./Phase%205/IMPLEMENTATION_SPRINT_5_2.md)

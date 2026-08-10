@@ -202,3 +202,13 @@ def new_knowledge_version(
 ) -> dict:
     result = KnowledgeService(db).new_version(knowledge_id, current_user, body)
     return success_response(data=result.model_dump(mode="json"), status_code=201)
+
+
+@router.post("/{knowledge_id}/reindex")
+def reindex_knowledge(
+    knowledge_id: UUID,
+    current_user: EditorUser,
+    db: DbSession,
+) -> dict:
+    result = KnowledgeService(db).reindex(knowledge_id, current_user)
+    return success_response(data=result)

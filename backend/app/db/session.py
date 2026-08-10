@@ -2,7 +2,7 @@
 
 from collections.abc import Generator
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, event
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session, sessionmaker
 
@@ -19,10 +19,22 @@ def normalize_database_url(url: str) -> str:
 
 
 def create_db_engine(database_url: str | None = None) -> Engine:
-    return create_engine(
+    eng = create_engine(
         normalize_database_url(database_url or settings.database_url),
         pool_pre_ping=True,
     )
+
+    @event.listens_for(eng, "connect")
+    def _register_vector(dbapi_connection, connection_record) -> None:  # noqa: ARG001
+        try:
+            from pgvector.psycopg2 import register_vector
+
+            register_vector(dbapi_connection)
+        except Exception:
+            # Unit tests / non-pgvector environments still import the app.
+            pass
+
+    return eng
 
 
 engine = create_db_engine()

@@ -58,9 +58,12 @@ from app.models.vendor_bom import (
 )
 from app.models.knowledge import (
     KnowledgeAuditEvent,
+    KnowledgeChunk,
     KnowledgeItem,
     KnowledgeSource,
     KnowledgeVersion,
+    RetrievalResult,
+    RetrievalRun,
     TaxonomyDomain,
 )
 
@@ -119,4 +122,7 @@ __all__ = [
     "KnowledgeVersion",
     "KnowledgeSource",
     "KnowledgeAuditEvent",
+    "KnowledgeChunk",
+    "RetrievalRun",
+    "RetrievalResult",
 ]

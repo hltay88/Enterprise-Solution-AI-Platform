@@ -77,9 +77,25 @@ class Settings(BaseSettings):
 
     cors_origins: str = "http://localhost:3000"
 
+    # Sprint 5.2 RAG / embeddings (provider-neutral; Mac-local defaults to local).
+    atlas_embedding_provider: str = "auto"  # auto | local | gemini | openai
+    atlas_embedding_model: str = ""
+    atlas_embedding_dims: int = 384
+    atlas_knowledge_chunk_size: int = 1000
+    atlas_knowledge_chunk_overlap: int = 150
+    atlas_retrieval_top_k: int = 8
+    atlas_retrieval_min_score: float = 0.05
+
     @property
     def cors_origin_list(self) -> list[str]:
         return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
+
+    @field_validator("atlas_embedding_provider", mode="before")
+    @classmethod
+    def sanitize_atlas_embedding_provider(cls, value: object) -> str:
+        allowed = {"auto", "local", "gemini", "openai"}
+        cleaned = str(value or "auto").strip().strip('"').strip("'").strip().lower()
+        return cleaned if cleaned in allowed else "auto"
 
 
 @lru_cache

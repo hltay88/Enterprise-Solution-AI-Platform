@@ -14,6 +14,7 @@ from sqlalchemy.orm import Session
 
 from app.constants.file_limits import KNOWLEDGE_ALLOWED_EXTENSIONS, MIME_BY_TYPE
 from app.constants.knowledge_lifecycle import (
+    RETRIEVAL_ELIGIBLE_STATUSES,
     STATUS_APPROVED,
     STATUS_ARCHIVED,
     STATUS_DEPRECATED,
@@ -387,7 +388,41 @@ class KnowledgeService:
             metadata={"from": current, "to": target},
             commit=True,
         )
+        if target in RETRIEVAL_ELIGIBLE_STATUSES:
+            self._safe_index_version(version.id)
         return self.get_item(item.id)
+
+    def reindex(self, item_id: UUID, actor: User) -> dict:
+        """Rebuild chunks/embeddings for the current eligible version."""
+        _ = actor
+        item = self._require_item(item_id)
+        version = self._require_current_version(item)
+        if version.status not in RETRIEVAL_ELIGIBLE_STATUSES:
+            raise ConflictError(
+                f"Reindex requires approved/published knowledge (status={version.status})",
+            )
+        from app.services.knowledge_indexer import KnowledgeIndexer
+
+        result = KnowledgeIndexer(self.db).index_version(version.id)
+        self.repo.record_audit(
+            action="knowledge.reindex",
+            summary=f"Reindexed '{item.title}' v{version.version_label}",
+            user_id=actor.id,
+            knowledge_item_id=item.id,
+            knowledge_version_id=version.id,
+            tenant_id=item.tenant_id,
+            metadata=result,
+            commit=True,
+        )
+        return result
+
+    def _safe_index_version(self, version_id: UUID) -> None:
+        try:
+            from app.services.knowledge_indexer import KnowledgeIndexer
+
+            KnowledgeIndexer(self.db).index_version(version_id)
+        except Exception:
+            logger.exception("Knowledge indexing failed for version %s", version_id)
 
     async def _ingest_into_version(
         self,

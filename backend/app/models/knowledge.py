@@ -10,6 +10,7 @@ from sqlalchemy import (
     Boolean,
     Date,
     DateTime,
+    Float,
     ForeignKey,
     Integer,
     Text,
@@ -18,6 +19,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from pgvector.sqlalchemy import Vector
 
 from app.db.base import Base
 
@@ -232,6 +234,135 @@ class KnowledgeAuditEvent(Base):
     summary: Mapped[str] = mapped_column(Text, nullable=False, default="")
     metadata_json: Mapped[dict[str, Any]] = mapped_column(
         "metadata",
+        JSONB,
+        nullable=False,
+        default=dict,
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+    )
+
+
+class KnowledgeChunk(Base):
+    """Indexed chunk + embedding for an eligible KnowledgeVersion (Sprint 5.2)."""
+
+    __tablename__ = "knowledge_chunks"
+    __table_args__ = (
+        UniqueConstraint(
+            "knowledge_version_id",
+            "chunk_index",
+            name="uq_knowledge_chunks_version_index",
+        ),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        server_default=func.gen_random_uuid(),
+    )
+    knowledge_item_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("knowledge_items.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    knowledge_version_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("knowledge_versions.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    chunk_index: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    content: Mapped[str] = mapped_column(Text, nullable=False)
+    page_number: Mapped[int | None] = mapped_column(Integer)
+    section_label: Mapped[str | None] = mapped_column(Text)
+    # Dimension must match ATLAS_EMBEDDING_DIMS / DDL (default 384).
+    embedding: Mapped[list[float] | None] = mapped_column(Vector(384), nullable=True)
+    embedding_provider: Mapped[str | None] = mapped_column(Text)
+    embedding_model: Mapped[str | None] = mapped_column(Text)
+    metadata_json: Mapped[dict[str, Any]] = mapped_column(
+        "metadata",
+        JSONB,
+        nullable=False,
+        default=dict,
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+    )
+
+
+class RetrievalRun(Base):
+    __tablename__ = "retrieval_runs"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        server_default=func.gen_random_uuid(),
+    )
+    tenant_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), nullable=True)
+    user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+    query_text: Mapped[str] = mapped_column(Text, nullable=False)
+    filters_json: Mapped[dict[str, Any]] = mapped_column(
+        "filters",
+        JSONB,
+        nullable=False,
+        default=dict,
+    )
+    top_k: Mapped[int] = mapped_column(Integer, nullable=False, default=8)
+    embedding_provider: Mapped[str | None] = mapped_column(Text)
+    embedding_model: Mapped[str | None] = mapped_column(Text)
+    latency_ms: Mapped[int | None] = mapped_column(Integer)
+    result_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    insufficient_evidence: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    metadata_json: Mapped[dict[str, Any]] = mapped_column(
+        "metadata",
+        JSONB,
+        nullable=False,
+        default=dict,
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+    )
+
+
+class RetrievalResult(Base):
+    __tablename__ = "retrieval_results"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        server_default=func.gen_random_uuid(),
+    )
+    retrieval_run_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("retrieval_runs.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    knowledge_chunk_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("knowledge_chunks.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+    knowledge_item_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    knowledge_version_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    rank: Mapped[int] = mapped_column(Integer, nullable=False)
+    vector_score: Mapped[float | None] = mapped_column(Float)
+    keyword_score: Mapped[float | None] = mapped_column(Float)
+    fused_score: Mapped[float | None] = mapped_column(Float)
+    citation_json: Mapped[dict[str, Any]] = mapped_column(
+        "citation",
         JSONB,
         nullable=False,
         default=dict,
