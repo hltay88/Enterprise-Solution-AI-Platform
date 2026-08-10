@@ -53,10 +53,16 @@ VALUES
     ('wireless', 'Wireless Specialist', 'wireless', 'Wi-Fi / WLAN high-density advisory', TRUE, TRUE, '1.0.0'),
     ('security', 'Security Specialist', 'cybersecurity', 'Cybersecurity / zero-trust advisory', TRUE, TRUE, '1.0.0'),
     ('cloud', 'Cloud Specialist', 'cloud', 'Cloud landing-zone advisory', TRUE, TRUE, '1.0.0'),
-    ('data_centre', 'Data Centre Specialist', 'data_centre', 'Coming soon', TRUE, FALSE, '0.0.0'),
-    ('storage', 'Storage Specialist', 'storage', 'Coming soon', TRUE, FALSE, '0.0.0'),
-    ('backup', 'Backup Specialist', 'backup', 'Coming soon', TRUE, FALSE, '0.0.0'),
-    ('av', 'AV Specialist', 'av', 'Coming soon', TRUE, FALSE, '0.0.0'),
-    ('led_videowall', 'LED / Digital Signage Specialist', 'led_videowall', 'Coming soon', TRUE, FALSE, '0.0.0'),
-    ('smart_building', 'Smart Building / IoT Specialist', 'smart_building', 'Coming soon', TRUE, FALSE, '0.0.0')
-ON CONFLICT (id) DO NOTHING;
+    ('data_centre', 'Data Centre Specialist', 'data_centre', 'Data centre facility and fabric advisory', TRUE, TRUE, '1.0.0'),
+    ('storage', 'Storage Specialist', 'storage', 'Storage architecture advisory', TRUE, TRUE, '1.0.0'),
+    ('backup', 'Backup Specialist', 'backup', 'Backup and recovery advisory', TRUE, TRUE, '1.0.0'),
+    ('av', 'AV Specialist', 'av', 'AV / collaboration room advisory', TRUE, TRUE, '1.0.0'),
+    ('led_videowall', 'LED / Digital Signage Specialist', 'led_videowall', 'LED videowall and digital signage advisory', TRUE, TRUE, '1.0.0'),
+    ('smart_building', 'Smart Building / IoT Specialist', 'smart_building', 'Smart building / IoT advisory', TRUE, TRUE, '1.0.0')
+ON CONFLICT (id) DO UPDATE SET
+    name = EXCLUDED.name,
+    domain_code = EXCLUDED.domain_code,
+    description = EXCLUDED.description,
+    enabled = EXCLUDED.enabled,
+    runnable = EXCLUDED.runnable,
+    version = EXCLUDED.version;

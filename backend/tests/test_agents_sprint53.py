@@ -27,18 +27,30 @@ def test_write_tools_are_denied():
             gateway.call(tool, {})
 
 
-def test_runnable_agents_cover_sprint53_set():
-    assert set(RUNNABLE_AGENTS) == {"networking", "wireless", "security", "cloud"}
+def test_runnable_agents_cover_full_stub_set():
+    assert set(RUNNABLE_AGENTS) == {
+        "networking",
+        "wireless",
+        "security",
+        "cloud",
+        "data_centre",
+        "storage",
+        "backup",
+        "av",
+        "led_videowall",
+        "smart_building",
+    }
     assert RUNNABLE_AGENTS["security"]["domain_code"] == "cybersecurity"
+    assert all("query" in meta and "name" in meta for meta in RUNNABLE_AGENTS.values())
 
 
 def test_select_agents_by_include_and_focus():
-    body = AgentRunRequest(include_agents=["networking", "storage", "cloud"])
-    assert OrchestratorService._select_agents(body) == ["networking", "cloud"]
+    body = AgentRunRequest(include_agents=["networking", "compute", "storage", "cloud"])
+    assert OrchestratorService._select_agents(body) == ["networking", "storage", "cloud"]
 
-    body2 = AgentRunRequest(focus_domains=["wireless", "cybersecurity"])
+    body2 = AgentRunRequest(focus_domains=["wireless", "cybersecurity", "backup"])
     selected = OrchestratorService._select_agents(body2)
-    assert set(selected) == {"wireless", "security"}
+    assert set(selected) == {"wireless", "security", "backup"}
 
 
 def test_merge_conflicts_detects_cross_domain():
@@ -54,10 +66,21 @@ def test_merge_conflicts_detects_cross_domain():
             domain_code="cloud",
             summary="ok",
         ),
+        SpecialistOutput(
+            agent_id="storage",
+            domain_code="storage",
+            summary="ok",
+        ),
+        SpecialistOutput(
+            agent_id="backup",
+            domain_code="backup",
+            summary="ok",
+        ),
     ]
     conflicts = OrchestratorService._merge_conflicts(specialists)
     codes = {c.code for c in conflicts}
     assert "security_cloud" in codes or any("cloud" in c.summary.lower() for c in conflicts)
+    assert "storage_backup" in codes
     assert any(c.agents for c in conflicts)
 
 
@@ -81,6 +104,8 @@ class _FakeGateway:
                     {"code": "wireless", "name": "Wireless"},
                     {"code": "cybersecurity", "name": "Security"},
                     {"code": "cloud", "name": "Cloud"},
+                    {"code": "storage", "name": "Storage"},
+                    {"code": "backup", "name": "Backup"},
                 ],
             }
         if tool_name == "get_architectures":
@@ -115,6 +140,15 @@ def test_specialist_heuristic_local_assessment():
     assert out.conflicts  # wireless vs security hint
 
 
+def test_former_stub_specialists_run():
+    tools = _FakeGateway()
+    for agent_id in ("storage", "backup", "data_centre", "av", "led_videowall", "smart_building"):
+        out = run_specialist(agent_id, tools)  # type: ignore[arg-type]
+        assert out.status == "ok"
+        assert out.agent_id == agent_id
+        assert out.confidence > 0
+
+
 def test_specialist_unknown_is_blocked():
-    out = run_specialist("storage", _FakeGateway())  # type: ignore[arg-type]
+    out = run_specialist("compute", _FakeGateway())  # type: ignore[arg-type]
     assert out.status == "blocked"

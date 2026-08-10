@@ -12,21 +12,61 @@ RUNNABLE_AGENTS: dict[str, dict[str, str]] = {
         "name": "Networking Specialist",
         "domain_code": "networking",
         "query": "campus LAN WAN SD-WAN routing switching design best practices",
+        "description": "Campus/WAN/LAN advisory assessments",
     },
     "wireless": {
         "name": "Wireless Specialist",
         "domain_code": "wireless",
         "query": "Wi-Fi wireless high density AP spacing RF design",
+        "description": "Wi-Fi / WLAN high-density advisory",
     },
     "security": {
         "name": "Security Specialist",
         "domain_code": "cybersecurity",
         "query": "cybersecurity zero trust network segmentation firewall controls",
+        "description": "Cybersecurity / zero-trust advisory",
     },
     "cloud": {
         "name": "Cloud Specialist",
         "domain_code": "cloud",
         "query": "cloud landing zone connectivity hybrid connectivity security baseline",
+        "description": "Cloud landing-zone advisory",
+    },
+    "data_centre": {
+        "name": "Data Centre Specialist",
+        "domain_code": "data_centre",
+        "query": "data centre facility power cooling rack density cabling availability tiers",
+        "description": "Data centre facility and fabric advisory",
+    },
+    "storage": {
+        "name": "Storage Specialist",
+        "domain_code": "storage",
+        "query": "storage SAN NAS object performance capacity tiering data services",
+        "description": "Storage architecture advisory",
+    },
+    "backup": {
+        "name": "Backup Specialist",
+        "domain_code": "backup",
+        "query": "backup recovery RPO RTO immutability ransomware protection DR",
+        "description": "Backup and recovery advisory",
+    },
+    "av": {
+        "name": "AV Specialist",
+        "domain_code": "av",
+        "query": "audio visual collaboration meeting room UC room systems conferencing",
+        "description": "AV / collaboration room advisory",
+    },
+    "led_videowall": {
+        "name": "LED / Digital Signage Specialist",
+        "domain_code": "led_videowall",
+        "query": "LED videowall digital signage pixel pitch controller content playback",
+        "description": "LED videowall and digital signage advisory",
+    },
+    "smart_building": {
+        "name": "Smart Building / IoT Specialist",
+        "domain_code": "smart_building",
+        "query": "smart building IoT BMS sensors OT network segmentation building systems",
+        "description": "Smart building / IoT advisory",
     },
 }
 
@@ -38,7 +78,7 @@ def run_specialist(agent_id: str, tools: AgentToolGateway, *, goal: str | None =
             agent_id=agent_id,
             domain_code=agent_id,
             status="blocked",
-            summary=f"Agent '{agent_id}' is not runnable in Sprint 5.3.",
+            summary=f"Agent '{agent_id}' is not a registered runnable specialist.",
             confidence=0.0,
         )
 
@@ -189,19 +229,7 @@ def _heuristic_assess(
             ),
         )
 
-    # Lightweight cross-domain conflict hints used by orchestrator merge.
-    if agent_id == "security" and "cloud" in domain_codes:
-        conflicts.append(
-            "Security vs Cloud: confirm shared-responsibility and ingress/egress controls for hybrid cloud.",
-        )
-    if agent_id == "wireless" and ("cybersecurity" in domain_codes or "security" in domain_codes):
-        conflicts.append(
-            "Wireless vs Security: confirm guest/IoT SSID isolation and NAC posture requirements.",
-        )
-    if agent_id == "networking" and "cloud" in domain_codes:
-        conflicts.append(
-            "Networking vs Cloud: confirm overlay/underlay and cloud on-ramp path selection.",
-        )
+    conflicts.extend(_conflict_hints(agent_id, domain_codes))
 
     if goal:
         recommendations.append(f"Align {domain_code} recommendations to goal: {goal[:200]}")
@@ -237,3 +265,45 @@ def _heuristic_assess(
         citations=citations,
         tools_used=tools_used,
     )
+
+
+def _conflict_hints(agent_id: str, domain_codes: set[str]) -> list[str]:
+    hints: list[str] = []
+    has_security = "cybersecurity" in domain_codes or "security" in domain_codes
+    if agent_id == "security" and "cloud" in domain_codes:
+        hints.append(
+            "Security vs Cloud: confirm shared-responsibility and ingress/egress controls for hybrid cloud.",
+        )
+    if agent_id == "wireless" and has_security:
+        hints.append(
+            "Wireless vs Security: confirm guest/IoT SSID isolation and NAC posture requirements.",
+        )
+    if agent_id == "networking" and "cloud" in domain_codes:
+        hints.append(
+            "Networking vs Cloud: confirm overlay/underlay and cloud on-ramp path selection.",
+        )
+    if agent_id == "storage" and "backup" in domain_codes:
+        hints.append(
+            "Storage vs Backup: confirm snapshot/replication vs backup catalogue ownership and retention.",
+        )
+    if agent_id == "backup" and "cloud" in domain_codes:
+        hints.append(
+            "Backup vs Cloud: confirm offline/immutable copies and cross-region recovery paths.",
+        )
+    if agent_id == "data_centre" and "cloud" in domain_codes:
+        hints.append(
+            "Data Centre vs Cloud: confirm hybrid placement, interconnect capacity, and exit strategy.",
+        )
+    if agent_id == "smart_building" and has_security:
+        hints.append(
+            "Smart Building vs Security: confirm OT/IT segmentation and BMS remote-access controls.",
+        )
+    if agent_id == "av" and "networking" in domain_codes:
+        hints.append(
+            "AV vs Networking: confirm multicast/QoS and separate/shared VLAN design for media.",
+        )
+    if agent_id == "led_videowall" and "av" in domain_codes:
+        hints.append(
+            "LED vs AV: confirm control-system ownership, content workflow, and power/heat budgets.",
+        )
+    return hints

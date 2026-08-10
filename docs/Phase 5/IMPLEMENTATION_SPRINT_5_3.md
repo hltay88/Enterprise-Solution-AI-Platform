@@ -4,14 +4,16 @@ Status: implemented (Mac-local development target).
 
 ## Scope delivered
 
-- Agent registry (`agents`) with 4 runnable specialists + stub specialists
+- Agent registry (`agents`) with **10 runnable specialists**:
+  networking, wireless, security, cloud, data_centre, storage, backup, av,
+  led_videowall, smart_building
 - Advise-only orchestrator runs (`agent_runs`) with tool-call audit (`agent_tool_calls`)
 - Read-only tool gateway:
   - `knowledge_search`, `get_project`, `get_published_rkm`
   - `get_domain_analysis`, `get_architectures`, `search_vendor_catalogue`
   - write tools explicitly denied (`approve_rkm`, `generate_architecture`, etc.)
-- Specialists: networking, wireless, security, cloud (local heuristic, RAG-grounded)
-- Conflict surfacing across security/cloud and wireless/security
+- Specialists: all registered domain agents above (local heuristic, RAG-grounded)
+- Conflict surfacing across security/cloud, wireless/security, storage/backup, and related pairs
 - APIs:
   - `GET /api/v1/agents`
   - `POST /api/v1/projects/{id}/agent-runs`
@@ -41,7 +43,7 @@ See `docker/postgres/init/14_phase5_agents.sql` and `ensure_schema()` Sprint 5.3
 
 ## Out of scope (later)
 
-- Additional domain specialists becoming runnable
+- Taxonomy-only domains without a dedicated agent yet (compute, hci, digital_signage, billboard, iot)
 - ML re-rank / LLM-authored specialist prose as primary path
 - Collaboration / multi-tenancy (5.4 / 5.5)
 - Auto-apply agent recommendations into design artifacts

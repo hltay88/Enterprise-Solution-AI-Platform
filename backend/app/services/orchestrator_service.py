@@ -33,43 +33,32 @@ class OrchestratorService:
         self.audits = AuditService(db)
 
     def ensure_agents_seeded(self) -> None:
-        existing = set(self.db.scalars(select(Agent.id)).all())
-        for agent_id, meta in RUNNABLE_AGENTS.items():
-            if agent_id in existing:
-                continue
-            self.db.add(
-                Agent(
-                    id=agent_id,
-                    name=meta["name"],
-                    domain_code=meta["domain_code"],
-                    description=f"{meta['name']} advisory agent",
-                    enabled=True,
-                    runnable=True,
-                    version="1.0.0",
-                ),
-            )
-        stubs = {
-            "data_centre": ("Data Centre Specialist", "data_centre"),
-            "storage": ("Storage Specialist", "storage"),
-            "backup": ("Backup Specialist", "backup"),
-            "av": ("AV Specialist", "av"),
-            "led_videowall": ("LED / Digital Signage Specialist", "led_videowall"),
-            "smart_building": ("Smart Building / IoT Specialist", "smart_building"),
+        """Upsert registry so promoted specialists flip runnable=true on existing DBs."""
+        existing = {
+            row.id: row for row in self.db.scalars(select(Agent)).all()
         }
-        for agent_id, (name, domain) in stubs.items():
-            if agent_id in existing:
-                continue
-            self.db.add(
-                Agent(
-                    id=agent_id,
-                    name=name,
-                    domain_code=domain,
-                    description="Coming soon",
-                    enabled=True,
-                    runnable=False,
-                    version="0.0.0",
-                ),
-            )
+        for agent_id, meta in RUNNABLE_AGENTS.items():
+            description = meta.get("description") or f"{meta['name']} advisory agent"
+            row = existing.get(agent_id)
+            if row is None:
+                self.db.add(
+                    Agent(
+                        id=agent_id,
+                        name=meta["name"],
+                        domain_code=meta["domain_code"],
+                        description=description,
+                        enabled=True,
+                        runnable=True,
+                        version="1.0.0",
+                    ),
+                )
+            else:
+                row.name = meta["name"]
+                row.domain_code = meta["domain_code"]
+                row.description = description
+                row.enabled = True
+                row.runnable = True
+                row.version = "1.0.0"
         self.db.commit()
 
     def list_agents(self) -> list[AgentSummaryOut]:
@@ -241,25 +230,32 @@ class OrchestratorService:
 
         # Cross-agent presence conflicts
         ids = {s.agent_id for s in specialists}
-        if "security" in ids and "cloud" in ids:
-            msg = "Security and Cloud both active — reconcile shared responsibility and exposure paths."
-            if msg.lower() not in seen:
+        pairs = [
+            ("security", "cloud", "security_cloud",
+             "Security and Cloud both active — reconcile shared responsibility and exposure paths."),
+            ("wireless", "security", "wireless_security",
+             "Wireless and Security both active — reconcile SSID isolation / NAC requirements."),
+            ("storage", "backup", "storage_backup",
+             "Storage and Backup both active — reconcile snapshot vs backup ownership and retention."),
+            ("backup", "cloud", "backup_cloud",
+             "Backup and Cloud both active — reconcile immutable copies and recovery regions."),
+            ("data_centre", "cloud", "dc_cloud",
+             "Data Centre and Cloud both active — reconcile hybrid placement and interconnect."),
+            ("smart_building", "security", "sb_security",
+             "Smart Building and Security both active — reconcile OT/IT segmentation."),
+            ("av", "networking", "av_networking",
+             "AV and Networking both active — reconcile QoS / VLAN design for media."),
+            ("led_videowall", "av", "led_av",
+             "LED and AV both active — reconcile control systems and content workflow."),
+        ]
+        for left, right, code, msg in pairs:
+            if left in ids and right in ids and msg.lower() not in seen:
+                seen.add(msg.lower())
                 conflicts.append(
                     OrchestratorConflict(
-                        code="security_cloud",
+                        code=code,
                         summary=msg,
-                        agents=["security", "cloud"],
-                        severity="warning",
-                    ),
-                )
-        if "wireless" in ids and "security" in ids:
-            msg = "Wireless and Security both active — reconcile SSID isolation / NAC requirements."
-            if msg.lower() not in seen:
-                conflicts.append(
-                    OrchestratorConflict(
-                        code="wireless_security",
-                        summary=msg,
-                        agents=["wireless", "security"],
+                        agents=[left, right],
                         severity="warning",
                     ),
                 )
