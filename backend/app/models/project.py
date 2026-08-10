@@ -33,6 +33,12 @@ class Project(Base):
         nullable=False,
         index=True,
     )
+    tenant_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("tenants.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
     project_name: Mapped[str] = mapped_column(Text, nullable=False)
     customer: Mapped[str | None] = mapped_column(Text)
     industry: Mapped[str | None] = mapped_column(Text)

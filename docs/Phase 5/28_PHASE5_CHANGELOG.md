@@ -1,5 +1,13 @@
 # Phase 5 Changelog
 
+## 0.5.5 — Sprint 5.5
+SaaS / multi-tenant foundation MVP.
+
+Added: tenants + memberships; JWT tenant claim; project/knowledge/retrieval/usage
+tenant scoping; tenant admin APIs + `/tenants` UI; rate-limit middleware (off by
+default); OIDC config stubs; noop billing provider; DB backup script. See
+`IMPLEMENTATION_SPRINT_5_5.md`.
+
 ## 0.5.4 — Sprint 5.4
 Collaboration & governance MVP.
 

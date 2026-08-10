@@ -40,7 +40,6 @@ def list_knowledge(
     limit: int = Query(default=50, ge=1, le=200),
     offset: int = Query(default=0, ge=0),
 ) -> dict:
-    _ = current_user
     rows = KnowledgeService(db).list_items(
         status=status,
         domain_code=domain_code,
@@ -49,6 +48,7 @@ def list_knowledge(
         q=q,
         limit=limit,
         offset=offset,
+        tenant_id=getattr(current_user, "active_tenant_id", None),
     )
     return success_response(data=[row.model_dump(mode="json") for row in rows])
 

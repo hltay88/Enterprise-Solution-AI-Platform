@@ -208,6 +208,7 @@ class OrchestratorService:
                         "conflict_count": len(conflicts),
                         "review_required": review_required,
                     },
+                    tenant_id=getattr(user, "active_tenant_id", None),
                     commit=False,
                 )
             except Exception:

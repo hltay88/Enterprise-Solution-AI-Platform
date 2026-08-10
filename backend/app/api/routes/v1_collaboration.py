@@ -134,6 +134,7 @@ def list_usage(
     rows = UsageService(db).list_records(
         project_id=project_id,
         event_type=event_type,
+        tenant_id=getattr(current_user, "active_tenant_id", None),
         limit=limit,
     )
     return success_response(data=[r.model_dump(mode="json") for r in rows])
@@ -147,5 +148,8 @@ def usage_summary(
 ) -> dict:
     if not has_permission(current_user.role, PERM_USAGE_VIEW):
         raise ForbiddenError("Permission denied: usage.view")
-    summary = UsageService(db).summary(project_id=project_id)
+    summary = UsageService(db).summary(
+        project_id=project_id,
+        tenant_id=getattr(current_user, "active_tenant_id", None),
+    )
     return success_response(data=summary.model_dump(mode="json"))

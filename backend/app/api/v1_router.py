@@ -17,6 +17,7 @@ from app.api.routes import (
     v1_packages,
     v1_requirements,
     v1_retrieval,
+    v1_tenants,
     v1_vendors,
 )
 
@@ -36,3 +37,4 @@ v1_router.include_router(v1_knowledge.router)
 v1_router.include_router(v1_retrieval.router)
 v1_router.include_router(v1_agents.router)
 v1_router.include_router(v1_collaboration.router)
+v1_router.include_router(v1_tenants.router)

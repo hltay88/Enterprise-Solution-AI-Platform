@@ -28,12 +28,18 @@ class ProjectService:
     def __init__(self, db: Session) -> None:
         self.projects = ProjectRepository(db)
 
-    def list_for_user(self, user_id: UUID) -> list[ProjectSummary]:
-        rows = self.projects.list_for_user(user_id)
+    def list_for_user(self, user_id: UUID, *, tenant_id: UUID | None = None) -> list[ProjectSummary]:
+        rows = self.projects.list_for_user(user_id, tenant_id=tenant_id)
         return [ProjectSummary.model_validate(row) for row in rows]
 
-    def get_for_user(self, project_id: UUID, user_id: UUID) -> ProjectSummary:
-        project = self.projects.get_for_user(project_id, user_id)
+    def get_for_user(
+        self,
+        project_id: UUID,
+        user_id: UUID,
+        *,
+        tenant_id: UUID | None = None,
+    ) -> ProjectSummary:
+        project = self.projects.get_for_user(project_id, user_id, tenant_id=tenant_id)
         if project is None:
             raise NotFoundError("Project not found")
         return ProjectSummary.model_validate(project)
@@ -44,12 +50,14 @@ class ProjectService:
         payload: ProjectCreate,
         *,
         default_account_manager: str | None = None,
+        tenant_id: UUID | None = None,
     ) -> ProjectSummary:
         account_manager = _clean_optional(payload.account_manager) or _clean_optional(
             default_account_manager
         )
         project = self.projects.create(
             user_id=user_id,
+            tenant_id=tenant_id,
             project_name=payload.project_name.strip(),
             customer=payload.customer.strip(),
             industry=_clean_optional(payload.industry),

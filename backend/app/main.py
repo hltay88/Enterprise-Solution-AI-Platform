@@ -12,6 +12,7 @@ from app.api.router import api_router
 from app.api.v1_router import v1_router
 from app.core.config import settings
 from app.core.exceptions import AppError
+from app.core.rate_limit import RateLimitMiddleware
 from app.core.responses import error_response
 from app.db.schema import ensure_schema
 from app.db.session import SessionLocal
@@ -96,6 +97,7 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+    application.add_middleware(RateLimitMiddleware)
 
     application.include_router(api_router, prefix="/api")
     application.include_router(v1_router, prefix="/api/v1")

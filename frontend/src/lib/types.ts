@@ -22,6 +22,8 @@ export type UserPublic = {
   name: string;
   email: string;
   role?: string;
+  tenant_id?: string | null;
+  tenant_name?: string | null;
 };
 
 export type AuditLogEntry = {
@@ -432,6 +434,24 @@ export type LoginData = {
   access_token: string;
   token_type: string;
   user: UserPublic;
+  tenant_id?: string | null;
+  tenants?: TenantSummary[];
+};
+
+export type TenantSummary = {
+  id: string;
+  name: string;
+  slug: string;
+  status: string;
+  role?: string | null;
+};
+
+export type TenantMember = {
+  membership_id: string;
+  user_id: string;
+  email: string;
+  name: string;
+  role: string;
 };
 
 export type ProjectSummary = {

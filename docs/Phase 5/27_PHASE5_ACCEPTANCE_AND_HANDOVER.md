@@ -8,7 +8,7 @@
 
 5.4: collaboration, RBAC, approvals, audit and observability work.
 
-5.5: tenant isolation, enterprise authentication, backup/recovery, reproducible deployment and security gates pass.
+5.5: tenant isolation, enterprise authentication hooks, backup/recovery, reproducible deployment and security gates pass (MVP implemented — see IMPLEMENTATION_SPRINT_5_5.md).
 
 Final outcome: Customer Requirement → RKM → Solution Architecture → Vendor/BOM → Proposal/PPT/SOW/Design → Knowledge Retrieval → Specialist AI Reasoning → Governed Collaboration → Enterprise SaaS.
 

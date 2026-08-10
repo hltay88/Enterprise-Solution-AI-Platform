@@ -58,6 +58,7 @@ from app.models.vendor_bom import (
 )
 from app.models.agent import Agent, AgentRun, AgentToolCall
 from app.models.collaboration import ApprovalRequest, Comment, ReviewRequest, UsageRecord
+from app.models.tenant import Tenant, TenantMembership
 from app.models.knowledge import (
     KnowledgeAuditEvent,
     KnowledgeChunk,
@@ -134,4 +135,6 @@ __all__ = [
     "ReviewRequest",
     "ApprovalRequest",
     "UsageRecord",
+    "Tenant",
+    "TenantMembership",
 ]

@@ -82,8 +82,10 @@ class KnowledgeService:
         q: str | None = None,
         limit: int = 50,
         offset: int = 0,
+        tenant_id: UUID | None = None,
     ) -> list[KnowledgeItemSummary]:
         rows = self.repo.list_items(
+            tenant_id=tenant_id,
             status=status,
             domain_code=domain_code,
             knowledge_type=knowledge_type,
@@ -122,7 +124,7 @@ class KnowledgeService:
                 raise NotFoundError("Project not found")
 
         item = KnowledgeItem(
-            tenant_id=None,
+            tenant_id=getattr(actor, "active_tenant_id", None),
             project_id=body.project_id,
             title=body.title.strip(),
             description=(body.description or "").strip() or None,

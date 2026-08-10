@@ -13,20 +13,37 @@ class ProjectRepository:
     def __init__(self, db: Session) -> None:
         self.db = db
 
-    def list_for_user(self, user_id: UUID) -> list[Project]:
-        statement = (
-            select(Project)
-            .where(Project.user_id == user_id)
-            .order_by(Project.updated_at.desc())
-        )
+    def list_for_user(
+        self,
+        user_id: UUID,
+        *,
+        tenant_id: UUID | None = None,
+    ) -> list[Project]:
+        statement = select(Project).where(Project.user_id == user_id)
+        if tenant_id is not None:
+            statement = statement.where(
+                (Project.tenant_id == tenant_id) | (Project.tenant_id.is_(None)),
+            )
+        statement = statement.order_by(Project.updated_at.desc())
         return list(self.db.scalars(statement).all())
 
-    def get_for_user(self, project_id: UUID, user_id: UUID) -> Project | None:
+    def get_for_user(
+        self,
+        project_id: UUID,
+        user_id: UUID,
+        *,
+        tenant_id: UUID | None = None,
+    ) -> Project | None:
         statement = select(Project).where(
             Project.id == project_id,
             Project.user_id == user_id,
         )
-        return self.db.scalar(statement)
+        project = self.db.scalar(statement)
+        if project is None:
+            return None
+        if tenant_id is not None and project.tenant_id is not None and project.tenant_id != tenant_id:
+            return None
+        return project
 
     def create(
         self,
@@ -47,9 +64,11 @@ class ProjectRepository:
         required_completion_date: date | None,
         requirement_details: str | None,
         winning_probability: int | None,
+        tenant_id: UUID | None = None,
     ) -> Project:
         project = Project(
             user_id=user_id,
+            tenant_id=tenant_id,
             project_name=project_name,
             customer=customer,
             industry=industry,

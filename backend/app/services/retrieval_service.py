@@ -42,8 +42,9 @@ class RetrievalService:
         started = time.perf_counter()
 
         query_vec = self.embedder.embed_query(query)
-        vec_hits = self._vector_search(query_vec, body, limit=top_k * 3)
-        kw_hits = self._keyword_search(query, body, limit=top_k * 3)
+        tenant_id = getattr(user, "active_tenant_id", None)
+        vec_hits = self._vector_search(query_vec, body, limit=top_k * 3, tenant_id=tenant_id)
+        kw_hits = self._keyword_search(query, body, limit=top_k * 3, tenant_id=tenant_id)
         fused = self._rrf_fuse(vec_hits, kw_hits, top_k=top_k)
 
         min_score = float(
@@ -57,7 +58,7 @@ class RetrievalService:
         latency_ms = int((time.perf_counter() - started) * 1000)
 
         run = RetrievalRun(
-            tenant_id=None,
+            tenant_id=getattr(user, "active_tenant_id", None),
             user_id=user.id,
             query_text=query,
             filters_json={
@@ -121,6 +122,7 @@ class RetrievalService:
                     "result_count": len(out_hits),
                     "insufficient_evidence": insufficient,
                 },
+                tenant_id=getattr(user, "active_tenant_id", None),
             )
         except Exception:
             pass
@@ -166,7 +168,13 @@ class RetrievalService:
             ),
         )
 
-    def _eligible_filter_sql(self, body: RetrievalSearchIn, params: dict[str, Any]) -> str:
+    def _eligible_filter_sql(
+        self,
+        body: RetrievalSearchIn,
+        params: dict[str, Any],
+        *,
+        tenant_id: UUID | None = None,
+    ) -> str:
         clauses = [
             "kv.status = ANY(:eligible_statuses)",
         ]
@@ -180,6 +188,10 @@ class RetrievalService:
         if body.project_id:
             clauses.append("ki.project_id = :project_id")
             params["project_id"] = str(body.project_id)
+        # Platform knowledge (NULL tenant) is shared; tenant-owned is isolated.
+        if tenant_id is not None:
+            clauses.append("(ki.tenant_id IS NULL OR ki.tenant_id = :tenant_id)")
+            params["tenant_id"] = str(tenant_id)
         return " AND ".join(clauses)
 
     def _vector_search(
@@ -188,9 +200,10 @@ class RetrievalService:
         body: RetrievalSearchIn,
         *,
         limit: int,
+        tenant_id: UUID | None = None,
     ) -> list[dict[str, Any]]:
         params: dict[str, Any] = {"limit": limit, "query_vec": str(query_vec)}
-        where = self._eligible_filter_sql(body, params)
+        where = self._eligible_filter_sql(body, params, tenant_id=tenant_id)
         sql = text(
             f"""
             SELECT
@@ -226,9 +239,10 @@ class RetrievalService:
         body: RetrievalSearchIn,
         *,
         limit: int,
+        tenant_id: UUID | None = None,
     ) -> list[dict[str, Any]]:
         params: dict[str, Any] = {"limit": limit, "query": query}
-        where = self._eligible_filter_sql(body, params)
+        where = self._eligible_filter_sql(body, params, tenant_id=tenant_id)
         sql = text(
             f"""
             SELECT

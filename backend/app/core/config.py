@@ -77,6 +77,12 @@ class Settings(BaseSettings):
 
     cors_origins: str = "http://localhost:3000"
 
+    # Sprint 5.5 — tenancy / hardening (0 = disabled)
+    atlas_rate_limit_per_minute: int = 0
+    atlas_oidc_enabled: bool = False
+    atlas_oidc_issuer: str | None = None
+    atlas_oidc_client_id: str | None = None
+
     # Sprint 5.2 RAG / embeddings (provider-neutral; Mac-local defaults to local).
     atlas_embedding_provider: str = "local"  # auto | local | gemini | openai
     atlas_embedding_model: str = ""

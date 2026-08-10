@@ -12,9 +12,16 @@ from app.services.project_service import ProjectService
 router = APIRouter(prefix="/projects", tags=["projects"])
 
 
+def _tenant_id(user) -> UUID | None:
+    return getattr(user, "active_tenant_id", None)
+
+
 @router.get("")
 def list_projects(current_user: CurrentUser, db: DbSession) -> dict:
-    projects = ProjectService(db).list_for_user(current_user.id)
+    projects = ProjectService(db).list_for_user(
+        current_user.id,
+        tenant_id=_tenant_id(current_user),
+    )
     return success_response(
         data=[project.model_dump(mode="json") for project in projects],
     )
@@ -30,6 +37,7 @@ def create_project(
         current_user.id,
         body,
         default_account_manager=current_user.name,
+        tenant_id=_tenant_id(current_user),
     )
     return success_response(data=project.model_dump(mode="json"), status_code=201)
 
@@ -40,7 +48,11 @@ def get_project(
     current_user: CurrentUser,
     db: DbSession,
 ) -> dict:
-    project = ProjectService(db).get_for_user(project_id, current_user.id)
+    project = ProjectService(db).get_for_user(
+        project_id,
+        current_user.id,
+        tenant_id=_tenant_id(current_user),
+    )
     return success_response(data=project.model_dump(mode="json"))
 
 

@@ -62,6 +62,7 @@ class UsageService:
         *,
         project_id: UUID | None = None,
         event_type: str | None = None,
+        tenant_id: UUID | None = None,
         limit: int = 100,
     ) -> list[UsageRecordOut]:
         statement = select(UsageRecord).order_by(UsageRecord.created_at.desc())
@@ -69,6 +70,10 @@ class UsageService:
             statement = statement.where(UsageRecord.project_id == project_id)
         if event_type:
             statement = statement.where(UsageRecord.event_type == event_type)
+        if tenant_id is not None:
+            statement = statement.where(
+                (UsageRecord.tenant_id == tenant_id) | (UsageRecord.tenant_id.is_(None)),
+            )
         statement = statement.limit(max(1, min(limit, 500)))
         rows = list(self.db.scalars(statement).all())
         return [self._to_out(row) for row in rows]
@@ -77,11 +82,16 @@ class UsageService:
         self,
         *,
         project_id: UUID | None = None,
+        tenant_id: UUID | None = None,
         limit_scan: int = 1000,
     ) -> UsageSummaryOut:
         statement = select(UsageRecord).order_by(UsageRecord.created_at.desc()).limit(limit_scan)
         if project_id is not None:
             statement = statement.where(UsageRecord.project_id == project_id)
+        if tenant_id is not None:
+            statement = statement.where(
+                (UsageRecord.tenant_id == tenant_id) | (UsageRecord.tenant_id.is_(None)),
+            )
         rows = list(self.db.scalars(statement).all())
         by_type: dict[str, int] = {}
         success_count = 0
