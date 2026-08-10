@@ -24,7 +24,7 @@ from app.schemas.retrieval import (
     RetrievalSearchOut,
 )
 
-logger = logging.getLogger(__name__)
+from app.services.rerank import rerank_hits
 
 
 class RetrievalService:
@@ -45,12 +45,13 @@ class RetrievalService:
         tenant_id = getattr(user, "active_tenant_id", None)
         vec_hits = self._vector_search(query_vec, body, limit=top_k * 3, tenant_id=tenant_id)
         kw_hits = self._keyword_search(query, body, limit=top_k * 3, tenant_id=tenant_id)
-        fused = self._rrf_fuse(vec_hits, kw_hits, top_k=top_k)
+        fused = self._rrf_fuse(vec_hits, kw_hits, top_k=top_k * 2)
+        reranked = rerank_hits(query, fused, top_k=top_k)
 
         min_score = float(
             body.min_score if body.min_score is not None else settings.atlas_retrieval_min_score,
         )
-        hits = [h for h in fused if (h.get("fused_score") or 0) >= min_score]
+        hits = [h for h in reranked if (h.get("fused_score") or 0) >= min_score]
         if body.max_per_item:
             hits = self._diversify(hits, max_per_item=body.max_per_item)
 
@@ -72,7 +73,11 @@ class RetrievalService:
             latency_ms=latency_ms,
             result_count=len(hits),
             insufficient_evidence=insufficient,
-            metadata_json={"min_score": min_score},
+            metadata_json={
+                "min_score": min_score,
+                "reranker": "local_lexical_rrf",
+                "candidate_count": len(fused),
+            },
         )
         self.db.add(run)
         self.db.flush()

@@ -3,7 +3,8 @@
 from uuid import uuid4
 
 from app.core.security import create_access_token, decode_access_token
-from app.services.billing import NoopBillingProvider, get_billing_provider
+from app.core.config import settings
+from app.services.billing import MeteredBillingProvider, NoopBillingProvider, get_billing_provider
 from app.services.tenant_service import TenantService
 from app.models.project import Project
 
@@ -30,7 +31,18 @@ def test_project_visible_helper_isolates_tenant():
     assert not TenantService.project_visible(project, user_id=uuid4(), tenant_id=tenant_a)
 
 
-def test_noop_billing_provider():
+def test_metered_billing_provider_default(monkeypatch):
+    monkeypatch.setattr(settings, "atlas_billing_provider", "metered")
+    provider = get_billing_provider()
+    assert isinstance(provider, MeteredBillingProvider)
+    cost = provider.estimate_cost_usd(event_type="retrieval", quantity=2)
+    assert cost > 0
+    provider.report_usage(tenant_id=uuid4(), event_type="retrieval", quantity=1)
+
+
+def test_noop_billing_provider(monkeypatch):
+    monkeypatch.setattr(settings, "atlas_billing_provider", "noop")
     provider = get_billing_provider()
     assert isinstance(provider, NoopBillingProvider)
+    assert provider.estimate_cost_usd(event_type="retrieval", quantity=1) == 0.0
     provider.report_usage(tenant_id=uuid4(), event_type="retrieval", quantity=1)

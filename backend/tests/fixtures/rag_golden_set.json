@@ -1,0 +1,36 @@
+{
+  "description": "Golden-set queries for Phase 5 RAG quality gates (portable / offline).",
+  "min_overlap_ratio": 0.4,
+  "cases": [
+    {
+      "id": "wifi_high_density",
+      "query": "high density Wi-Fi AP spacing wireless design",
+      "must_contain_any": ["wifi", "wireless", "ap", "density", "rf"],
+      "domain_hint": "wireless"
+    },
+    {
+      "id": "campus_sdwan",
+      "query": "campus LAN WAN SD-WAN routing best practices",
+      "must_contain_any": ["wan", "routing", "sd-wan", "lan", "campus", "network"],
+      "domain_hint": "networking"
+    },
+    {
+      "id": "zero_trust_security",
+      "query": "zero trust segmentation firewall cybersecurity controls",
+      "must_contain_any": ["security", "firewall", "zero", "trust", "segment", "cyber"],
+      "domain_hint": "cybersecurity"
+    },
+    {
+      "id": "hci_compute",
+      "query": "hyperconverged infrastructure HCI compute cluster design",
+      "must_contain_any": ["hci", "compute", "cluster", "hyperconverg", "virtual"],
+      "domain_hint": "hci"
+    },
+    {
+      "id": "backup_dr",
+      "query": "backup disaster recovery RPO RTO retention",
+      "must_contain_any": ["backup", "recovery", "rpo", "rto", "retention"],
+      "domain_hint": "backup"
+    }
+  ]
+}

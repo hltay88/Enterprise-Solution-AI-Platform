@@ -1,10 +1,23 @@
 # Phase 5 Changelog
 
+## Phase 5 portable 100% closeout (2026-08-10)
+
+Closed remaining Foundation 0.5 partials with Mac-local / portable depth:
+
+- Local re-ranker after RRF (`rerank.py`) wired into retrieval
+- Golden-set RAG + agent eval fixtures and pytest gates
+- Specialist local refine path (+ optional `ATLAS_SPECIALIST_LLM`)
+- OIDC adapter with `mock://local` auth routes
+- Metered billing provider (default) + usage cost estimates
+- Security release-gate tests (tenant isolation, rate-limit, write deny, audit no-delete, OIDC mock)
+
+See `27_PHASE5_ACCEPTANCE_AND_HANDOVER.md`.
+
 ## Atlas Foundation 0.5 (frozen 2026-08-10)
 
 Enterprise Knowledge Engine, RAG retrieval, multi-agent orchestration (15 specialists),
 collaboration/governance, and multi-tenant SaaS foundation — accepted as Mac-local MVP.
-See `27_PHASE5_ACCEPTANCE_AND_HANDOVER.md`.
+Superseded at portable-complete depth by the closeout entry above.
 
 ## 0.5.5 — Sprint 5.5
 SaaS / multi-tenant foundation MVP.

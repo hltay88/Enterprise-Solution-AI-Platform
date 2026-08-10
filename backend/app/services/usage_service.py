@@ -10,11 +10,13 @@ from sqlalchemy.orm import Session
 
 from app.models.collaboration import UsageRecord
 from app.schemas.collaboration import UsageRecordOut, UsageSummaryOut
+from app.services.billing import get_billing_provider
 
 
 class UsageService:
     def __init__(self, db: Session) -> None:
         self.db = db
+        self.billing = get_billing_provider(db)
 
     def record(
         self,
@@ -33,7 +35,17 @@ class UsageService:
         error_code: str | None = None,
         metadata: dict[str, Any] | None = None,
         commit: bool = True,
+        quantity: float = 1.0,
     ) -> UsageRecord:
+        cost = estimated_cost_usd
+        if cost is None:
+            cost = self.billing.estimate_cost_usd(event_type=event_type, quantity=quantity)
+        self.billing.report_usage(
+            tenant_id=tenant_id,
+            event_type=event_type,
+            quantity=quantity,
+            metadata=metadata,
+        )
         row = UsageRecord(
             event_type=event_type,
             provider=provider,
@@ -41,7 +53,7 @@ class UsageService:
             latency_ms=latency_ms,
             token_input=token_input,
             token_output=token_output,
-            estimated_cost_usd=estimated_cost_usd,
+            estimated_cost_usd=cost,
             success=success,
             error_code=error_code,
             user_id=user_id,

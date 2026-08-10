@@ -1,0 +1,17 @@
+{
+  "description": "Agent evaluation fixtures for conflict detection and tool policy gates.",
+  "denied_tools": [
+    "approve_rkm",
+    "publish_rkm",
+    "generate_architecture",
+    "import_bom",
+    "approve_document",
+    "update_rkm",
+    "write_architecture"
+  ],
+  "conflict_pairs": [
+    ["security", "cloud", "security_cloud"],
+    ["hci", "compute", "hci_compute"],
+    ["iot", "security", "iot_security"]
+  ]
+}

@@ -82,6 +82,9 @@ class Settings(BaseSettings):
     atlas_oidc_enabled: bool = False
     atlas_oidc_issuer: str | None = None
     atlas_oidc_client_id: str | None = None
+    atlas_oidc_client_secret: str | None = None
+    atlas_specialist_llm: bool = False
+    atlas_billing_provider: str = "metered"  # metered | noop
 
     # Sprint 5.2 RAG / embeddings (provider-neutral; Mac-local defaults to local).
     atlas_embedding_provider: str = "local"  # auto | local | gemini | openai

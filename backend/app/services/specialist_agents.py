@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from app.ai.specialist_completion import enrich_specialist_output
 from app.schemas.agent import AgentCitation, SpecialistFinding, SpecialistOutput
 from app.services.agent_tools import AgentToolGateway
 
@@ -150,17 +151,24 @@ def run_specialist(agent_id: str, tools: AgentToolGateway, *, goal: str | None =
             ),
         )
 
-    return _heuristic_assess(
-        agent_id=agent_id,
-        domain_code=meta["domain_code"],
-        goal=goal,
-        rkm=rkm,
-        domains=domains,
-        arch=arch,
-        hits=hits,
-        citations=citations,
-        tools_used=tools_used,
-        insufficient=bool(knowledge.get("insufficient_evidence")),
+    return enrich_specialist_output(
+        _heuristic_assess(
+            agent_id=agent_id,
+            domain_code=meta["domain_code"],
+            goal=goal,
+            rkm=rkm,
+            domains=domains,
+            arch=arch,
+            hits=hits,
+            citations=citations,
+            tools_used=tools_used,
+            insufficient=bool(knowledge.get("insufficient_evidence")),
+        ),
+        context={
+            "goal": goal,
+            "rkm_summary": rkm.get("summary"),
+            "hit_count": len(hits),
+        },
     )
 
 

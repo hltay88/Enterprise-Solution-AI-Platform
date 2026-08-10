@@ -12,7 +12,9 @@ Status: implemented (Mac-local development target).
   - local deterministic hash embedder for offline Mac / tests
 - Chunk + index on approve/publish (+ `POST /knowledge/{id}/reindex`)
 - Hybrid retrieval: vector cosine + Postgres FTS fused via RRF
+- Local re-ranker after RRF (lexical overlap + freshness blend)
 - Citations (knowledge id/version/chunk/page/section/excerpt)
+- Golden-set eval fixtures: `tests/fixtures/rag_golden_set.json`
 - APIs: `POST /api/v1/retrieval/search`, `POST /api/v1/retrieval/context`
 - UI: `/knowledge/retrieve` Retrieval Explorer
 
@@ -54,17 +56,16 @@ If `CREATE EXTENSION vector` fails on an old volume, recreate DB volume once:
 ./start-atlas.sh
 ```
 
-## Out of scope (later sprints)
+## Out of scope (later product work)
 
-- Multi-agent grounded answering (5.3)
-- Collaboration (5.4)
-- Full multi-tenancy (5.5)
-- Auto-migration of static `knowledge/*.md` packs into KnowledgeItems
+- Cross-encoder / hosted ML re-rankers (optional upgrade path)
+- Shared-tenant project membership / org hierarchy
 
 ## Tests
 
 - `tests/test_rag_embeddings_chunking.py`
-- Existing Phase 1–5.1 suite must remain green
+- `tests/test_phase5_golden_eval.py`
+- Existing Phase 1–5 suite must remain green
 
 ## Schema
 
