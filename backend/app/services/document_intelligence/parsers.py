@@ -45,6 +45,10 @@ def extract_document(file_path: Path, file_type: str) -> ExtractionResult:
         return _extract_csv(file_path)
     if file_type == "txt":
         return _extract_txt(file_path)
+    if file_type in {"md", "markdown"}:
+        return _extract_markdown(file_path)
+    if file_type == "pptx":
+        return _extract_pptx(file_path)
     if file_type in {"png", "jpg", "jpeg"}:
         return _extract_image(file_path)
     raise ValidationAppError(f"Unsupported file type: {file_type}")
@@ -270,6 +274,54 @@ def _extract_txt(file_path: Path) -> ExtractionResult:
         except UnicodeDecodeError:
             continue
     raise ValidationAppError("Unable to decode TXT file")
+
+
+def _extract_markdown(file_path: Path) -> ExtractionResult:
+    """Markdown treated as UTF text with heading hints for section provenance."""
+    result = _extract_txt(file_path)
+    result.metadata["parser"] = "markdown"
+    headings = [
+        line.lstrip("#").strip()
+        for line in (result.full_text or "").splitlines()
+        if line.startswith("#")
+    ]
+    if headings:
+        result.metadata["heading_count"] = str(len(headings))
+        # Stash first few headings for callers that read metadata.
+        for index, heading in enumerate(headings[:20], start=1):
+            result.metadata[f"heading_{index}"] = heading
+    return result
+
+
+def _extract_pptx(file_path: Path) -> ExtractionResult:
+    """Extract slide text via python-pptx (reuse output stack for ingest)."""
+    try:
+        from pptx import Presentation
+    except ImportError as exc:
+        raise ValidationAppError("PPTX support requires python-pptx") from exc
+
+    presentation = Presentation(str(file_path))
+    pages: list[ExtractedPage] = []
+    for index, slide in enumerate(presentation.slides, start=1):
+        parts: list[str] = []
+        for shape in slide.shapes:
+            if hasattr(shape, "text") and shape.text:
+                text = shape.text.strip()
+                if text:
+                    parts.append(text)
+        pages.append(
+            ExtractedPage(
+                page_number=index,
+                text="\n".join(parts),
+            ),
+        )
+    if not pages:
+        pages = [ExtractedPage(page_number=1, text="")]
+    return _finalize(
+        pages,
+        ocr_used=False,
+        metadata={"parser": "python-pptx", "slide_count": str(len(pages))},
+    )
 
 
 def _extract_image(file_path: Path) -> ExtractionResult:

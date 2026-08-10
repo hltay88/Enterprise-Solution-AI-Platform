@@ -56,6 +56,13 @@ from app.models.vendor_bom import (
     VendorCatalogue,
     VendorProduct,
 )
+from app.models.knowledge import (
+    KnowledgeAuditEvent,
+    KnowledgeItem,
+    KnowledgeSource,
+    KnowledgeVersion,
+    TaxonomyDomain,
+)
 
 __all__ = [
     "User",
@@ -107,4 +114,9 @@ __all__ = [
     "ExportJob",
     "DocumentPackage",
     "DocumentPackageMember",
+    "TaxonomyDomain",
+    "KnowledgeItem",
+    "KnowledgeVersion",
+    "KnowledgeSource",
+    "KnowledgeAuditEvent",
 ]

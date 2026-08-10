@@ -899,3 +899,77 @@ export type PackageExport = {
   error?: string | null;
   exported_at?: string | null;
 };
+
+/** Sprint 5.1 Enterprise Knowledge Engine */
+export type KnowledgeItemSummary = {
+  id: string;
+  tenant_id: string | null;
+  project_id: string | null;
+  title: string;
+  description: string | null;
+  knowledge_type: string;
+  domain_code: string;
+  owner_user_id: string | null;
+  sensitivity: string;
+  current_version_id: string | null;
+  status: string | null;
+  version_label: string | null;
+  version_number: number | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type KnowledgeSource = {
+  id: string;
+  original_filename: string;
+  file_type: string;
+  mime_type: string | null;
+  storage_path: string;
+  size_bytes: number;
+  checksum_sha256: string;
+  page_count: number | null;
+  extract_warnings: unknown[];
+  section_hints: unknown[];
+  created_at: string;
+};
+
+export type KnowledgeVersion = {
+  id: string;
+  knowledge_item_id: string;
+  version_number: number;
+  version_label: string;
+  status: string;
+  content_text: string | null;
+  content_location: string | null;
+  change_summary: string | null;
+  metadata: Record<string, unknown>;
+  tags: string[];
+  source_document_name: string | null;
+  created_by: string | null;
+  reviewed_by: string | null;
+  approved_by: string | null;
+  published_by: string | null;
+  reviewed_at: string | null;
+  approved_at: string | null;
+  published_at: string | null;
+  created_at: string;
+  updated_at: string;
+  sources: KnowledgeSource[];
+};
+
+export type KnowledgeItemDetail = KnowledgeItemSummary & {
+  current_version: KnowledgeVersion | null;
+  versions: KnowledgeVersion[];
+};
+
+export type TaxonomyDomain = {
+  code: string;
+  name: string;
+  aliases: string[];
+  active: boolean;
+};
+
+export type KnowledgeType = {
+  code: string;
+  name: string;
+};

@@ -11,6 +11,7 @@ from app.api.routes import (
     v1_documents,
     v1_domains,
     v1_gap,
+    v1_knowledge,
     v1_packages,
     v1_requirements,
     v1_vendors,
@@ -28,3 +29,4 @@ v1_router.include_router(v1_vendors.router)
 v1_router.include_router(v1_bom.router)
 v1_router.include_router(v1_deliverables.router)
 v1_router.include_router(v1_packages.router)
+v1_router.include_router(v1_knowledge.router)

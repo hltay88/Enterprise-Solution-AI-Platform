@@ -69,9 +69,14 @@ export function DashboardView({ user }: DashboardViewProps) {
         <section className="panel">
           <div className="panel-heading">
             <h2>Project history</h2>
-            <Link className="btn-primary btn-compact" href="/projects/new">
-              New project
-            </Link>
+            <div className="button-row">
+              <Link className="btn-secondary btn-compact" href="/knowledge">
+                Knowledge Library
+              </Link>
+              <Link className="btn-primary btn-compact" href="/projects/new">
+                New project
+              </Link>
+            </div>
           </div>
 
           {state.kind === "loading" ? (

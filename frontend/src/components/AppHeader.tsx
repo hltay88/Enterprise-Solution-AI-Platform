@@ -8,9 +8,14 @@ import { clearAccessToken } from "@/lib/auth";
 type AppHeaderProps = {
   userName?: string;
   showDashboardLink?: boolean;
+  showKnowledgeLink?: boolean;
 };
 
-export function AppHeader({ userName, showDashboardLink = false }: AppHeaderProps) {
+export function AppHeader({
+  userName,
+  showDashboardLink = false,
+  showKnowledgeLink = false,
+}: AppHeaderProps) {
   const router = useRouter();
 
   function signOut() {
@@ -28,6 +33,11 @@ export function AppHeader({ userName, showDashboardLink = false }: AppHeaderProp
         {showDashboardLink ? (
           <Link className="nav-link" href="/dashboard">
             Dashboard
+          </Link>
+        ) : null}
+        {showKnowledgeLink || userName ? (
+          <Link className="nav-link" href="/knowledge">
+            Knowledge
           </Link>
         ) : null}
         {userName ? (

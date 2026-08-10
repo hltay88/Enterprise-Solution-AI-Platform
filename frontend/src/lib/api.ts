@@ -122,3 +122,21 @@ export async function apiUploadMany<T>(
   }
   return apiRequest<T>(path, { method: "POST", body: formData, auth });
 }
+
+/** Multipart POST with arbitrary fields + optional single file. */
+export async function apiFormPost<T>(
+  path: string,
+  fields: Record<string, string>,
+  file?: File | null,
+  fileField = "file",
+  auth = true,
+): Promise<T> {
+  const formData = new FormData();
+  for (const [key, value] of Object.entries(fields)) {
+    formData.append(key, value);
+  }
+  if (file) {
+    formData.append(fileField, file);
+  }
+  return apiRequest<T>(path, { method: "POST", body: formData, auth });
+}

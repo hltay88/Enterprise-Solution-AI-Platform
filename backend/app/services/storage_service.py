@@ -68,6 +68,48 @@ class StorageService:
         relative_path = str(Path(str(project_id)) / stored_name)
         return relative_path, size, digest.hexdigest()
 
+    async def save_knowledge_upload(
+        self,
+        *,
+        knowledge_item_id: uuid.UUID,
+        upload: UploadFile,
+        max_bytes: int | None = None,
+    ) -> tuple[str, int, str]:
+        """Save knowledge source under knowledge/{item_id}/ (config via STORAGE_PATH)."""
+        if not upload.filename:
+            raise ValidationAppError("Filename is required")
+
+        limit = max_bytes if max_bytes is not None else self.max_bytes
+        safe_name = _safe_filename(upload.filename)
+        item_dir = self.root / "knowledge" / str(knowledge_item_id)
+        item_dir.mkdir(parents=True, exist_ok=True)
+
+        stored_name = f"{uuid.uuid4().hex}_{safe_name}"
+        absolute_path = item_dir / stored_name
+
+        digest = hashlib.sha256()
+        size = 0
+        with absolute_path.open("wb") as output:
+            while True:
+                chunk = await upload.read(1024 * 1024)
+                if not chunk:
+                    break
+                size += len(chunk)
+                if size > limit:
+                    output.close()
+                    absolute_path.unlink(missing_ok=True)
+                    limit_mb = max(1, limit // (1024 * 1024))
+                    raise ValidationAppError(f"File exceeds maximum size of {limit_mb} MB")
+                digest.update(chunk)
+                output.write(chunk)
+
+        if size == 0:
+            absolute_path.unlink(missing_ok=True)
+            raise ValidationAppError("Uploaded file is empty")
+
+        relative_path = str(Path("knowledge") / str(knowledge_item_id) / stored_name)
+        return relative_path, size, digest.hexdigest()
+
     def absolute_path(self, relative_path: str) -> Path:
         path = (self.root / relative_path).resolve()
         root = self.root.resolve()

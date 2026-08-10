@@ -32,7 +32,21 @@ MIME_BY_TYPE: dict[str, str] = {
     "xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     "csv": "text/csv",
     "txt": "text/plain",
+    "md": "text/markdown",
+    "markdown": "text/markdown",
+    "pptx": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
     "png": "image/png",
     "jpg": "image/jpeg",
     "jpeg": "image/jpeg",
+}
+
+# Sprint 5.1 knowledge ingestion — distinct from requirement-doc allowlist.
+KNOWLEDGE_ALLOWED_EXTENSIONS: dict[str, str] = {
+    ".pdf": "pdf",
+    ".docx": "docx",
+    ".pptx": "pptx",
+    ".xlsx": "xlsx",
+    ".md": "md",
+    ".markdown": "markdown",
+    ".txt": "txt",
 }
