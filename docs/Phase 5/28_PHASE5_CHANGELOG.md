@@ -3,10 +3,11 @@
 ## 0.5.3 — Sprint 5.3
 Multi-agent orchestration (advise-only).
 
-Added: agent registry + runs/tool-call audit; **10** runnable specialists
-(networking, wireless, security, cloud, data_centre, storage, backup, av,
-led_videowall, smart_building); read-only tool gateway; orchestrator APIs;
-Agent Workspace panel on project detail. See `IMPLEMENTATION_SPRINT_5_3.md`.
+Added: agent registry + runs/tool-call audit; **15** runnable specialists covering
+the full Phase 5 taxonomy (networking, wireless, security, cloud, data_centre,
+compute, storage, backup, hci, av, led_videowall, digital_signage, billboard,
+smart_building, iot); read-only tool gateway; orchestrator APIs; Agent Workspace
+panel on project detail. See `IMPLEMENTATION_SPRINT_5_3.md`.
 
 ## 0.5.0
 Enterprise Solution AI Platform baseline.

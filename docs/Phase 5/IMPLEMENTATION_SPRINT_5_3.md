@@ -4,9 +4,10 @@ Status: implemented (Mac-local development target).
 
 ## Scope delivered
 
-- Agent registry (`agents`) with **10 runnable specialists**:
-  networking, wireless, security, cloud, data_centre, storage, backup, av,
-  led_videowall, smart_building
+- Agent registry (`agents`) with **15 runnable specialists** covering the full
+  Phase 5 knowledge taxonomy:
+  networking, wireless, security, cloud, data_centre, compute, storage, backup,
+  hci, av, led_videowall, digital_signage, billboard, smart_building, iot
 - Advise-only orchestrator runs (`agent_runs`) with tool-call audit (`agent_tool_calls`)
 - Read-only tool gateway:
   - `knowledge_search`, `get_project`, `get_published_rkm`
@@ -43,7 +44,6 @@ See `docker/postgres/init/14_phase5_agents.sql` and `ensure_schema()` Sprint 5.3
 
 ## Out of scope (later)
 
-- Taxonomy-only domains without a dedicated agent yet (compute, hci, digital_signage, billboard, iot)
-- ML re-rank / LLM-authored specialist prose as primary path
+- Deeper domain-specific heuristic packs / LLM-authored specialist prose as primary path
 - Collaboration / multi-tenancy (5.4 / 5.5)
 - Auto-apply agent recommendations into design artifacts

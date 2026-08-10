@@ -7,6 +7,7 @@ from uuid import uuid4
 
 import pytest
 
+from app.constants.knowledge_taxonomy import TAXONOMY_CODES
 from app.core.exceptions import ForbiddenError
 from app.schemas.agent import AgentRunRequest, SpecialistOutput
 from app.services.agent_tools import WRITE_TOOLS_DENIED, AgentToolGateway
@@ -27,8 +28,8 @@ def test_write_tools_are_denied():
             gateway.call(tool, {})
 
 
-def test_runnable_agents_cover_full_stub_set():
-    assert set(RUNNABLE_AGENTS) == {
+def test_runnable_agents_cover_full_taxonomy():
+    expected = {
         "networking",
         "wireless",
         "security",
@@ -39,49 +40,41 @@ def test_runnable_agents_cover_full_stub_set():
         "av",
         "led_videowall",
         "smart_building",
+        "compute",
+        "hci",
+        "digital_signage",
+        "billboard",
+        "iot",
     }
+    assert set(RUNNABLE_AGENTS) == expected
     assert RUNNABLE_AGENTS["security"]["domain_code"] == "cybersecurity"
+    covered_domains = {meta["domain_code"] for meta in RUNNABLE_AGENTS.values()}
+    assert TAXONOMY_CODES <= covered_domains
     assert all("query" in meta and "name" in meta for meta in RUNNABLE_AGENTS.values())
 
 
 def test_select_agents_by_include_and_focus():
-    body = AgentRunRequest(include_agents=["networking", "compute", "storage", "cloud"])
-    assert OrchestratorService._select_agents(body) == ["networking", "storage", "cloud"]
+    body = AgentRunRequest(include_agents=["networking", "unknown_xyz", "compute", "iot"])
+    assert OrchestratorService._select_agents(body) == ["networking", "compute", "iot"]
 
-    body2 = AgentRunRequest(focus_domains=["wireless", "cybersecurity", "backup"])
+    body2 = AgentRunRequest(focus_domains=["hci", "cybersecurity", "billboard"])
     selected = OrchestratorService._select_agents(body2)
-    assert set(selected) == {"wireless", "security", "backup"}
+    assert set(selected) == {"hci", "security", "billboard"}
 
 
 def test_merge_conflicts_detects_cross_domain():
     specialists = [
-        SpecialistOutput(
-            agent_id="security",
-            domain_code="cybersecurity",
-            summary="ok",
-            conflicts=["Security vs Cloud: confirm shared-responsibility"],
-        ),
-        SpecialistOutput(
-            agent_id="cloud",
-            domain_code="cloud",
-            summary="ok",
-        ),
-        SpecialistOutput(
-            agent_id="storage",
-            domain_code="storage",
-            summary="ok",
-        ),
-        SpecialistOutput(
-            agent_id="backup",
-            domain_code="backup",
-            summary="ok",
-        ),
+        SpecialistOutput(agent_id="security", domain_code="cybersecurity", summary="ok"),
+        SpecialistOutput(agent_id="cloud", domain_code="cloud", summary="ok"),
+        SpecialistOutput(agent_id="hci", domain_code="hci", summary="ok"),
+        SpecialistOutput(agent_id="compute", domain_code="compute", summary="ok"),
+        SpecialistOutput(agent_id="iot", domain_code="iot", summary="ok"),
     ]
     conflicts = OrchestratorService._merge_conflicts(specialists)
     codes = {c.code for c in conflicts}
-    assert "security_cloud" in codes or any("cloud" in c.summary.lower() for c in conflicts)
-    assert "storage_backup" in codes
-    assert any(c.agents for c in conflicts)
+    assert "security_cloud" in codes
+    assert "hci_compute" in codes
+    assert "iot_security" in codes
 
 
 class _FakeGateway:
@@ -105,7 +98,10 @@ class _FakeGateway:
                     {"code": "cybersecurity", "name": "Security"},
                     {"code": "cloud", "name": "Cloud"},
                     {"code": "storage", "name": "Storage"},
-                    {"code": "backup", "name": "Backup"},
+                    {"code": "compute", "name": "Compute"},
+                    {"code": "hci", "name": "HCI"},
+                    {"code": "iot", "name": "IoT"},
+                    {"code": "smart_building", "name": "Smart Building"},
                 ],
             }
         if tool_name == "get_architectures":
@@ -140,15 +136,15 @@ def test_specialist_heuristic_local_assessment():
     assert out.conflicts  # wireless vs security hint
 
 
-def test_former_stub_specialists_run():
+def test_all_runnable_specialists_execute():
     tools = _FakeGateway()
-    for agent_id in ("storage", "backup", "data_centre", "av", "led_videowall", "smart_building"):
+    for agent_id in RUNNABLE_AGENTS:
         out = run_specialist(agent_id, tools)  # type: ignore[arg-type]
-        assert out.status == "ok"
+        assert out.status == "ok", agent_id
         assert out.agent_id == agent_id
         assert out.confidence > 0
 
 
 def test_specialist_unknown_is_blocked():
-    out = run_specialist("compute", _FakeGateway())  # type: ignore[arg-type]
+    out = run_specialist("not_a_real_agent", _FakeGateway())  # type: ignore[arg-type]
     assert out.status == "blocked"

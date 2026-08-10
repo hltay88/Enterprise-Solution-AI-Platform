@@ -58,7 +58,12 @@ VALUES
     ('backup', 'Backup Specialist', 'backup', 'Backup and recovery advisory', TRUE, TRUE, '1.0.0'),
     ('av', 'AV Specialist', 'av', 'AV / collaboration room advisory', TRUE, TRUE, '1.0.0'),
     ('led_videowall', 'LED / Digital Signage Specialist', 'led_videowall', 'LED videowall and digital signage advisory', TRUE, TRUE, '1.0.0'),
-    ('smart_building', 'Smart Building / IoT Specialist', 'smart_building', 'Smart building / IoT advisory', TRUE, TRUE, '1.0.0')
+    ('smart_building', 'Smart Building / IoT Specialist', 'smart_building', 'Smart building / IoT advisory', TRUE, TRUE, '1.0.0'),
+    ('compute', 'Compute Specialist', 'compute', 'Compute and virtualization advisory', TRUE, TRUE, '1.0.0'),
+    ('hci', 'HCI Specialist', 'hci', 'Hyperconverged infrastructure advisory', TRUE, TRUE, '1.0.0'),
+    ('digital_signage', 'Digital Signage Specialist', 'digital_signage', 'Digital signage platform advisory', TRUE, TRUE, '1.0.0'),
+    ('billboard', 'Billboard Specialist', 'billboard', 'Outdoor billboard / DOOH advisory', TRUE, TRUE, '1.0.0'),
+    ('iot', 'IoT Specialist', 'iot', 'IoT / CCTV / telemetry advisory', TRUE, TRUE, '1.0.0')
 ON CONFLICT (id) DO UPDATE SET
     name = EXCLUDED.name,
     domain_code = EXCLUDED.domain_code,

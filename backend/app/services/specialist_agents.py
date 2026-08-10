@@ -68,6 +68,36 @@ RUNNABLE_AGENTS: dict[str, dict[str, str]] = {
         "query": "smart building IoT BMS sensors OT network segmentation building systems",
         "description": "Smart building / IoT advisory",
     },
+    "compute": {
+        "name": "Compute Specialist",
+        "domain_code": "compute",
+        "query": "compute virtualization server hypervisor capacity HA clustering workload placement",
+        "description": "Compute and virtualization advisory",
+    },
+    "hci": {
+        "name": "HCI Specialist",
+        "domain_code": "hci",
+        "query": "HCI hyperconverged infrastructure cluster sizing storage compute networking",
+        "description": "Hyperconverged infrastructure advisory",
+    },
+    "digital_signage": {
+        "name": "Digital Signage Specialist",
+        "domain_code": "digital_signage",
+        "query": "digital signage CMS players displays content scheduling network",
+        "description": "Digital signage platform advisory",
+    },
+    "billboard": {
+        "name": "Billboard Specialist",
+        "domain_code": "billboard",
+        "query": "outdoor billboard LED DOOH structural power brightness compliance",
+        "description": "Outdoor billboard / DOOH advisory",
+    },
+    "iot": {
+        "name": "IoT Specialist",
+        "domain_code": "iot",
+        "query": "IoT sensors CCTV edge gateways telemetry OT security device management",
+        "description": "IoT / CCTV / telemetry advisory",
+    },
 }
 
 
@@ -305,5 +335,33 @@ def _conflict_hints(agent_id: str, domain_codes: set[str]) -> list[str]:
     if agent_id == "led_videowall" and "av" in domain_codes:
         hints.append(
             "LED vs AV: confirm control-system ownership, content workflow, and power/heat budgets.",
+        )
+    if agent_id == "compute" and "storage" in domain_codes:
+        hints.append(
+            "Compute vs Storage: confirm datastore attachment model, IOPS budget, and HA failover domains.",
+        )
+    if agent_id == "hci" and ("compute" in domain_codes or "storage" in domain_codes):
+        hints.append(
+            "HCI vs Compute/Storage: confirm whether HCI replaces or coexists with discrete compute/storage stacks.",
+        )
+    if agent_id == "hci" and "backup" in domain_codes:
+        hints.append(
+            "HCI vs Backup: confirm cluster-native snapshots vs external backup catalogue and RPO/RTO.",
+        )
+    if agent_id == "digital_signage" and "networking" in domain_codes:
+        hints.append(
+            "Digital Signage vs Networking: confirm bandwidth, VLAN isolation, and player connectivity model.",
+        )
+    if agent_id == "billboard" and ("led_videowall" in domain_codes or "digital_signage" in domain_codes):
+        hints.append(
+            "Billboard vs LED/Signage: confirm outdoor structural/power/brightness vs indoor display standards.",
+        )
+    if agent_id == "iot" and has_security:
+        hints.append(
+            "IoT vs Security: confirm device identity, certificate lifecycle, and OT/IT segmentation.",
+        )
+    if agent_id == "iot" and "smart_building" in domain_codes:
+        hints.append(
+            "IoT vs Smart Building: confirm shared BMS/edge platform ownership and data paths.",
         )
     return hints
