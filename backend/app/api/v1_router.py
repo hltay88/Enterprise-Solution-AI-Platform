@@ -3,6 +3,7 @@
 from fastapi import APIRouter
 
 from app.api.routes import (
+    v1_agents,
     v1_architecture,
     v1_architectures,
     v1_audit,
@@ -32,3 +33,4 @@ v1_router.include_router(v1_deliverables.router)
 v1_router.include_router(v1_packages.router)
 v1_router.include_router(v1_knowledge.router)
 v1_router.include_router(v1_retrieval.router)
+v1_router.include_router(v1_agents.router)

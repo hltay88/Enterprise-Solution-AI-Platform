@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { AgentWorkspacePanel } from "@/components/AgentWorkspacePanel";
 import { AnalysisPanel } from "@/components/AnalysisPanel";
 import { ArchitectureComparePanel } from "@/components/ArchitectureComparePanel";
 import { VendorAnalyticsPanel } from "@/components/VendorAnalyticsPanel";
@@ -148,6 +149,10 @@ function ProjectDetailContent({ userName }: { userName: string }) {
               }}
             />
             <SolutionDomainPanel
+              projectId={projectId}
+              refreshToken={rkmRefreshToken}
+            />
+            <AgentWorkspacePanel
               projectId={projectId}
               refreshToken={rkmRefreshToken}
             />

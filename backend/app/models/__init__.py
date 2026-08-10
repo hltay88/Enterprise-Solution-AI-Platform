@@ -56,6 +56,7 @@ from app.models.vendor_bom import (
     VendorCatalogue,
     VendorProduct,
 )
+from app.models.agent import Agent, AgentRun, AgentToolCall
 from app.models.knowledge import (
     KnowledgeAuditEvent,
     KnowledgeChunk,
@@ -125,4 +126,7 @@ __all__ = [
     "KnowledgeChunk",
     "RetrievalRun",
     "RetrievalResult",
+    "Agent",
+    "AgentRun",
+    "AgentToolCall",
 ]

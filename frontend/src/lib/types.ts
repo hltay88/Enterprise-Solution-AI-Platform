@@ -1012,3 +1012,85 @@ export type RetrievalSearchResult = {
   hits: RetrievalHit[];
   citations?: RetrievalCitation[];
 };
+
+export type AgentSummary = {
+  id: string;
+  name: string;
+  domain_code: string;
+  description: string;
+  enabled: boolean;
+  runnable: boolean;
+  version: string;
+};
+
+export type AgentCitation = {
+  source_kind: string;
+  title: string;
+  knowledge_id?: string | null;
+  knowledge_version_id?: string | null;
+  chunk_id?: string | null;
+  domain_code?: string | null;
+  excerpt?: string;
+  ref_label?: string | null;
+};
+
+export type SpecialistFinding = {
+  code: string;
+  statement: string;
+  severity: string;
+  evidence?: string[];
+};
+
+export type SpecialistOutput = {
+  agent_id: string;
+  domain_code: string;
+  status: string;
+  summary: string;
+  findings: SpecialistFinding[];
+  assumptions: string[];
+  risks: string[];
+  recommendations: string[];
+  conflicts: string[];
+  confidence: number;
+  citations: AgentCitation[];
+  tools_used: string[];
+};
+
+export type OrchestratorConflict = {
+  code: string;
+  summary: string;
+  agents: string[];
+  severity: string;
+};
+
+export type AgentToolCall = {
+  id: string;
+  agent_id?: string | null;
+  tool_name: string;
+  ok: boolean;
+  error?: string | null;
+  latency_ms?: number | null;
+  created_at: string;
+};
+
+export type AgentRunSummary = {
+  id: string;
+  project_id: string;
+  status: string;
+  goal?: string | null;
+  focus_domains: string[];
+  overall_confidence?: number | null;
+  conflict_count: number;
+  created_at: string;
+  completed_at?: string | null;
+};
+
+export type AgentRunDetail = AgentRunSummary & {
+  input: Record<string, unknown>;
+  output: Record<string, unknown>;
+  specialists: SpecialistOutput[];
+  conflicts: OrchestratorConflict[];
+  tool_calls: AgentToolCall[];
+  error?: string | null;
+  review_required: boolean;
+};
