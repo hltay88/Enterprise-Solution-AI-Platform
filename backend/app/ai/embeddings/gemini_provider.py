@@ -34,7 +34,7 @@ class GeminiEmbeddingProvider(EmbeddingProvider):
         self._api_key = api_key or settings.effective_gemini_api_key
         if not self._api_key:
             raise ValidationAppError("GEMINI_API_KEY is required for Gemini embeddings")
-        self._model = (model or settings.atlas_embedding_model or "text-embedding-004").strip()
+        self._model = (model or settings.atlas_embedding_model or "gemini-embedding-001").strip()
         self._dimensions = int(dimensions or settings.atlas_embedding_dims or 384)
 
     @property

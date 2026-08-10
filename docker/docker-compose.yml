@@ -64,7 +64,7 @@ services:
       # OPENAI_API_KEY stays env_file-only to avoid Compose $ mangling.
       OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
       ATLAS_AI_PROVIDER: ${ATLAS_AI_PROVIDER:-auto}
-      ATLAS_EMBEDDING_PROVIDER: ${ATLAS_EMBEDDING_PROVIDER:-auto}
+      ATLAS_EMBEDDING_PROVIDER: ${ATLAS_EMBEDDING_PROVIDER:-local}
       ATLAS_EMBEDDING_DIMS: ${ATLAS_EMBEDDING_DIMS:-384}
       STORAGE_PATH: ${STORAGE_PATH:-/app/storage/uploads}
       MAX_UPLOAD_MB: ${MAX_UPLOAD_MB:-50}

@@ -34,8 +34,9 @@ OPENAI_MODEL=gpt-4o-mini
 ATLAS_AI_PROVIDER=auto
 
 # Sprint 5.2 RAG embeddings (provider-neutral)
-# auto = Gemini (if keyed) -> OpenAI (if keyed) -> local hash embedder
-ATLAS_EMBEDDING_PROVIDER=auto
+# local = deterministic hash (recommended for Mac offline / reliable default)
+# auto = Gemini (if keyed) -> OpenAI (if keyed) -> local, with runtime fallback
+ATLAS_EMBEDDING_PROVIDER=local
 ATLAS_EMBEDDING_MODEL=
 ATLAS_EMBEDDING_DIMS=384
 ATLAS_KNOWLEDGE_CHUNK_SIZE=1000
