@@ -41,6 +41,11 @@ export function AppHeader({
           </Link>
         ) : null}
         {userName ? (
+          <Link className="nav-link" href="/governance">
+            Governance
+          </Link>
+        ) : null}
+        {userName ? (
           <>
             <span className="nav-user">{userName}</span>
             <button className="btn-secondary btn-compact" type="button" onClick={signOut}>

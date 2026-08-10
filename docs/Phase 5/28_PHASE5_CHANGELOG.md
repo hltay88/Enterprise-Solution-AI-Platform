@@ -1,5 +1,13 @@
 # Phase 5 Changelog
 
+## 0.5.4 — Sprint 5.4
+Collaboration & governance MVP.
+
+Added: project comments; review/approval requests; activity timeline; permission
+catalog on editor/approver; consolidated audit-events + login audit; usage
+records/summary with retrieval + agent hooks; Collaboration panel and
+`/governance` page. See `IMPLEMENTATION_SPRINT_5_4.md`.
+
 ## 0.5.3 — Sprint 5.3
 Multi-agent orchestration (advise-only).
 

@@ -24,3 +24,4 @@ Canonical docs are organized by phase. Prefer these paths; do not create paralle
   · Sprint 5.1 implementation: [Phase 5/IMPLEMENTATION_SPRINT_5_1.md](./Phase%205/IMPLEMENTATION_SPRINT_5_1.md)
   · Sprint 5.2 implementation: [Phase 5/IMPLEMENTATION_SPRINT_5_2.md](./Phase%205/IMPLEMENTATION_SPRINT_5_2.md)
   · Sprint 5.3 implementation: [Phase 5/IMPLEMENTATION_SPRINT_5_3.md](./Phase%205/IMPLEMENTATION_SPRINT_5_3.md)
+  · Sprint 5.4 implementation: [Phase 5/IMPLEMENTATION_SPRINT_5_4.md](./Phase%205/IMPLEMENTATION_SPRINT_5_4.md)

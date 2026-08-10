@@ -186,6 +186,32 @@ class OrchestratorService:
                 metadata={"agents": selected, "conflicts": len(conflicts)},
                 commit=False,
             )
+            try:
+                from app.services.usage_service import UsageService
+
+                started = run.started_at or run.created_at
+                completed = run.completed_at
+                latency = None
+                if started and completed:
+                    latency = int((completed - started).total_seconds() * 1000)
+                UsageService(self.db).record(
+                    event_type="agent_run",
+                    user_id=user.id,
+                    project_id=project_id,
+                    provider="local",
+                    model="orchestrator",
+                    latency_ms=latency,
+                    success=True,
+                    metadata={
+                        "run_id": str(run.id),
+                        "agents": selected,
+                        "conflict_count": len(conflicts),
+                        "review_required": review_required,
+                    },
+                    commit=False,
+                )
+            except Exception:
+                pass
             self.db.commit()
         except Exception as exc:
             run.status = "failed"

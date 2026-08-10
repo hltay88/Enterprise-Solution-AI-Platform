@@ -18,7 +18,7 @@ class AuditRepository:
     def create(
         self,
         *,
-        project_id: UUID,
+        project_id: UUID | None,
         user_id: UUID | None,
         action: str,
         summary: str,
@@ -51,4 +51,16 @@ class AuditRepository:
             .order_by(AuditLog.created_at.desc())
             .limit(max(1, min(limit, 500)))
         )
+        return list(self.db.scalars(statement).all())
+
+    def list_events(
+        self,
+        *,
+        project_id: UUID | None = None,
+        limit: int = 100,
+    ) -> list[AuditLog]:
+        statement = select(AuditLog).order_by(AuditLog.created_at.desc())
+        if project_id is not None:
+            statement = statement.where(AuditLog.project_id == project_id)
+        statement = statement.limit(max(1, min(limit, 500)))
         return list(self.db.scalars(statement).all())

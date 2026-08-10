@@ -13,6 +13,7 @@ import { BomValidationPanel } from "@/components/BomValidationPanel";
 import { AppHeader } from "@/components/AppHeader";
 import { AuditLogPanel } from "@/components/AuditLogPanel";
 import { ClarificationPanel } from "@/components/ClarificationPanel";
+import { CollaborationPanel } from "@/components/CollaborationPanel";
 import { DeliverablesPanel } from "@/components/DeliverablesPanel";
 import { PackagePanel } from "@/components/PackagePanel";
 import { DocumentUploadPanel } from "@/components/DocumentUploadPanel";
@@ -153,6 +154,10 @@ function ProjectDetailContent({ userName }: { userName: string }) {
               refreshToken={rkmRefreshToken}
             />
             <AgentWorkspacePanel
+              projectId={projectId}
+              refreshToken={rkmRefreshToken}
+            />
+            <CollaborationPanel
               projectId={projectId}
               refreshToken={rkmRefreshToken}
             />

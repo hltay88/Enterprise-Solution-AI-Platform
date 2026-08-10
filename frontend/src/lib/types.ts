@@ -1094,3 +1094,76 @@ export type AgentRunDetail = AgentRunSummary & {
   error?: string | null;
   review_required: boolean;
 };
+
+export type CommentItem = {
+  id: string;
+  project_id: string;
+  user_id?: string | null;
+  parent_id?: string | null;
+  body: string;
+  resource_type?: string | null;
+  resource_id?: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type ReviewRequest = {
+  id: string;
+  project_id: string;
+  resource_type: string;
+  resource_id?: string | null;
+  requested_by?: string | null;
+  assignee_id?: string | null;
+  status: string;
+  message: string;
+  resolution_note?: string | null;
+  created_at: string;
+  completed_at?: string | null;
+};
+
+export type ApprovalRequest = {
+  id: string;
+  project_id: string;
+  resource_type: string;
+  resource_id?: string | null;
+  requested_by?: string | null;
+  assignee_id?: string | null;
+  status: string;
+  message: string;
+  resolution_note?: string | null;
+  resolved_by?: string | null;
+  created_at: string;
+  resolved_at?: string | null;
+};
+
+export type ActivityItem = {
+  kind: string;
+  id: string;
+  project_id?: string | null;
+  summary: string;
+  actor_user_id?: string | null;
+  resource_type?: string | null;
+  resource_id?: string | null;
+  created_at: string;
+  metadata?: Record<string, unknown>;
+};
+
+export type AuditEvent = {
+  id: string;
+  project_id?: string | null;
+  user_id?: string | null;
+  action: string;
+  resource_type?: string | null;
+  resource_id?: string | null;
+  summary: string;
+  metadata?: Record<string, unknown>;
+  created_at: string;
+};
+
+export type UsageSummary = {
+  total: number;
+  success_count: number;
+  failure_count: number;
+  by_event_type: Record<string, number>;
+  avg_latency_ms?: number | null;
+};

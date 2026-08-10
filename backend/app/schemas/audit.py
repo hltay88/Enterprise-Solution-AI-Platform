@@ -13,7 +13,7 @@ class AuditLogOut(BaseModel):
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
     id: UUID
-    project_id: UUID
+    project_id: UUID | None = None
     user_id: UUID | None = None
     action: str
     resource_type: str | None = None

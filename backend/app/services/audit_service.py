@@ -22,7 +22,7 @@ class AuditService:
     def record(
         self,
         *,
-        project_id: UUID,
+        project_id: UUID | None,
         user_id: UUID | None,
         action: str,
         summary: str,
@@ -53,4 +53,13 @@ class AuditService:
         if self.projects.get_for_user(project_id, user_id) is None:
             raise NotFoundError("Project not found")
         rows = self.audits.list_for_project(project_id, limit=limit)
+        return [AuditLogOut.model_validate(row) for row in rows]
+
+    def list_events(
+        self,
+        *,
+        project_id: UUID | None = None,
+        limit: int = 100,
+    ) -> list[AuditLogOut]:
+        rows = self.audits.list_events(project_id=project_id, limit=limit)
         return [AuditLogOut.model_validate(row) for row in rows]

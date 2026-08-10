@@ -105,6 +105,26 @@ class RetrievalService:
             )
         self.db.commit()
 
+        try:
+            from app.services.usage_service import UsageService
+
+            UsageService(self.db).record(
+                event_type="retrieval",
+                user_id=user.id,
+                project_id=body.project_id,
+                provider=self.embedder.name,
+                model=self.embedder.model,
+                latency_ms=latency_ms,
+                success=True,
+                metadata={
+                    "run_id": str(run.id),
+                    "result_count": len(out_hits),
+                    "insufficient_evidence": insufficient,
+                },
+            )
+        except Exception:
+            pass
+
         return RetrievalSearchOut(
             run_id=run.id,
             query=query,

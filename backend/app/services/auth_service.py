@@ -15,18 +15,41 @@ from app.core.security import (
 from app.models.user import User
 from app.repositories.user_repository import UserRepository
 from app.schemas.auth import LoginData, UserPublic
+from app.services.audit_service import AuditService
 
 
 class AuthService:
     def __init__(self, db: Session) -> None:
+        self.db = db
         self.users = UserRepository(db)
 
     def login(self, *, email: str, password: str) -> LoginData:
-        user = self.users.get_by_email(email.lower().strip())
+        cleaned = email.lower().strip()
+        user = self.users.get_by_email(cleaned)
         if user is None or not verify_password(password, user.password_hash):
+            try:
+                AuditService(self.db).record(
+                    project_id=None,
+                    user_id=None,
+                    action="auth.login.failed",
+                    summary="Login failed",
+                    metadata={"email": cleaned},
+                )
+            except Exception:
+                pass
             raise UnauthorizedError("Invalid email or password")
 
         token = create_access_token(user_id=user.id, email=user.email)
+        try:
+            AuditService(self.db).record(
+                project_id=None,
+                user_id=user.id,
+                action="auth.login",
+                summary="Login succeeded",
+                metadata={"email": user.email},
+            )
+        except Exception:
+            pass
         return LoginData(
             access_token=token,
             user=UserPublic.model_validate(user),

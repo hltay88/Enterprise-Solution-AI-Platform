@@ -21,10 +21,10 @@ class AuditLog(Base):
         primary_key=True,
         server_default=func.gen_random_uuid(),
     )
-    project_id: Mapped[uuid.UUID] = mapped_column(
+    project_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("projects.id", ondelete="CASCADE"),
-        nullable=False,
+        nullable=True,
         index=True,
     )
     user_id: Mapped[uuid.UUID | None] = mapped_column(

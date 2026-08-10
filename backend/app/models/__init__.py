@@ -57,6 +57,7 @@ from app.models.vendor_bom import (
     VendorProduct,
 )
 from app.models.agent import Agent, AgentRun, AgentToolCall
+from app.models.collaboration import ApprovalRequest, Comment, ReviewRequest, UsageRecord
 from app.models.knowledge import (
     KnowledgeAuditEvent,
     KnowledgeChunk,
@@ -129,4 +130,8 @@ __all__ = [
     "Agent",
     "AgentRun",
     "AgentToolCall",
+    "Comment",
+    "ReviewRequest",
+    "ApprovalRequest",
+    "UsageRecord",
 ]
