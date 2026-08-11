@@ -2,8 +2,8 @@
 
 Project Atlas — an AI presales assistant (login → create project → upload requirement doc →
 AI requirement analysis → clarification questions → Draft/Published RKM → architecture).
-Docs index: `docs/README.md`. Phase packs live under `docs/Phase 1/`, `docs/Phase 2/`,
-`docs/Phase 3/` (spaces + capital P — do not recreate parallel trees like `docs/Phase3/`).
+Docs index: `docs/README.md`. Phase packs live under `docs/Phase 1/` through
+`docs/Phase 5/` (spaces + capital P — do not recreate parallel trees like `docs/Phase3/`).
 
 For **Mac Docker one-command start/stop**, use `./start-atlas.sh` / `./stop-atlas.sh`
 (see `docs/Phase 1/LOCAL_START.md`). Cloud agents still prefer the native Postgres + uvicorn +
@@ -50,6 +50,12 @@ Health check: `curl -s http://localhost:8000/api/health` → `status: ok`, `data
 
 ### Lint / test / build
 
-- Frontend lint: `cd frontend && npm run lint` (currently passes with only `react-hooks/exhaustive-deps` warnings).
-- There is **no automated test suite** (no pytest, no frontend test script) in this repo.
+- Backend tests: `cd backend && .venv/bin/pytest -q` (the repository has an extensive pytest suite).
+- Frontend dependencies: `cd frontend && npm install` when `node_modules/` is absent.
+- Frontend lint: `cd frontend && npm run lint`.
 - Frontend production build (optional): `cd frontend && npm run build`. Dev uses `npm run dev`.
+
+If `node` or `npm` is unavailable in Codex Desktop, call the workspace-dependency loader and
+use the Node.js executable it returns. After dependencies have been installed, lint can be run
+without npm as `<node-executable> node_modules/next/dist/bin/next lint`. Do not treat a missing
+global npm executable as a frontend failure.

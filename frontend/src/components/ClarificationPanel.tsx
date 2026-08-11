@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { apiGet, apiPost, ApiClientError } from "@/lib/api";
 import type { ClarificationQuestion } from "@/lib/types";
@@ -20,7 +20,7 @@ export function ClarificationPanel({ projectId }: ClarificationPanelProps) {
   const [running, setRunning] = useState(false);
   const [runError, setRunError] = useState<string | null>(null);
 
-  async function loadQuestions() {
+  const loadQuestions = useCallback(async () => {
     try {
       const questions = await apiGet<ClarificationQuestion[]>(
         `/api/projects/${projectId}/clarifications`,
@@ -40,11 +40,11 @@ export function ClarificationPanel({ projectId }: ClarificationPanelProps) {
             : "Unable to load clarification questions",
       });
     }
-  }
+  }, [projectId]);
 
   useEffect(() => {
     void loadQuestions();
-  }, [projectId]);
+  }, [loadQuestions]);
 
   async function generateQuestions() {
     setRunning(true);

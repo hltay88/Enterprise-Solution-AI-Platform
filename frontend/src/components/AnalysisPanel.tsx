@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { apiGet, apiPost, ApiClientError } from "@/lib/api";
 import type { AiStatus, AnalysisResult } from "@/lib/types";
@@ -41,16 +41,16 @@ export function AnalysisPanel({ projectId }: AnalysisPanelProps) {
   const [runError, setRunError] = useState<string | null>(null);
   const [aiStatus, setAiStatus] = useState<AiStatus | null>(null);
 
-  async function loadAiStatus() {
+  const loadAiStatus = useCallback(async () => {
     try {
       const status = await apiGet<AiStatus>("/api/ai/status", true);
       setAiStatus(status);
     } catch {
       setAiStatus(null);
     }
-  }
+  }, []);
 
-  async function loadAnalysis() {
+  const loadAnalysis = useCallback(async () => {
     try {
       const analysis = await apiGet<AnalysisResult>(
         `/api/projects/${projectId}/analysis`,
@@ -70,12 +70,12 @@ export function AnalysisPanel({ projectId }: AnalysisPanelProps) {
             : "Unable to load analysis",
       });
     }
-  }
+  }, [projectId]);
 
   useEffect(() => {
     void loadAnalysis();
     void loadAiStatus();
-  }, [projectId]);
+  }, [loadAiStatus, loadAnalysis]);
 
   async function runAnalysis() {
     setRunning(true);
